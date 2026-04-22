@@ -1,0 +1,128 @@
+/* src/components/common/Navbar.css */
+
+.navbar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  height: 56px;
+  background: #ffffff;
+  border-bottom: 1px solid #e8edf5;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-sizing: border-box;
+}
+
+.navbar-logo {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #0F2854;
+  text-decoration: none;
+  letter-spacing: -0.5px;
+}
+
+.navbar-menu {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.navbar-link {
+  font-size: 0.9rem;
+  color: #444;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.navbar-link:hover {
+  color: #1C4D8D;
+}
+
+.navbar-username {
+  color: #1C4D8D;
+  font-weight: 600;
+}
+
+.navbar-btn {
+  background: #0F2854;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 18px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Noto Sans KR', sans-serif;
+  transition: background 0.15s;
+}
+
+.navbar-btn:hover {
+  background: #1C4D8D;
+}
+
+/* ── 로그아웃 모달 ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.modal-box {
+  background: white;
+  border-radius: 16px;
+  padding: 36px 40px;
+  width: 340px;
+  text-align: left;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.15);
+}
+
+.modal-icon {
+  margin-bottom: 16px;
+}
+
+.modal-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+
+.modal-desc {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 24px;
+}
+
+.modal-confirm-btn {
+  float: right;
+  background: #0F2854;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 9px 22px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Noto Sans KR', sans-serif;
+  transition: background 0.15s;
+}
+
+.modal-confirm-btn:hover {
+  background: #1C4D8D;
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0 20px;
+  }
+
+  .navbar-menu {
+    gap: 16px;
+  }
+}
