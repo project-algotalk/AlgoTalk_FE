@@ -1,4 +1,4 @@
-// src/pages/main/MainPage.jsx
+import Spline from '@splinetool/react-spline'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../../components/common/Navbar'
@@ -8,6 +8,7 @@ import './MainPage.css'
 export default function MainPage() {
   const navigate = useNavigate()
   const { isLoggedIn, user } = useAuthStore()
+  const [splineLoaded, setSplineLoaded] = useState(false)
 
   const features = [
     {
@@ -33,20 +34,25 @@ export default function MainPage() {
 
       {/* Hero 섹션 */}
       <section className="hero">
-        <div className="hero-overlay" />
+        <div className="hero-spline">
+          {!splineLoaded && (
+            <div className="hero-spline-loading">
+              {/* 로딩 중엔 그라디언트 배경만 보여줌 */}
+            </div>
+          )}
+          <Spline
+            scene="https://prod.spline.design/CHxjAiSZ4qvmdC8Y/scene.splinecode"
+            onLoad={() => setSplineLoaded(true)}
+            style={{ opacity: splineLoaded ? 1 : 0, transition: 'opacity 0.5s' }}
+          />
+        </div>
         <div className="hero-content">
           <h1 className="hero-title">
-            AI와 함께하는<br />
-            기술 면접 준비
+            AI와 함께하는<br />기술 면접 준비
           </h1>
-          <p className="hero-subtitle">
-            실전처럼 연습하고, 데이터로 성장하세요
-          </p>
+          <p className="hero-subtitle">실전처럼 연습하고, 데이터로 성장하세요</p>
           <div className="hero-divider" />
-          <button
-            className="hero-btn"
-            onClick={() => navigate(isLoggedIn ? '/interview' : '/login')}
-          >
+          <button className="hero-btn" onClick={() => navigate(isLoggedIn ? '/interview' : '/login')}>
             면접 보기
           </button>
         </div>

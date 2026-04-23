@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import PrivateRoute from './components/common/PrivateRoute'
+import SignupStepGuard from './components/common/SignupStepGuard'
 
 // Main
 import MainPage from './pages/main/MainPage'
@@ -39,8 +40,12 @@ export default function App() {
         {/* 인증 불필요 */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupStep1Page />} />
-        <Route path="/signup/step2" element={<SignupStep2Page />} />
-        <Route path="/signup/step3" element={<SignupStep3Page />} />
+        <Route element={<SignupStepGuard requiredKey="signup-step1" />}>
+          <Route path="/signup/step2" element={<SignupStep2Page />} />
+        </Route>
+        <Route element={<SignupStepGuard requiredKey="signup-step2" />}>
+          <Route path="/signup/step3" element={<SignupStep3Page />} />
+        </Route>
         <Route path="/signup/complete" element={<SignupCompletePage />} />
 
         {/* 게시판 열람은 비로그인 가능 */}

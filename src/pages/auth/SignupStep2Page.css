@@ -1,0 +1,285 @@
+/* src/pages/auth/SignupStep2Page.css */
+
+.su2-page {
+  width: 100%;
+  min-height: 100vh;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Navbar ── */
+.su2-nav {
+  width: 100%;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  border-bottom: 1px solid #e0e0e0;
+  box-sizing: border-box;
+}
+.su2-nav-back {
+  width: 40px; height: 40px;
+  background: none; border: none;
+  font-size: 1.4rem; color: #444;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 6px;
+}
+.su2-nav-back:hover { background: #f5f5f5; }
+.su2-nav-logo {
+  font-size: 1.2rem; font-weight: 800;
+  color: #0F2854; letter-spacing: -0.5px;
+}
+
+/* ── 컨테이너 ── */
+.su2-container {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 32px 24px 60px;
+  box-sizing: border-box;
+}
+
+/* ── 스텝 인디케이터 ── */
+.su2-steps {
+  display: flex;
+  align-items: center;
+  margin-bottom: 32px;
+}
+.su2-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.su2-step-circle {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: #e0e0e0;
+  color: #aaa;
+  font-size: 0.875rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.su2-step-circle.active {
+  background: #1a1a1a;
+  color: #fff;
+}
+.su2-step-circle.done {
+  background: #1a7f4b;
+  color: #fff;
+}
+.su2-step-label {
+  font-size: 0.95rem; font-weight: 600;
+  color: #aaa;
+}
+.su2-step-label.active { color: #1a1a1a; }
+.su2-step-label.done   { color: #1a7f4b; }
+.su2-step-line {
+  flex: 1;
+  height: 1px;
+  background: #e0e0e0;
+  margin: 0 12px;
+}
+.su2-step-line.done { background: #1a7f4b; }
+
+/* ── 안내 문구 ── */
+.su2-guide-title {
+  font-size: 1rem; font-weight: 700;
+  color: #1a1a1a; margin-bottom: 6px;
+}
+.su2-guide-sub {
+  font-size: 0.875rem; font-weight: 400;
+  color: #888;
+}
+.su2-guide-desc {
+  font-size: 0.85rem; color: #888;
+  margin-bottom: 20px;
+}
+.su2-guide-em { font-weight: 600; color: #1a1a1a; }
+
+/* ── 대분류 탭 ── */
+.su2-tabs {
+  display: flex;
+  border-bottom: 1.5px solid #e0e0e0;
+  margin-bottom: 0;
+  gap: 0;
+}
+.su2-tab {
+  padding: 10px 16px;
+  font-size: 0.9rem; font-weight: 500;
+  color: #aaa;
+  background: none; border: none;
+  border-bottom: 2.5px solid transparent;
+  margin-bottom: -1.5px;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: 'Noto Sans KR', sans-serif;
+  transition: color 0.15s;
+}
+.su2-tab:hover { color: #555; }
+.su2-tab.active {
+  color: #1a1a1a;
+  font-weight: 700;
+  border-bottom-color: #1a1a1a;
+}
+
+/* ── 탭 설명 ── */
+.su2-tab-desc {
+  font-size: 0.82rem; color: #aaa;
+  margin: 12px 0 14px;
+}
+
+/* ── 중분류 칩 ── */
+.su2-job-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.su2-job-chip {
+  padding: 8px 18px;
+  border: 1.5px solid #d0d0d0;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-family: 'Noto Sans KR', sans-serif;
+  background: #fff;
+  color: #444;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.su2-job-chip:hover:not(.disabled) {
+  border-color: #888;
+}
+.su2-job-chip.selected {
+  background: #1a1a1a;
+  border-color: #1a1a1a;
+  color: #fff;
+  font-weight: 600;
+}
+.su2-job-chip.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── 선택된 직무 박스 ── */
+.su2-selected-box {
+  background: #f5f5f5;
+  border-radius: 8px;
+  padding: 16px 18px;
+  margin-bottom: 28px;
+  min-height: 80px;
+}
+.su2-selected-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.su2-selected-title {
+  font-size: 0.9rem; font-weight: 700;
+  color: #1a1a1a;
+}
+.su2-selected-limit {
+  font-size: 0.8rem;
+  color: #aaa;
+}
+.su2-selected-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.su2-selected-chip {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 12px;
+  border: 1.5px solid #d0d0d0;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  background: #fff;
+  color: #1a1a1a;
+}
+.su2-chip-remove {
+  background: none; border: none;
+  font-size: 0.75rem; color: #888;
+  cursor: pointer; padding: 0;
+  line-height: 1;
+}
+.su2-chip-remove:hover { color: #d32f2f; }
+
+/* ── 준비기간 ── */
+.su2-period { margin-bottom: 32px; }
+.su2-period-label {
+  font-size: 0.9rem; font-weight: 700;
+  color: #1a1a1a; margin-bottom: 10px;
+}
+.su2-period-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.su2-input {
+  flex: 1;
+  height: 46px;
+  padding: 0 14px;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-family: 'Noto Sans KR', sans-serif;
+  color: #1a1a1a;
+  background: #fff;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+.su2-input::placeholder { color: #bbb; }
+.su2-input:focus { border-color: #1C4D8D; }
+.su2-input:disabled { background: #f5f5f5; color: #bbb; cursor: not-allowed; }
+.su2-input--error { border-color: #d32f2f !important; }
+.su2-period-dash { font-size: 1rem; color: #888; flex-shrink: 0; }
+.su2-hint--error {
+  font-size: 0.78rem; color: #d32f2f;
+  margin-bottom: 4px;
+}
+.su2-checkbox-label {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 0.875rem; color: #444;
+  cursor: pointer; margin-bottom: 4px;
+}
+.su2-checkbox-label input[type='checkbox'] {
+  width: 15px; height: 15px;
+  accent-color: #1a1a1a; cursor: pointer;
+}
+.su2-checkbox-hint {
+  font-size: 0.78rem; color: #aaa;
+  margin-left: 22px;
+}
+
+/* ── 버튼 행 ── */
+.su2-btn-row {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 10px;
+}
+.su2-btn {
+  height: 52px;
+  border-radius: 6px;
+  font-size: 1rem; font-weight: 600;
+  font-family: 'Noto Sans KR', sans-serif;
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 0.05em;
+}
+.su2-btn--prev {
+  background: #fff;
+  color: #444;
+  border: 1.5px solid #d0d0d0;
+}
+.su2-btn--prev:hover { border-color: #888; }
+.su2-btn--next {
+  background: #555;
+  color: #fff;
+  border: none;
+}
+.su2-btn--next:hover { background: #0F2854; }

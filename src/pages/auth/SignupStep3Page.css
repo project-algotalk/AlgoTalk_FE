@@ -1,0 +1,197 @@
+/* src/pages/auth/SignupStep3Page.css */
+
+.su3-page {
+  width: 100%; min-height: 100vh;
+  background: #fff; display: flex; flex-direction: column;
+}
+
+/* ── Navbar ── */
+.su3-nav {
+  width: 100%; height: 56px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px; border-bottom: 1px solid #e0e0e0; box-sizing: border-box;
+}
+.su3-nav-back {
+  width: 40px; height: 40px; background: none; border: none;
+  font-size: 1.4rem; color: #444; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; border-radius: 6px;
+}
+.su3-nav-back:hover { background: #f5f5f5; }
+.su3-nav-logo { font-size: 1.2rem; font-weight: 800; color: #0F2854; letter-spacing: -0.5px; }
+
+/* ── 컨테이너 ── */
+.su3-container {
+  width: 100%; max-width: 700px;
+  margin: 0 auto; padding: 32px 24px 60px; box-sizing: border-box;
+}
+
+/* ── 스텝 인디케이터 ── */
+.su3-steps { display: flex; align-items: center; margin-bottom: 28px; }
+.su3-step { display: flex; align-items: center; gap: 8px; }
+.su3-step-circle {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: #e0e0e0; color: #aaa;
+  font-size: 0.875rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.su3-step-circle.active { background: #1a1a1a; color: #fff; }
+.su3-step-circle.done   { background: #1a7f4b; color: #fff; }
+.su3-step-label { font-size: 0.95rem; font-weight: 600; color: #aaa; }
+.su3-step-label.active { color: #1a1a1a; }
+.su3-step-label.done   { color: #1a7f4b; }
+.su3-step-line { flex: 1; height: 1px; background: #e0e0e0; margin: 0 12px; }
+.su3-step-line.done { background: #1a7f4b; }
+
+/* ── 안내 ── */
+.su3-guide { font-size: 1rem; font-weight: 700; color: #1a1a1a; margin-bottom: 20px; }
+.su3-guide-sub { font-size: 0.875rem; font-weight: 400; color: #888; }
+
+/* ── 카드 ── */
+.su3-card {
+  border: 1px solid #e0e0e0; border-radius: 8px;
+  padding: 18px 20px; margin-bottom: 14px; background: #fafafa;
+}
+.su3-card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.su3-card-title { font-size: 0.9rem; font-weight: 700; color: #1a1a1a; }
+.su3-card-delete {
+  font-size: 0.85rem; color: #d32f2f; background: none; border: none;
+  cursor: pointer; font-family: 'Noto Sans KR', sans-serif;
+}
+.su3-card-delete:hover { text-decoration: underline; }
+.su3-card-field { margin-bottom: 14px; }
+.su3-card-label { display: block; font-size: 0.85rem; font-weight: 600; color: #1a1a1a; margin-bottom: 6px; }
+
+/* ── 카드 인풋 ── */
+.su3-card-input {
+  width: 100%; height: 44px; padding: 0 12px;
+  border: 1px solid #d0d0d0; border-radius: 6px;
+  font-size: 0.875rem; font-family: 'Noto Sans KR', sans-serif;
+  color: #1a1a1a; background: #fff; outline: none; box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+.su3-card-input::placeholder { color: #bbb; }
+.su3-card-input:focus { border-color: #1C4D8D; }
+.su3-card-input--disabled { background: #f0f0f0; color: #bbb; cursor: not-allowed; }
+
+/* ── 직무 카테고리 트리거 ── */
+.su3-job-trigger {
+  width: 100%; min-height: 44px; padding: 10px 12px;
+  border: 1.5px dashed #d0d0d0; border-radius: 6px;
+  cursor: pointer; box-sizing: border-box;
+  transition: border-color 0.15s; margin-bottom: 6px;
+}
+.su3-job-trigger:hover { border-color: #888; }
+.su3-job-trigger-placeholder { font-size: 0.875rem; color: #aaa; }
+.su3-job-trigger-edit { font-size: 0.875rem; color: #444; }
+.su3-job-selected { display: flex; flex-wrap: wrap; gap: 6px; }
+.su3-job-chip {
+  display: flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border: 1.5px solid #d0d0d0;
+  border-radius: 14px; font-size: 0.82rem; background: #fff; color: #1a1a1a;
+}
+.su3-job-chip-remove {
+  background: none; border: none; font-size: 0.7rem;
+  color: #888; cursor: pointer; padding: 0;
+}
+.su3-job-chip-remove:hover { color: #d32f2f; }
+.su3-job-empty { font-size: 0.8rem; color: #bbb; margin: 0; }
+.su3-hint--error { font-size: 0.78rem; color: #d32f2f; margin-top: 4px; }
+
+/* ── 재직 기간 ── */
+.su3-period-row {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+}
+.su3-period-row .su3-card-input { flex: 1; }
+.su3-period-dash { font-size: 1rem; color: #888; flex-shrink: 0; }
+.su3-checkbox-label {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 0.875rem; color: #444; cursor: pointer; margin-bottom: 3px;
+}
+.su3-checkbox-label input[type='checkbox'] {
+  width: 15px; height: 15px; accent-color: #1a1a1a; cursor: pointer;
+}
+.su3-checkbox-hint { font-size: 0.78rem; color: #aaa; margin-left: 22px; }
+
+/* ── 이력 추가 버튼 ── */
+.su3-add-btn {
+  width: 100%; height: 48px; margin-bottom: 24px;
+  background: #fff; color: #888;
+  border: 1.5px dashed #d0d0d0; border-radius: 6px;
+  font-size: 0.9rem; font-family: 'Noto Sans KR', sans-serif;
+  cursor: pointer; transition: all 0.15s;
+}
+.su3-add-btn:hover { border-color: #888; color: #444; }
+
+/* ── 버튼 행 ── */
+.su3-btn-row { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; }
+.su3-btn {
+  height: 52px; border-radius: 6px;
+  font-size: 1rem; font-weight: 600;
+  font-family: 'Noto Sans KR', sans-serif;
+  cursor: pointer; transition: all 0.15s; letter-spacing: 0.05em;
+}
+.su3-btn--prev { background: #fff; color: #444; border: 1.5px solid #d0d0d0; }
+.su3-btn--prev:hover { border-color: #888; }
+.su3-btn--submit { background: #555; color: #fff; border: none; }
+.su3-btn--submit:hover:not(:disabled) { background: #0F2854; }
+.su3-btn--submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ── 직무 선택 모달 ── */
+.su3-modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.35);
+  display: flex; align-items: center; justify-content: center; z-index: 300;
+}
+.su3-modal {
+  background: #fff; border-radius: 12px;
+  width: 560px; max-width: 90vw;
+  padding: 24px; box-shadow: 0 8px 40px rgba(0,0,0,0.15);
+}
+.su3-modal-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; }
+.su3-modal-tabs {
+  display: flex; border-bottom: 1.5px solid #e0e0e0; margin-bottom: 16px;
+}
+.su3-modal-tab {
+  padding: 8px 12px; font-size: 0.85rem; color: #aaa;
+  background: none; border: none;
+  border-bottom: 2px solid transparent; margin-bottom: -1.5px;
+  cursor: pointer; white-space: nowrap;
+  font-family: 'Noto Sans KR', sans-serif; transition: color 0.15s;
+}
+.su3-modal-tab:hover { color: #555; }
+.su3-modal-tab.active { color: #1a1a1a; font-weight: 700; border-bottom-color: #1a1a1a; }
+.su3-modal-body { min-height: 100px; margin-bottom: 16px; }
+.su3-modal-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.su3-modal-chip {
+  padding: 7px 16px; border: 1.5px solid #d0d0d0; border-radius: 20px;
+  font-size: 0.875rem; font-family: 'Noto Sans KR', sans-serif;
+  background: #fff; color: #444; cursor: pointer; transition: all 0.15s;
+}
+.su3-modal-chip:hover { border-color: #888; }
+.su3-modal-chip.selected { background: #1a1a1a; border-color: #1a1a1a; color: #fff; font-weight: 600; }
+.su3-modal-etc-guide { font-size: 0.875rem; color: #555; margin-bottom: 10px; }
+.su3-modal-etc-input {
+  width: 100%; height: 44px; padding: 0 12px;
+  border: 1.5px solid #1C4D8D; border-radius: 6px;
+  font-size: 0.875rem; font-family: 'Noto Sans KR', sans-serif;
+  color: #1a1a1a; outline: none; box-sizing: border-box; margin-bottom: 6px;
+}
+.su3-modal-etc-hint { font-size: 0.78rem; color: #aaa; }
+.su3-modal-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  border-top: 1px solid #e0e0e0; padding-top: 14px;
+}
+.su3-modal-selected-text { font-size: 0.875rem; color: #888; }
+.su3-modal-selected-text strong { color: #1a1a1a; }
+.su3-modal-btns { display: flex; gap: 8px; }
+.su3-modal-btn {
+  padding: 9px 20px; border-radius: 5px;
+  font-size: 0.875rem; font-weight: 600;
+  font-family: 'Noto Sans KR', sans-serif; cursor: pointer;
+}
+.su3-modal-btn--cancel { background: #fff; color: #444; border: 1px solid #d0d0d0; }
+.su3-modal-btn--confirm { background: #555; color: #fff; border: none; }
+.su3-modal-btn--confirm:hover:not(:disabled) { background: #0F2854; }
+.su3-modal-btn--confirm:disabled { opacity: 0.4; cursor: not-allowed; }
