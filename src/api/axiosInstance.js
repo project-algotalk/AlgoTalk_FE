@@ -1,3 +1,4 @@
+// src/api/axiosInstance.js
 import axios from 'axios'
 import useAuthStore from '../store/authStore'
 
@@ -6,7 +7,20 @@ const api = axios.create({
   withCredentials: true,
 })
 
-// 요청마다 AT 자동 주입
+// JWT 페이로드 디코딩 (한글 포함)
+export const decodeJwt = (token) => {
+  try {
+    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
+    const jsonStr = decodeURIComponent(
+      atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')
+    )
+    return JSON.parse(jsonStr)
+  } catch {
+    return {}
+  }
+}
+
+// AT 자동 주입
 api.interceptors.request.use((config) => {
   const accessToken = useAuthStore.getState().accessToken
   if (accessToken) {
@@ -21,9 +35,9 @@ api.interceptors.response.use(
   async (err) => {
     const original = err.config
 
-    // 로그인/재발급 요청은 인터셉터 제외 (무한루프 + 새로고침 방지)
+    // 로그인/재발급 URL은 인터셉터 제외
     const excludeUrls = ['/user/v1/login', '/user/v1/token/reissue']
-    if (excludeUrls.some((url) => original.url?.includes(url))) {
+    if (excludeUrls.some(url => original.url?.includes(url))) {
       return Promise.reject(err)
     }
 
@@ -35,15 +49,23 @@ api.interceptors.response.use(
           {},
           { withCredentials: true }
         )
-        const newToken = data.accessToken
-        useAuthStore.getState().setAuth(
-          useAuthStore.getState().user,
-          newToken
-        )
-        original.headers.Authorization = `Bearer ${newToken}`
+        const tokenData = data.data
+        const payload = decodeJwt(tokenData.accessToken)
+
+        useAuthStore.getState().login({
+          accessToken: tokenData.accessToken,
+          user: {
+            userId:   payload.sub,
+            loginId:  payload.loginId,
+            nickname: payload.nickname,
+            roles:    payload.roles,
+          },
+        })
+
+        original.headers.Authorization = `Bearer ${tokenData.accessToken}`
         return api(original)
       } catch {
-        useAuthStore.getState().clearAuth()
+        useAuthStore.getState().logout()
         window.location.href = '/login'
       }
     }

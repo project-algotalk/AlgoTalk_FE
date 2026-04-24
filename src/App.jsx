@@ -1,12 +1,14 @@
+// src/App.jsx
+import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import useAuthStore from './store/authStore'
+import api, { decodeJwt } from './api/axiosInstance'
 import PrivateRoute from './components/common/PrivateRoute'
 import SignupStepGuard from './components/common/SignupStepGuard'
 
-// Main
-import MainPage from './pages/main/MainPage'
-
 // Auth
 import LoginPage from './pages/auth/LoginPage'
+import OAuthCallbackPage from './pages/auth/OAuthCallbackPage'
 import SignupStep1Page from './pages/auth/SignupStep1Page'
 import SignupStep2Page from './pages/auth/SignupStep2Page'
 import SignupStep3Page from './pages/auth/SignupStep3Page'
@@ -30,16 +32,59 @@ import DashboardPage from './pages/dashboard/DashboardPage'
 // MyPage
 import MyPage from './pages/mypage/MyPage'
 
+// Main
+import MainPage from './pages/main/MainPage'
+
 export default function App() {
+  const { login, logout } = useAuthStore()
+  const [initializing, setInitializing] = useState(true)
+
+  useEffect(() => {
+    const restoreSession = async () => {
+      try {
+        const { data } = await api.post('/user/v1/token/reissue')
+        const tokenData = data.data
+        const payload = decodeJwt(tokenData.accessToken)
+        login({
+          accessToken: tokenData.accessToken,
+          user: {
+            userId:   payload.sub,
+            loginId:  payload.loginId,
+            nickname: payload.nickname,
+            roles:    payload.roles,
+          },
+        })
+      } catch {
+        logout()
+      } finally {
+        setInitializing(false)
+      }
+    }
+    restoreSession()
+  }, [])
+
+  // 세션 복구 완료 전엔 아무것도 렌더링 안 함
+  if (initializing) {
+    return (
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        height: '100vh', fontSize: '0.9rem', color: '#888',
+        fontFamily: 'Noto Sans KR, sans-serif',
+      }}>
+        로딩 중...
+      </div>
+    )
+  }
+
   return (
     <BrowserRouter>
       <Routes>
-        {/* 기본: 로그인 상태면 /interview, 아니면 /login */}
         <Route path="/" element={<MainPage />} />
 
         {/* 인증 불필요 */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupStep1Page />} />
+        <Route path="/oauth2/callback" element={<OAuthCallbackPage />} />
         <Route element={<SignupStepGuard requiredKey="signup-step1" />}>
           <Route path="/signup/step2" element={<SignupStep2Page />} />
         </Route>

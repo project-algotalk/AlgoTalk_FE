@@ -2,12 +2,12 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import useAuthStore from '../../store/authStore'
-import api from '../../api/axiosInstance'
+import api, { decodeJwt } from '../../api/axiosInstance'
 import './LoginPage.css'
 
 export default function LoginPage() {
   const navigate = useNavigate()
-  const { setAuth, isLoggedIn } = useAuthStore()
+  const { login, authStatus } = useAuthStore()
 
   const [form, setForm] = useState({ loginId: '', password: '' })
   const [saveId, setSaveId] = useState(false)
@@ -17,8 +17,8 @@ export default function LoginPage() {
 
   // 이미 로그인 상태면 메인으로
   useEffect(() => {
-    if (isLoggedIn) navigate('/', { replace: true })
-  }, [isLoggedIn, navigate])
+    if (authStatus === 'authenticated') navigate('/', { replace: true })
+  }, [authStatus, navigate])
 
   // 저장된 아이디 불러오기
   useEffect(() => {
@@ -48,32 +48,37 @@ export default function LoginPage() {
         password: form.password,
       })
 
+      const tokenData = data.data
+      const payload = decodeJwt(tokenData.accessToken)
+
       if (saveId) {
         localStorage.setItem('algotalk-saved-id', form.loginId)
       } else {
         localStorage.removeItem('algotalk-saved-id')
       }
 
-      setAuth(data.user, data.accessToken)
+      login({
+        accessToken: tokenData.accessToken,
+        user: {
+          userId:   payload.sub,
+          loginId:  payload.loginId,
+          nickname: payload.nickname,
+          roles:    payload.roles,
+        },
+      })
+
       navigate('/', { replace: true })
 
     } catch (err) {
-        console.log('err.response:', err.response)
-        console.log('err.response.data:', err.response?.data)
-        
-        const res = err.response?.data
-        console.log('res.code:', res?.code)
-        console.log('res.fieldErrors:', res?.fieldErrors)
+      const res = err.response?.data
 
       if (res?.code === 'VALID_001' && res?.fieldErrors) {
-        // 필드별 유효성 에러
         const errors = { loginId: '', password: '' }
         res.fieldErrors.forEach(({ field, reason }) => {
           if (field in errors) errors[field] = reason
         })
         setFieldErrors(errors)
       } else {
-        // USER_001, USER_004 등 전체 에러
         setGlobalError(res?.message || '로그인에 실패했습니다.')
       }
     } finally {
@@ -90,18 +95,24 @@ export default function LoginPage() {
 
       {/* 로그인 전용 Navbar */}
       <nav className="login-nav">
+        {/* X 버튼: 이전 페이지로 */}
         <button className="login-nav-close" onClick={() => navigate(-1)}>✕</button>
-        <span className="login-nav-logo">AlgoTalk</span>
+        {/* 로고: 메인으로 */}
+        <span
+          className="login-nav-logo"
+          onClick={() => navigate('/')}
+          style={{ cursor: 'pointer' }}
+        >
+          AlgoTalk
+        </span>
         <div style={{ width: 40 }} />
       </nav>
 
-      {/* 폼 영역 */}
       <div className="login-container">
         <h1 className="login-title">로그인</h1>
 
         <form className="login-form" onSubmit={handleLogin} noValidate>
 
-          {/* 아이디 */}
           <div className="login-field">
             <input
               className={`login-input ${fieldErrors.loginId ? 'login-input--error' : ''}`}
@@ -117,7 +128,6 @@ export default function LoginPage() {
             )}
           </div>
 
-          {/* 비밀번호 */}
           <div className="login-field">
             <input
               className={`login-input ${fieldErrors.password ? 'login-input--error' : ''}`}
@@ -133,12 +143,10 @@ export default function LoginPage() {
             )}
           </div>
 
-          {/* 전체 에러 (USER_001, USER_004) */}
           {globalError && (
             <p className="login-error login-error--global">{globalError}</p>
           )}
 
-          {/* 아이디 저장 */}
           <label className="login-save-id">
             <input
               type="checkbox"
@@ -148,7 +156,6 @@ export default function LoginPage() {
             아이디 저장
           </label>
 
-          {/* 로그인 버튼 */}
           <button
             type="submit"
             className="login-btn login-btn--primary"
@@ -157,7 +164,6 @@ export default function LoginPage() {
             {loading ? '로그인 중...' : '로그인'}
           </button>
 
-          {/* 회원가입 버튼 */}
           <button
             type="button"
             className="login-btn login-btn--outline"
@@ -168,7 +174,6 @@ export default function LoginPage() {
 
         </form>
 
-        {/* 소셜 로그인 */}
         <div className="login-social">
           <button
             className="social-btn social-btn--google"
@@ -198,7 +203,6 @@ export default function LoginPage() {
           </button>
         </div>
 
-        {/* 아이디/비밀번호 찾기 */}
         <div className="login-find">
           <Link to="/find-id">아이디 찾기</Link>
           <span className="login-find-divider">|</span>

@@ -2,27 +2,33 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import useAuthStore from '../../store/authStore'
+import api from '../../api/axiosInstance'
 import './Navbar.css'
 
 export default function Navbar() {
   const navigate = useNavigate()
-  const { isLoggedIn, user, clearAuth } = useAuthStore()
+  const { authStatus, user, logout } = useAuthStore()
+  const isLoggedIn = authStatus === 'authenticated'
   const [showLogoutModal, setShowLogoutModal] = useState(false)
 
-  const handleLogout = () => {
-    // TODO: 서버 로그아웃 API 호출
-    clearAuth()
-    setShowLogoutModal(false)
-    navigate('/')
+  const handleLogout = async () => {
+    try {
+      // AT가 헤더에 자동으로 실려서 백엔드에서 userId 추출 가능
+      await api.post('/user/v1/logout')
+    } catch {
+      // 로그아웃 API 실패해도 프론트 상태는 초기화
+    } finally {
+      logout()
+      setShowLogoutModal(false)
+      navigate('/')
+    }
   }
 
   return (
     <>
       <nav className="navbar">
-        {/* 로고 */}
         <Link to="/" className="navbar-logo">AlgoTalk</Link>
 
-        {/* 메뉴 */}
         <div className="navbar-menu">
           <Link to="/interview" className="navbar-link">면접 보기</Link>
           <Link to="/board" className="navbar-link">게시판</Link>
@@ -51,7 +57,7 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* 로그아웃 모달 */}
+      {/* 로그아웃 확인 모달 */}
       {showLogoutModal && (
         <div className="modal-overlay" onClick={() => setShowLogoutModal(false)}>
           <div className="modal-box" onClick={(e) => e.stopPropagation()}>
