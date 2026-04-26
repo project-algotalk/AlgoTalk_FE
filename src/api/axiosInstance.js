@@ -36,7 +36,7 @@ api.interceptors.response.use(
     const original = err.config
 
     // 로그인/재발급 URL은 인터셉터 제외
-    const excludeUrls = ['/user/v1/login', '/user/v1/token/reissue']
+    const excludeUrls = ['/user/v1/login', '/user/v1/token/reissue', '/user/v1/find/',]
     if (excludeUrls.some(url => original.url?.includes(url))) {
       return Promise.reject(err)
     }
@@ -75,4 +75,3 @@ api.interceptors.response.use(
 )
 
 export default api
-

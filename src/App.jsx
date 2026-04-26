@@ -14,6 +14,7 @@ import SignupStep1Page from './pages/auth/SignupStep1Page'
 import SignupStep2Page from './pages/auth/SignupStep2Page'
 import SignupStep3Page from './pages/auth/SignupStep3Page'
 import SignupCompletePage from './pages/auth/SignupCompletePage'
+import FindAccountPage from './pages/auth/FindAccountPage'
 
 // Interview
 import InterviewStartPage from './pages/interview/InterviewStartPage'
@@ -128,6 +129,8 @@ export default function App() {
           <Route path="/signup/step3" element={<SignupStep3Page />} />
         </Route>
         <Route path="/signup/complete" element={<SignupCompletePage />} />
+        <Route path="/find-id" element={<FindAccountPage />} />
+        <Route path="/find-password" element={<FindAccountPage />} />
 
         {/* 게시판 열람은 비로그인 가능 */}
         <Route path="/board" element={<BoardPage />} />
