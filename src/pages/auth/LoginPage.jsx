@@ -57,6 +57,7 @@ export default function LoginPage() {
         localStorage.removeItem('algotalk-saved-id')
       }
 
+      sessionStorage.removeItem('logged-out') // 로그인 성공 시 플래그 제거
       login({
         accessToken: tokenData.accessToken,
         user: {

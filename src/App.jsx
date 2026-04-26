@@ -9,6 +9,7 @@ import api, { decodeJwt } from './api/axiosInstance'
 // Auth
 import LoginPage from './pages/auth/LoginPage'
 import OAuthCallbackPage from './pages/auth/OAuthCallbackPage'
+import OAuthSignupPage from './pages/auth/OAuthSignupPage'
 import SignupStep1Page from './pages/auth/SignupStep1Page'
 import SignupStep2Page from './pages/auth/SignupStep2Page'
 import SignupStep3Page from './pages/auth/SignupStep3Page'
@@ -47,6 +48,14 @@ export default function App() {
     }
 
     const restoreSession = async () => {
+      // 명시적으로 로그아웃한 상태면 reissue 요청 안 함
+      const isLoggedOut = sessionStorage.getItem('logged-out')
+      if (isLoggedOut) {
+        logout()
+        setInitializing(false)
+        return
+      }
+
       if (accessToken && isTokenValid(accessToken)) {
         setInitializing(false)
         return
@@ -73,8 +82,19 @@ export default function App() {
       }
     }
 
+    const handleStorageChange = (e) => {
+      // 다른 탭에서 로그아웃 신호가 왔을 때
+      if (e.key === 'logout-signal') {
+        logout()
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
     restoreSession()
-  }, [accessToken, login, logout])
+
+    return () => window.removeEventListener('storage', handleStorageChange)
+  // }, [accessToken, login, logout])
+  }, [])
 
   if (initializing) {
     return (
@@ -100,6 +120,7 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupStep1Page />} />
         <Route path="/oauth2/callback" element={<OAuthCallbackPage />} />
+        <Route path="/oauth2/signup" element={<OAuthSignupPage />} />
         <Route element={<SignupStepGuard requiredKey="signup-step1" />}>
           <Route path="/signup/step2" element={<SignupStep2Page />} />
         </Route>
@@ -127,3 +148,5 @@ export default function App() {
     </BrowserRouter>
   )
 }
+
+

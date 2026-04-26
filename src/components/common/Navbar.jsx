@@ -18,6 +18,7 @@ export default function Navbar() {
     } catch {
       // 로그아웃 API 실패해도 프론트 상태는 초기화
     } finally {
+      sessionStorage.setItem('logged-out', 'true')
       logout()
       setShowLogoutModal(false)
       navigate('/')
