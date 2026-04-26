@@ -337,25 +337,41 @@ export default function SignupStep3Page() {
 
     setLoading(true)
     try {
-      const step1 = JSON.parse(sessionStorage.getItem('signup-step1') || '{}')
       const step2 = JSON.parse(sessionStorage.getItem('signup-step2') || '{}')
+      const tempToken = sessionStorage.getItem('oauth-temp-token')
 
-      await api.post('/user/v1/signup', {
-        loginId:         step1.loginId,
-        password:        step1.password,
-        passwordConfirm: step1.passwordConfirm,
-        email:           step1.email,
-        addr1:           step1.addr1 || null,
-        addr2:           step1.addr2 || null,
-        name:            step1.name,
-        nickname:        step1.nickname || null,
-        targetJobs:      step2.targetJobs || null,
-        employments:     employments,
-      })
+      if (tempToken) {
+        // 소셜 회원가입
+        await api.post('/user/v1/signup/social', {
+          tempToken,
+          nickname:    null,
+          addr1:       null,
+          addr2:       null,
+          targetJobs:  step2.targetJobs || null,
+          employments: employments,
+        })
+        sessionStorage.removeItem('oauth-temp-token')
+      } else {
+        // 일반 회원가입
+        const step1 = JSON.parse(sessionStorage.getItem('signup-step1') || '{}')
+        await api.post('/user/v1/signup', {
+          loginId:         step1.loginId,
+          password:        step1.password,
+          passwordConfirm: step1.passwordConfirm,
+          email:           step1.email,
+          addr1:           step1.addr1 || null,
+          addr2:           step1.addr2 || null,
+          name:            step1.name,
+          nickname:        step1.nickname || null,
+          targetJobs:      step2.targetJobs || null,
+          employments:     employments,
+        })
+        sessionStorage.removeItem('signup-step1')
+      }
 
-      sessionStorage.removeItem('signup-step1')
       sessionStorage.removeItem('signup-step2')
       navigate('/signup/complete')
+
     } catch (err) {
       const msg = err.response?.data?.message || '회원가입에 실패했습니다. 다시 시도해 주세요.'
       alert(msg)

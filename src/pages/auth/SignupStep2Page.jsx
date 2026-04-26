@@ -104,6 +104,16 @@ export default function SignupStep2Page() {
     return e
   }
 
+  const handlePrev = () => {
+    const isSocialSignup = sessionStorage.getItem('oauth-temp-token')
+    if (isSocialSignup) {
+      // 소셜 회원가입은 이전으로 갈 곳이 없음 → 로그인으로
+      navigate('/login')
+    } else {
+      navigate('/signup')
+    }
+  }
+
   const handleNext = () => {
     const newErrors = validate()
     if (Object.keys(newErrors).length > 0) {
@@ -125,7 +135,13 @@ export default function SignupStep2Page() {
   return (
     <div className="su2-page">
         <nav className="su2-nav"> {/* 또는 su3-nav */}
-        <button className="su2-nav-back" onClick={() => navigate('/signup')} type="button">‹</button>
+        <button
+          className="su2-nav-back"
+          onClick={handlePrev}  // ← navigate('/signup') 대신 handlePrev 사용
+          type="button"
+        >
+          ‹
+        </button>
         <span
             className="su2-nav-logo"
             onClick={() => navigate('/')}
@@ -261,7 +277,7 @@ export default function SignupStep2Page() {
 
         {/* 버튼 */}
         <div className="su2-btn-row">
-          <button className="su2-btn su2-btn--prev" type="button" onClick={() => navigate('/signup')}>
+          <button className="su2-btn su2-btn--prev" type="button" onClick={handlePrev}>
             이 전
           </button>
           <button className="su2-btn su2-btn--next" type="button" onClick={handleNext}>

@@ -8,6 +8,7 @@ import SignupStepGuard from './components/common/SignupStepGuard'
 
 // Auth
 import LoginPage from './pages/auth/LoginPage'
+import OAuthSignupPage from './pages/auth/OAuthSignupPage'
 import OAuthCallbackPage from './pages/auth/OAuthCallbackPage'
 import SignupStep1Page from './pages/auth/SignupStep1Page'
 import SignupStep2Page from './pages/auth/SignupStep2Page'
@@ -85,6 +86,7 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupStep1Page />} />
         <Route path="/oauth2/callback" element={<OAuthCallbackPage />} />
+        <Route path="/oauth2/signup" element={<OAuthSignupPage />} />
         <Route element={<SignupStepGuard requiredKey="signup-step1" />}>
           <Route path="/signup/step2" element={<SignupStep2Page />} />
         </Route>
