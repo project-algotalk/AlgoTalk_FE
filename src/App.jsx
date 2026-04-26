@@ -1,14 +1,13 @@
 // src/App.jsx
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import useAuthStore from './store/authStore'
-import api, { decodeJwt } from './api/axiosInstance'
 import PrivateRoute from './components/common/PrivateRoute'
 import SignupStepGuard from './components/common/SignupStepGuard'
+import useAuthStore from './store/authStore'
+import api, { decodeJwt } from './api/axiosInstance'
 
 // Auth
 import LoginPage from './pages/auth/LoginPage'
-import OAuthSignupPage from './pages/auth/OAuthSignupPage'
 import OAuthCallbackPage from './pages/auth/OAuthCallbackPage'
 import SignupStep1Page from './pages/auth/SignupStep1Page'
 import SignupStep2Page from './pages/auth/SignupStep2Page'
@@ -37,22 +36,34 @@ import MyPage from './pages/mypage/MyPage'
 import MainPage from './pages/main/MainPage'
 
 export default function App() {
-  const { login, logout } = useAuthStore()
+  const { login, logout, accessToken } = useAuthStore()
   const [initializing, setInitializing] = useState(true)
 
   useEffect(() => {
+    const isTokenValid = (token) => {
+      const payload = decodeJwt(token)
+      if (!payload?.exp) return false
+      return payload.exp * 1000 > Date.now() + 5000
+    }
+
     const restoreSession = async () => {
+      if (accessToken && isTokenValid(accessToken)) {
+        setInitializing(false)
+        return
+      }
+
       try {
         const { data } = await api.post('/user/v1/token/reissue')
         const tokenData = data.data
         const payload = decodeJwt(tokenData.accessToken)
+
         login({
           accessToken: tokenData.accessToken,
           user: {
-            userId:   payload.sub,
-            loginId:  payload.loginId,
+            userId: payload.sub,
+            loginId: payload.loginId,
             nickname: payload.nickname,
-            roles:    payload.roles,
+            roles: payload.roles,
           },
         })
       } catch {
@@ -61,16 +72,19 @@ export default function App() {
         setInitializing(false)
       }
     }
-    restoreSession()
-  }, [])
 
-  // 세션 복구 완료 전엔 아무것도 렌더링 안 함
+    restoreSession()
+  }, [accessToken, login, logout])
+
   if (initializing) {
     return (
       <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        height: '100vh', fontSize: '0.9rem', color: '#888',
-        fontFamily: 'Noto Sans KR, sans-serif',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '40vh',
+        color: '#888',
+        fontSize: '0.95rem',
       }}>
         로딩 중...
       </div>
@@ -86,7 +100,6 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupStep1Page />} />
         <Route path="/oauth2/callback" element={<OAuthCallbackPage />} />
-        <Route path="/oauth2/signup" element={<OAuthSignupPage />} />
         <Route element={<SignupStepGuard requiredKey="signup-step1" />}>
           <Route path="/signup/step2" element={<SignupStep2Page />} />
         </Route>

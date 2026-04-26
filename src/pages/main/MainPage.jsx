@@ -2,12 +2,10 @@ import Spline from '@splinetool/react-spline'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../../components/common/Navbar'
-import useAuthStore from '../../store/authStore'
 import './MainPage.css'
 
 export default function MainPage() {
   const navigate = useNavigate()
-  const { isLoggedIn, user } = useAuthStore()
   const [splineLoaded, setSplineLoaded] = useState(false)
 
   const features = [
@@ -52,7 +50,7 @@ export default function MainPage() {
           </h1>
           <p className="hero-subtitle">실전처럼 연습하고, 데이터로 성장하세요</p>
           <div className="hero-divider" />
-          <button className="hero-btn" onClick={() => navigate(isLoggedIn ? '/interview' : '/login')}>
+          <button className="hero-btn" onClick={() => navigate('/interview')}>
             면접 보기
           </button>
         </div>
