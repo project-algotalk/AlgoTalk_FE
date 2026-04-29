@@ -55,10 +55,10 @@ api.interceptors.response.use(
         useAuthStore.getState().login({
           accessToken: tokenData.accessToken,
           user: {
-            userId:   payload.sub,
+            // userId:   payload.sub,
             loginId:  payload.loginId,
             nickname: payload.nickname,
-            roles:    payload.roles,
+            // roles:    payload.roles,
           },
         })
 
