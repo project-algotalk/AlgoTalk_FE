@@ -54,7 +54,6 @@ export default function SignupStep1Page() {
   const [verifyMsgType, setVerifyMsgType]     = useState('')
   const [modal, setModal]                     = useState(null)
   const [nicknameStatus, setNicknameStatus]   = useState(null)   // null | 'available' | 'duplicate'
-  const [nicknameChecked, setNicknameChecked] = useState(false)
 
   // 도메인 직접입력 여부 — 함수들보다 위에 선언
   const isDomainDirect = form.emailDomain === '직접입력'
@@ -71,7 +70,7 @@ export default function SignupStep1Page() {
     setForm(prev => ({ ...prev, [name]: value }))
     setErrors(prev => ({ ...prev, [name]: '' }))
     if (name === 'loginId') { setIdStatus(null); setIdChecked(false) }
-    if (name === 'nickname') { setNicknameStatus(null); setNicknameChecked(false) }
+    if (name === 'nickname') { setNicknameStatus(null) }
     if (['emailLocal', 'emailDomainCustom'].includes(name)) {
       setEmailVerifyStep('idle')
       setVerifyMessage('')
@@ -126,7 +125,6 @@ export default function SignupStep1Page() {
     try {
       await api.post('/user/v1/reg/check/nickname', { nickname: form.nickname })
       setNicknameStatus('available')
-      setNicknameChecked(true)
       setModal({
         type: 'success',
         message: '사용 가능한 닉네임 입니다.',
@@ -134,7 +132,6 @@ export default function SignupStep1Page() {
       })
     } catch (err) {
       setNicknameStatus('duplicate')
-      setNicknameChecked(false)
       setModal({
         type: 'error',
         message: err.response?.data?.message || '이미 사용 중인 닉네임 입니다.',

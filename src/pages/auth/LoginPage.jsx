@@ -8,9 +8,10 @@ import './LoginPage.css'
 export default function LoginPage() {
   const navigate = useNavigate()
   const { login, authStatus } = useAuthStore()
+  const savedId = localStorage.getItem('algotalk-saved-id') || ''
 
-  const [form, setForm] = useState({ loginId: '', password: '' })
-  const [saveId, setSaveId] = useState(false)
+  const [form, setForm] = useState({ loginId: savedId, password: '' })
+  const [saveId, setSaveId] = useState(!!savedId)
   const [fieldErrors, setFieldErrors] = useState({ loginId: '', password: '' })
   const [globalError, setGlobalError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -19,15 +20,6 @@ export default function LoginPage() {
   useEffect(() => {
     if (authStatus === 'authenticated') navigate('/', { replace: true })
   }, [authStatus, navigate])
-
-  // 저장된 아이디 불러오기
-  useEffect(() => {
-    const savedId = localStorage.getItem('algotalk-saved-id')
-    if (savedId) {
-      setForm((f) => ({ ...f, loginId: savedId }))
-      setSaveId(true)
-    }
-  }, [])
 
   const handleChange = (e) => {
     const { name, value } = e.target

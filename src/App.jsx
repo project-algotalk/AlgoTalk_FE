@@ -94,8 +94,7 @@ export default function App() {
     restoreSession()
 
     return () => window.removeEventListener('storage', handleStorageChange)
-  // }, [accessToken, login, logout])
-  }, [])
+  }, [accessToken, login, logout])
 
   if (initializing) {
     return (

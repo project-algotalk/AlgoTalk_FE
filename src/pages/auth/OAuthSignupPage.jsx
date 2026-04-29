@@ -20,7 +20,7 @@ export default function OAuthSignupPage() {
 
         // Step2(목표직무)로 이동 — step1 데이터 없이 바로
         navigate('/signup/step2', { replace: true })
-    }, [])
+    }, [navigate, searchParams])
 
     return (
         <div style={{

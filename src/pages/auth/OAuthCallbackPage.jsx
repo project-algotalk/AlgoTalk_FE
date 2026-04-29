@@ -30,7 +30,7 @@ export default function OAuthCallbackPage() {
         // 토큰 없으면 로그인 페이지로
         //   navigate('/login', { replace: true })
         }
-    }, []);
+    }, [login, navigate]);
 
     return (
         <div
