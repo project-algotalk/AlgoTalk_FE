@@ -29,45 +29,21 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-// 401 → 토큰 재발급 후 재시도
+// 401은 게이트웨이에서 자동 재발급/재시도 처리
 api.interceptors.response.use(
   (res) => res,
-  async (err) => {
+  (err) => {
     const original = err.config
 
-    // 로그인/재발급 URL은 인터셉터 제외
-    const excludeUrls = ['/user/v1/login', '/user/v1/token/reissue', '/user/v1/find/',]
-    if (excludeUrls.some(url => original.url?.includes(url))) {
+    // 로그인/계정찾기 URL은 인터셉터 제외
+    const excludeUrls = ['/user/v1/login', '/user/v1/find/']
+    if (excludeUrls.some(url => original?.url?.includes(url))) {
       return Promise.reject(err)
     }
 
-    if (err.response?.status === 401 && !original._retry) {
-      original._retry = true
-      try {
-        const { data } = await axios.post(
-          `${import.meta.env.VITE_API_URL}/user/v1/token/reissue`,
-          {},
-          { withCredentials: true }
-        )
-        const tokenData = data.data
-        const payload = decodeJwt(tokenData.accessToken)
-
-        useAuthStore.getState().login({
-          accessToken: tokenData.accessToken,
-          user: {
-            // userId:   payload.sub,
-            loginId:  payload.loginId,
-            nickname: payload.nickname,
-            // roles:    payload.roles,
-          },
-        })
-
-        original.headers.Authorization = `Bearer ${tokenData.accessToken}`
-        return api(original)
-      } catch {
-        useAuthStore.getState().logout()
-        window.location.href = '/login'
-      }
+    if (err.response?.status === 401) {
+      useAuthStore.getState().logout()
+      window.location.href = '/login'
     }
 
     return Promise.reject(err)

@@ -64,7 +64,7 @@ export default function SignupStep1Page() {
     return `${form.emailLocal}@${domain}`
   }
 
-  // ── 입력 핸들러
+  // 입력 핸들러
   const handleChange = (e) => {
     const { name, value } = e.target
     setForm(prev => ({ ...prev, [name]: value }))
@@ -86,7 +86,7 @@ export default function SignupStep1Page() {
     setErrors(prev => ({ ...prev, email: '' }))
   }
 
-  // ── 아이디 중복확인
+  // 아이디 중복확인
   const handleIdCheck = async () => {
     if (!RULES.loginId.test(form.loginId)) {
       setErrors(prev => ({ ...prev, loginId: '아이디를 입력해 주세요. (영문, 숫자 조합 4 ~ 20자)' }))
@@ -112,7 +112,7 @@ export default function SignupStep1Page() {
     }
   }
 
-  // ── 닉네임 중복확인
+  // 닉네임 중복확인
   const handleNicknameCheck = async () => {
     if (!form.nickname) {
       setErrors(prev => ({ ...prev, nickname: '닉네임을 입력해 주세요.' }))
@@ -140,7 +140,7 @@ export default function SignupStep1Page() {
     }
   }
 
-  // ── 이메일 인증 요청
+  // 이메일 인증 요청
   const handleEmailVerify = async () => {
     if (!form.emailLocal) {
       setErrors(prev => ({ ...prev, email: '이메일을 입력해 주세요.' }))
@@ -174,7 +174,7 @@ export default function SignupStep1Page() {
     }
   }
 
-  // ── 인증코드 확인
+  // 인증코드 확인
   const handleVerifyConfirm = async () => {
     if (!verifyCode || verifyCode.length !== 6) {
       setErrors(prev => ({ ...prev, verifyCode: '인증코드를 입력하세요.' }))
@@ -206,7 +206,7 @@ export default function SignupStep1Page() {
     }
   }
 
-  // ── 카카오 주소 검색
+  // 카카오 주소 검색
   const handleAddrSearch = () => {
     const open = () => {
       new window.daum.Postcode({
@@ -229,7 +229,7 @@ export default function SignupStep1Page() {
     }
   }
 
-  // ── 유효성 검사
+  // 유효성 검사
   const validate = () => {
     const e = {}
     if (!RULES.loginId.test(form.loginId))
@@ -251,7 +251,7 @@ export default function SignupStep1Page() {
     return e
   }
 
-  // ── 다음 버튼
+  // 다음 버튼
   const handleNext = () => {
     const newErrors = validate()
     if (Object.keys(newErrors).length > 0) {
@@ -271,7 +271,7 @@ export default function SignupStep1Page() {
     navigate('/signup/step2')
   }
 
-  // ── 이메일 버튼 텍스트
+  // 이메일 버튼 텍스트
   const emailBtnText = () => {
     if (emailVerifyStep === 'sending') return '전송 중...'
     if (emailVerifyStep === 'failed')  return '재발송'

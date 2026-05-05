@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import PrivateRoute from './components/common/PrivateRoute'
 import SignupStepGuard from './components/common/SignupStepGuard'
 import useAuthStore from './store/authStore'
-import api, { decodeJwt } from './api/axiosInstance'
+import { decodeJwt } from './api/axiosInstance'
 
 // Auth
 import LoginPage from './pages/auth/LoginPage'
@@ -48,7 +48,7 @@ export default function App() {
       return payload.exp * 1000 > Date.now() + 5000
     }
 
-    const restoreSession = async () => {
+    const restoreSession = () => {
       // 명시적으로 로그아웃한 상태면 reissue 요청 안 함
       const isLoggedOut = sessionStorage.getItem('logged-out')
       if (isLoggedOut) {
@@ -62,25 +62,10 @@ export default function App() {
         return
       }
 
-      try {
-        const { data } = await api.post('/user/v1/token/reissue')
-        const tokenData = data.data
-        const payload = decodeJwt(tokenData.accessToken)
-
-        login({
-          accessToken: tokenData.accessToken,
-          user: {
-            userId: payload.sub,
-            loginId: payload.loginId,
-            nickname: payload.nickname,
-            roles: payload.roles,
-          },
-        })
-      } catch {
-        logout()
-      } finally {
-        setInitializing(false)
-      }
+      // Gateway에서 자동 재발급/재시도 담당
+      // 프론트는 유효한 AT가 없으면 비인증 상태로 처리
+      logout()
+      setInitializing(false)
     }
 
     const handleStorageChange = (e) => {

@@ -488,11 +488,11 @@ function FindPasswordTab() {
             {pwLoading ? '처리 중...' : '비밀번호 변경'}
           </button>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12 }}>
+          {/* <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12 }}>
             <Link to="/login" style={{ fontSize: '0.85rem', color: '#6b7280', textDecoration: 'none' }}>
               로그인하기
             </Link>
-          </div>
+          </div> */}
         </>
       )}
 
