@@ -35,13 +35,23 @@ export default function LoginPage() {
     setGlobalError('')
 
     try {
-      const { data } = await api.post('/user/v1/login', {
+      const { data, headers } = await api.post('/user/v1/login', {
         loginId: form.loginId,
         password: form.password,
       })
 
-      const tokenData = data.data
-      const payload = decodeJwt(tokenData.accessToken)
+      const tokenFromBody = data?.data?.accessToken
+      const authHeader = headers?.authorization || headers?.Authorization
+      const tokenFromHeader = authHeader?.startsWith('Bearer ')
+        ? authHeader.slice(7)
+        : null
+      const accessToken = tokenFromBody || tokenFromHeader
+
+      if (!accessToken) {
+        throw new Error('AccessToken missing in login response')
+      }
+
+      const payload = decodeJwt(accessToken)
 
       if (saveId) {
         localStorage.setItem('algotalk-saved-id', form.loginId)
@@ -51,7 +61,7 @@ export default function LoginPage() {
 
       sessionStorage.removeItem('logged-out') // 로그인 성공 시 플래그 제거
       login({
-        accessToken: tokenData.accessToken,
+        accessToken,
         user: {
           userId:   payload.sub,
           loginId:  payload.loginId,

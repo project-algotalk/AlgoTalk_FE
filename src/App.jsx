@@ -38,7 +38,7 @@ import MyPage from './pages/mypage/MyPage'
 import MainPage from './pages/main/MainPage'
 
 export default function App() {
-  const { login, logout, accessToken } = useAuthStore()
+  const { logout, accessToken, authStatus } = useAuthStore()
   const [initializing, setInitializing] = useState(true)
 
   useEffect(() => {
@@ -63,8 +63,8 @@ export default function App() {
       }
 
       // Gateway에서 자동 재발급/재시도 담당
-      // 프론트는 유효한 AT가 없으면 비인증 상태로 처리
-      logout()
+      // accessToken이 메모리에 없어도 refresh 쿠키로 인증이 복구될 수 있으므로
+      // 여기서 강제 logout 하지 않고 기존 authStatus를 유지
       setInitializing(false)
     }
 
@@ -79,7 +79,7 @@ export default function App() {
     restoreSession()
 
     return () => window.removeEventListener('storage', handleStorageChange)
-  }, [accessToken, login, logout])
+  }, [accessToken, authStatus, logout])
 
   if (initializing) {
     return (
