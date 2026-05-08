@@ -155,7 +155,7 @@ export default function SignupStep1Page() {
     setErrors(prev => ({ ...prev, email: '' }))
     try {
       const email = getFullEmail()
-      await api.post('/user/v1/reg/send/email-code', { email })
+      await api.post('/user/v1/reg/email-code', { email })
       setSentEmail(email)  // 발송한 이메일 고정 저장
       setEmailVerifyStep('code_sent')
       setModal({
@@ -182,7 +182,7 @@ export default function SignupStep1Page() {
     }
     setErrors(prev => ({ ...prev, verifyCode: '' }))
     try {
-      await api.post('/user/v1/reg/check/email-code', {
+      await api.post('/user/v1/reg/verify-code', {
         email:      sentEmail,   // 발송 시 고정한 이메일 사용
         authNumber: verifyCode,  // code → authNumber
       })
