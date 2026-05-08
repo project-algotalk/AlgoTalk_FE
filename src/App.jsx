@@ -4,8 +4,7 @@ import { useEffect, useState } from 'react'
 import PrivateRoute from './components/common/PrivateRoute'
 import SignupStepGuard from './components/common/SignupStepGuard'
 import useAuthStore from './store/authStore'
-import { decodeJwt } from './api/axiosInstance'
-
+import { fetchMe } from './api/authApi'
 // Auth
 import LoginPage from './pages/auth/LoginPage'
 import OAuthCallbackPage from './pages/auth/OAuthCallbackPage'
@@ -38,18 +37,11 @@ import MyPage from './pages/mypage/MyPage'
 import MainPage from './pages/main/MainPage'
 
 export default function App() {
-  const { logout, accessToken, authStatus } = useAuthStore()
+  const { login, logout, setUnauthenticated } = useAuthStore()
   const [initializing, setInitializing] = useState(true)
 
   useEffect(() => {
-    const isTokenValid = (token) => {
-      const payload = decodeJwt(token)
-      if (!payload?.exp) return false
-      return payload.exp * 1000 > Date.now() + 5000
-    }
-
-    const restoreSession = () => {
-      // 명시적으로 로그아웃한 상태면 reissue 요청 안 함
+    const restoreSession = async () => {
       const isLoggedOut = sessionStorage.getItem('logged-out')
       if (isLoggedOut) {
         logout()
@@ -57,15 +49,23 @@ export default function App() {
         return
       }
 
-      if (accessToken && isTokenValid(accessToken)) {
-        setInitializing(false)
-        return
+      // sessionStorage에 이미 인증 상태면 /me 생략
+      const currentStatus = useAuthStore.getState().authStatus
+      if (currentStatus === 'authenticated') {
+          setInitializing(false)
+          return
       }
 
-      // Gateway에서 자동 재발급/재시도 담당
-      // accessToken이 메모리에 없어도 refresh 쿠키로 인증이 복구될 수 있으므로
-      // 여기서 강제 logout 하지 않고 기존 authStatus를 유지
-      setInitializing(false)
+      // sessionStorage에 없을 때만 /me 호출
+      try {
+          const me = await fetchMe()
+          if (!me) throw new Error('ME_EMPTY')
+          login({ user: me })
+      } catch {
+          setUnauthenticated()
+      } finally {
+          setInitializing(false)
+      }
     }
 
     const handleStorageChange = (e) => {
@@ -79,7 +79,7 @@ export default function App() {
     restoreSession()
 
     return () => window.removeEventListener('storage', handleStorageChange)
-  }, [accessToken, authStatus, logout])
+  }, [login, logout, setUnauthenticated])
 
   if (initializing) {
     return (

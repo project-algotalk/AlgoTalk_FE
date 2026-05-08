@@ -7,28 +7,6 @@ const api = axios.create({
   withCredentials: true,
 })
 
-// JWT 페이로드 디코딩 (한글 포함)
-export const decodeJwt = (token) => {
-  try {
-    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
-    const jsonStr = decodeURIComponent(
-      atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')
-    )
-    return JSON.parse(jsonStr)
-  } catch {
-    return {}
-  }
-}
-
-// AT 자동 주입
-api.interceptors.request.use((config) => {
-  const accessToken = useAuthStore.getState().accessToken
-  if (accessToken) {
-    config.headers.Authorization = `Bearer ${accessToken}`
-  }
-  return config
-})
-
 // 401은 게이트웨이에서 자동 재발급/재시도 처리
 api.interceptors.response.use(
   (res) => res,

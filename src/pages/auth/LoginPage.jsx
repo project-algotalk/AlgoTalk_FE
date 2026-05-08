@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import useAuthStore from '../../store/authStore'
-import api, { decodeJwt } from '../../api/axiosInstance'
+import { loginWithCredentials } from '../../api/authApi'
 import './LoginPage.css'
 
 export default function LoginPage() {
@@ -35,23 +35,10 @@ export default function LoginPage() {
     setGlobalError('')
 
     try {
-      const { data, headers } = await api.post('/user/v1/login', {
+      const me = await loginWithCredentials({
         loginId: form.loginId,
         password: form.password,
       })
-
-      const tokenFromBody = data?.data?.accessToken
-      const authHeader = headers?.authorization || headers?.Authorization
-      const tokenFromHeader = authHeader?.startsWith('Bearer ')
-        ? authHeader.slice(7)
-        : null
-      const accessToken = tokenFromBody || tokenFromHeader
-
-      if (!accessToken) {
-        throw new Error('AccessToken missing in login response')
-      }
-
-      const payload = decodeJwt(accessToken)
 
       if (saveId) {
         localStorage.setItem('algotalk-saved-id', form.loginId)
@@ -61,12 +48,11 @@ export default function LoginPage() {
 
       sessionStorage.removeItem('logged-out') // 로그인 성공 시 플래그 제거
       login({
-        accessToken,
         user: {
-          userId:   payload.sub,
-          loginId:  payload.loginId,
-          nickname: payload.nickname,
-          roles:    payload.roles,
+          userId:   me.userId,
+          loginId:  me.loginId,
+          nickname: me.nickname,
+          roles:    me.roles,
         },
       })
 
@@ -90,8 +76,8 @@ export default function LoginPage() {
   }
 
   const handleSocialLogin = (provider) => {
-    window.location.href = `${import.meta.env.VITE_API_URL}/oauth2/authorization/${provider}`
-  }
+    const apiBase = import.meta.env.VITE_API_URL
+    window.location.href = `${apiBase}/oauth2/authorization/${provider}`  }
 
   return (
     <div className="login-page">

@@ -1,36 +1,26 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "../../store/authStore";
-import { decodeJwt } from "../../api/axiosInstance";
+import { fetchMe } from "../../api/authApi";
 
 export default function OAuthCallbackPage() {
     const navigate = useNavigate();
-    const { login } = useAuthStore();
+    const { login, setUnauthenticated } = useAuthStore();
 
     useEffect(() => {
-        // URL fragment에서 AT 추출
-        // http://localhost:5173/oauth2/callback#token=eyJ...
-        const hash = window.location.hash;
-        const token = hash.replace("#token=", "");
-
-        if (token) {
-        const payload = decodeJwt(token);
-        sessionStorage.removeItem("logged-out"); // 로그인 성공 시 플래그 제거
-        login({
-            accessToken: token,
-            user: {
-            userId: payload.sub,
-            loginId: payload.loginId,
-            nickname: payload.nickname,
-            roles: payload.roles,
-            },
-        });
-        navigate("/", { replace: true });
-        } else {
-        // 토큰 없으면 로그인 페이지로
-        //   navigate('/login', { replace: true })
+        const resolveSocialLogin = async () => {
+            try {
+                const me = await fetchMe();
+                sessionStorage.removeItem("logged-out");
+                login({ user: me });
+                navigate("/", { replace: true });
+            } catch {
+                setUnauthenticated();
+                navigate("/login", { replace: true });
+            }
         }
-    }, [login, navigate]);
+        resolveSocialLogin();
+    }, [login, navigate, setUnauthenticated]);
 
     return (
         <div
