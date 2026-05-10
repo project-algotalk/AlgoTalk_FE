@@ -1,0 +1,607 @@
+/* src/pages/mypage/MyPage.css */
+
+.mp-page {
+  width: 100%;
+  min-height: 100vh;
+  background: #f8f9fb;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── 레이아웃 ── */
+.mp-layout {
+  display: flex;
+  max-width: 1100px;
+  margin: 32px auto;
+  padding: 0 24px;
+  gap: 32px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ── 사이드바 ── */
+.mp-sidebar {
+  width: 180px;
+  flex-shrink: 0;
+}
+
+.mp-sidebar-section {
+  margin-bottom: 8px;
+}
+
+.mp-sidebar-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 6px 12px;
+  margin-bottom: 4px;
+}
+
+.mp-sidebar-item {
+  display: block;
+  width: 100%;
+  padding: 9px 12px;
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 0.88rem;
+  font-family: "Noto Sans KR", sans-serif;
+  color: #555;
+  cursor: pointer;
+  border-radius: 6px;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.mp-sidebar-item:hover {
+  background: #eef0f5;
+  color: #1a1a1a;
+}
+
+.mp-sidebar-item.active {
+  background: #1a1a1a;
+  color: #fff;
+  font-weight: 600;
+}
+
+.mp-sidebar-item.danger {
+  color: #d32f2f;
+}
+
+.mp-sidebar-item.danger:hover {
+  background: #fff0f0;
+}
+
+/* ── 콘텐츠 영역 ── */
+.mp-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── 프로필 헤더 ── */
+.mp-profile-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.mp-avatar {
+  width: 52px;
+  height: 52px;
+  background: #e0e4ef;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  color: #8899bb;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.mp-avatar-edit {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 20px;
+  height: 20px;
+  background: #555;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.65rem;
+  color: #fff;
+}
+
+.mp-profile-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.mp-profile-joined {
+  font-size: 0.82rem;
+  color: #aaa;
+  margin-top: 2px;
+}
+
+/* ── 탭 ── */
+.mp-tabs {
+  display: flex;
+  border-bottom: 2px solid #e0e0e0;
+  margin-bottom: 4px;
+}
+
+.mp-tab {
+  padding: 10px 20px;
+  background: none;
+  border: none;
+  font-size: 0.95rem;
+  font-family: "Noto Sans KR", sans-serif;
+  color: #aaa;
+  cursor: pointer;
+  border-bottom: 2.5px solid transparent;
+  margin-bottom: -2px;
+  font-weight: 500;
+  transition: color 0.15s;
+}
+
+.mp-tab.active {
+  color: #1a1a1a;
+  font-weight: 700;
+  border-bottom-color: #1a1a1a;
+}
+
+/* ── 카드 섹션 ── */
+.mp-card {
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #e8ecf3;
+  padding: 24px 28px;
+}
+
+.mp-card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* ── 정보 행 ── */
+.mp-row {
+  display: flex;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f5f5f5;
+  gap: 12px;
+}
+
+.mp-row:last-child {
+  border-bottom: none;
+}
+
+.mp-row-label {
+  width: 80px;
+  flex-shrink: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  min-width: 100px;
+  flex-shrink: 0;
+  color: #888;
+}
+
+.mp-row-value {
+  flex: 1;
+  font-size: 0.9rem;
+  color: #1a1a1a;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mp-row-value input {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-family: "Noto Sans KR", sans-serif;
+  color: #1a1a1a;
+  background: #fff;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.mp-row-value input:focus {
+  border-color: #1c4d8d;
+}
+
+.mp-row-value input:read-only {
+  background: #f8f9fb;
+  color: #888;
+  cursor: default;
+}
+
+.mp-row-btn {
+  flex-shrink: 0;
+  height: 36px;
+  padding: 0 16px;
+  background: #fff;
+  color: #444;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-family: "Noto Sans KR", sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+
+.mp-row-btn:hover {
+  background: #f5f5f5;
+  border-color: #999;
+}
+
+.mp-row-btn.primary {
+  background: #1a1a1a;
+  color: #fff;
+  border-color: #1a1a1a;
+}
+
+.mp-row-btn.primary:hover {
+  background: #333;
+}
+
+/* ── 비밀번호 행 ── */
+.mp-pw-dots {
+  letter-spacing: 3px;
+  font-size: 1rem;
+  color: #bbb;
+}
+
+/* ── SNS 계정 연결 ── */
+.mp-sns-row {
+  display: flex;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid #f5f5f5;
+  gap: 12px;
+}
+
+.mp-sns-row:last-child {
+  border-bottom: none;
+}
+
+.mp-sns-label {
+  width: auto;
+  min-width: 100px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #888;
+}
+
+.mp-sns-icons {
+  flex: 1;
+  display: flex;
+  gap: 10px;
+}
+
+.mp-sns-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  border: none;
+}
+
+.mp-sns-icon:hover {
+  opacity: 0.8;
+}
+
+.mp-sns-icon.google {
+  background: #e53935;
+  color: #fff;
+}
+.mp-sns-icon.kakao {
+  background: #fee500;
+  color: #1a1a1a;
+}
+.mp-sns-icon.naver {
+  background: #03c75a;
+  color: #fff;
+}
+
+.mp-sns-icon.inactive {
+  background: #e8e8e8;
+  color: #bbb;
+  cursor: default;
+}
+
+.mp-sns-icon.inactive:hover {
+  opacity: 1;
+}
+
+/* ── 힌트/에러 ── */
+.mp-hint {
+  font-size: 0.78rem;
+  color: #aaa;
+  margin-top: 4px;
+}
+
+.mp-hint.error {
+  color: #d32f2f;
+}
+.mp-hint.ok {
+  color: #1a7f4b;
+}
+
+/* ── 모달 ── */
+.mp-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+}
+
+.mp-modal {
+  background: #fff;
+  border-radius: 14px;
+  padding: 32px 36px;
+  width: 420px;
+  max-width: 90vw;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.18);
+}
+
+.mp-modal-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 20px;
+}
+
+.mp-modal-field {
+  margin-bottom: 14px;
+}
+
+.mp-modal-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 6px;
+}
+
+.mp-modal-required {
+  color: #d32f2f;
+  margin-left: 2px;
+}
+
+.mp-modal-input {
+  width: 100%;
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-family: "Noto Sans KR", sans-serif;
+  color: #1a1a1a;
+  background: #fff;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.mp-modal-input:focus {
+  border-color: #1c4d8d;
+}
+.mp-modal-input.error {
+  border-color: #d32f2f;
+}
+
+.mp-modal-btn-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  justify-content: flex-end;
+}
+
+.mp-modal-btn {
+  height: 42px;
+  padding: 0 22px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: "Noto Sans KR", sans-serif;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: 1px solid #d0d0d0;
+  background: #fff;
+  color: #444;
+}
+
+.mp-modal-btn:hover {
+  background: #f5f5f5;
+}
+
+.mp-modal-btn.primary {
+  background: #1a1a1a;
+  color: #fff;
+  border-color: #1a1a1a;
+}
+
+.mp-modal-btn.primary:hover {
+  background: #333;
+}
+.mp-modal-btn.primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mp-modal-btn.danger {
+  background: #d32f2f;
+  color: #fff;
+  border-color: #d32f2f;
+}
+
+.mp-modal-btn.danger:hover {
+  background: #b71c1c;
+}
+.mp-modal-btn.danger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── 탈퇴 모달 안내 박스 ── */
+.mp-withdraw-warn {
+  background: #fff5f5;
+  border: 1px solid #ffcdd2;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+
+.mp-withdraw-warn-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #d32f2f;
+  margin-bottom: 8px;
+}
+
+.mp-withdraw-warn ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.mp-withdraw-warn li {
+  font-size: 0.82rem;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.mp-withdraw-check-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.875rem;
+  color: #444;
+  cursor: pointer;
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.mp-withdraw-check-label input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  margin-top: 2px;
+  accent-color: #1a1a1a;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+/* ── 반응형 ── */
+@media (max-width: 768px) {
+  .mp-layout {
+    flex-direction: column;
+    margin: 16px auto;
+    padding: 0 16px;
+    gap: 16px;
+  }
+
+  .mp-sidebar {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .mp-sidebar-title {
+    display: none;
+  }
+
+  .mp-sidebar-item {
+    padding: 7px 14px;
+    border: 1px solid #e0e0e0;
+    border-radius: 20px;
+    font-size: 0.82rem;
+  }
+
+    .mp-card {
+    padding: 16px;
+  }
+
+  .mp-row {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .mp-row-label {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .mp-row-value {
+    flex: 1;
+    white-space: normal;   /* 모바일에서는 줄바꿈 허용 */
+    min-width: 0;
+  }
+
+  .mp-row-btn {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .mp-sns-row {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .mp-sns-label {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .mp-sns-icons {
+    flex-wrap: nowrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .mp-row-btn {
+    font-size: 0.78rem;
+    padding: 0 10px;
+    height: 32px;
+  }
+
+  .mp-sns-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+  }
+}
