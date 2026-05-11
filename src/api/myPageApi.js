@@ -42,6 +42,11 @@ export const updateEmail = async (payload) => {
     await api.post('/mypage/v1/update-email', payload)
 }
 
+export const issueLinkToken = async (provider) => {
+    const res = await api.post(`/mypage/v1/social/link/${provider}`)
+    return res.data.data.linkToken
+}
+
 export const unlinkSocial = async (provider) => {
     await api.delete(`/mypage/v1/social/${provider}`)
 }

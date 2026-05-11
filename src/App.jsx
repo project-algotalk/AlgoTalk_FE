@@ -130,6 +130,8 @@ export default function App() {
           <Route path="/board/write" element={<BoardWritePage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/mypage" element={<MyPage />} />
+          <Route path="/oauth2/link/success" element={<OAuthCallbackPage />} />
+          <Route path="/oauth2/link/failure" element={<OAuthCallbackPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -3,25 +3,36 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useAuthStore from '../../store/authStore'
 import Navbar from '../../components/common/Navbar'
+import { useLocation } from 'react-router-dom'
 import {
     fetchMyPageInfo,
     updateLoginId, updatePassword, setPassword,
     updateNickname, updateName, updateAddr,
     sendEmailCode, verifyEmailCode, updateEmail,
-    unlinkSocial, withdraw,
+    issueLinkToken, unlinkSocial, withdraw,
 } from '../../api/myPageApi'
 import './MyPage.css'
 
-// ── 공통 성공 모달
-function SuccessModal({ message, onConfirm }) {
+// ── 공통 성공/에러 모달
+function SuccessModal({ message, onConfirm, type = 'success' }) {
+    const isError = type === 'error'
+    const color = isError ? '#d32f2f' : '#1a7f4b'
+
     return (
         <div className="mp-modal-overlay">
             <div className="mp-modal" style={{ textAlign: 'center', padding: '36px' }}>
                 <div style={{ marginBottom: 16 }}>
-                    <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
-                        <circle cx="26" cy="26" r="24" stroke="#1a7f4b" strokeWidth="2.5" fill="none"/>
-                        <path d="M15 26l8 8 14-14" stroke="#1a7f4b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
+                    {isError ? (
+                        <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+                            <circle cx="26" cy="26" r="24" stroke={color} strokeWidth="2.5" fill="none"/>
+                            <path d="M18 18l16 16M34 18l-16 16" stroke={color} strokeWidth="2.5" strokeLinecap="round"/>
+                        </svg>
+                    ) : (
+                        <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+                            <circle cx="26" cy="26" r="24" stroke={color} strokeWidth="2.5" fill="none"/>
+                            <path d="M15 26l8 8 14-14" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                    )}
                 </div>
                 <p style={{ fontSize: '1rem', fontWeight: 600, color: '#1a1a1a', marginBottom: 24 }}>
                     {message}
@@ -599,12 +610,26 @@ function WithdrawModal({ passwordSetYn, onClose }) {
 // ── 메인 마이페이지
 export default function MyPage() {
     const navigate = useNavigate()
+    const location = useLocation()
     const { user, login } = useAuthStore()
     const [tab, setTab] = useState('account')
     const [info, setInfo] = useState(null)
     const [loading, setLoading] = useState(true)
     const [modal, setModal] = useState(null) // 'password' | 'nickname' | 'name' | 'email' | 'addr' | 'unlink' | 'withdraw'
     const [unlinkProvider, setUnlinkProvider] = useState(null)
+    const [resultModal, setResultModal] = useState(null) // { type: 'success'|'error', message }
+
+    useEffect(() => {
+        if (location.state?.linkSuccess) {
+            setResultModal({ type: 'success', message: '소셜 계정이 연결되었습니다.' })
+            fetchMyPageInfo().then(data => setInfo(data)).catch(() => {})
+            navigate(location.pathname, { replace: true, state: {} })
+        }
+        if (location.state?.linkError) {
+            setResultModal({ type: 'error', message: '소셜 계정 연결에 실패했습니다.' })
+            navigate(location.pathname, { replace: true, state: {} })
+        }
+    }, [location.state])
 
     useEffect(() => {
         const load = async () => {
@@ -727,14 +752,20 @@ export default function MyPage() {
                                             <button
                                                 key={provider}
                                                 className={`mp-sns-icon ${PROVIDER_CLASSES[provider]} ${!isLinked(provider) ? 'inactive' : ''}`}
-                                                onClick={() => {
+                                                onClick={async () => {
                                                     if (isLinked(provider)) {
                                                         // 연결 해제
                                                         setUnlinkProvider(provider)
                                                         setModal('unlink')
                                                     } else {
-                                                        // 추가 연결 - 현재 미구현, 안내 메시지
-                                                        alert('소셜 계정 추가 연결은 준비 중입니다.')
+                                                        try {
+                                                            const linkToken = await issueLinkToken(provider)
+                                                            sessionStorage.setItem('oauth2_link_mode', 'true')
+                                                            window.location.href =
+                                                                `${import.meta.env.VITE_API_URL}/oauth2/authorization/${provider.toLowerCase()}?linkToken=${linkToken}`
+                                                        } catch (err) {
+                                                            alert(err.response?.data?.message || '소셜 연결 요청에 실패했습니다.')
+                                                        }
                                                     }
                                                 }}
                                                 title={isLinked(provider) ? `${provider} 연결 해제` : `${provider} 연결하기`}
@@ -842,6 +873,14 @@ export default function MyPage() {
                 />
             )}
 
+            {resultModal && (
+                <SuccessModal
+                    type={resultModal.type}
+                    message={resultModal.message}
+                    onConfirm={() => setResultModal(null)}
+                />
+            )}
+
             {modal === 'unlink' && unlinkProvider && (
                 <UnlinkModal
                     provider={unlinkProvider}
@@ -854,7 +893,7 @@ export default function MyPage() {
                 <PasswordModal
                     passwordSetYn={info?.passwordSetYn}
                     onClose={() => setModal(null)}
-                    onSuccess={() => { setModal(null); alert('비밀번호가 변경되었습니다.') }}
+                    onSuccess={() => setModal(null)}  // alert 제거
                 />
             )}
 
