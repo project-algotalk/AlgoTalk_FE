@@ -38,7 +38,7 @@ export default function OAuthCallbackPage() {
             }
         }
         resolveSocialLogin()
-    }, [])
+    }, [login, navigate, setUnauthenticated, location.pathname])
 
     return (
         <div style={{

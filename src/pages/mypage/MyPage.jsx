@@ -617,19 +617,20 @@ export default function MyPage() {
     const [loading, setLoading] = useState(true)
     const [modal, setModal] = useState(null) // 'password' | 'nickname' | 'name' | 'email' | 'addr' | 'unlink' | 'withdraw'
     const [unlinkProvider, setUnlinkProvider] = useState(null)
-    const [resultModal, setResultModal] = useState(null) // { type: 'success'|'error', message }
+    const [resultModal, setResultModal] = useState(() => {
+        if (location.state?.linkSuccess) return { type: 'success', message: '소셜 계정이 연결되었습니다.' }
+        if (location.state?.linkError) return { type: 'error', message: '소셜 계정 연결에 실패했습니다.' }
+        return null
+    }) // { type: 'success'|'error', message }
 
     useEffect(() => {
         if (location.state?.linkSuccess) {
-            setResultModal({ type: 'success', message: '소셜 계정이 연결되었습니다.' })
             fetchMyPageInfo().then(data => setInfo(data)).catch(() => {})
+        }
+        if (location.state?.linkSuccess || location.state?.linkError) {
             navigate(location.pathname, { replace: true, state: {} })
         }
-        if (location.state?.linkError) {
-            setResultModal({ type: 'error', message: '소셜 계정 연결에 실패했습니다.' })
-            navigate(location.pathname, { replace: true, state: {} })
-        }
-    }, [location.state])
+    }, [location.pathname, location.state, navigate])
 
     useEffect(() => {
         const load = async () => {
