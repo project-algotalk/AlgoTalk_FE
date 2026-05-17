@@ -14,7 +14,7 @@ api.interceptors.response.use(
     const original = err.config
 
     // 로그인/계정찾기 URL은 인터셉터 제외
-    const excludeUrls = ['/user/v1/login', '/user/v1/find/']
+    const excludeUrls = ['/user/v1/login', '/user/v1/find/', '/user/v1/me']
     if (excludeUrls.some(url => original?.url?.includes(url))) {
       return Promise.reject(err)
     }

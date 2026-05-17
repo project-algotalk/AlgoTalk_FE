@@ -75,6 +75,9 @@
 .su3-card-input::placeholder { color: #bbb; }
 .su3-card-input:focus { border-color: #1C4D8D; }
 .su3-card-input--disabled { background: #f0f0f0; color: #bbb; cursor: not-allowed; }
+.su3-card-input--error {
+    border-color: #d32f2f;
+}
 
 /* ── 직무 카테고리 트리거 ── */
 .su3-job-trigger {

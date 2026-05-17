@@ -1,48 +1,8 @@
 // src/pages/auth/SignupStep2Page.jsx
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { fetchCategories } from '../../api/csCategoryApi'
 import './SignupStep2Page.css'
-
-const JOB_CATEGORIES = [
-  {
-    id: 20, label: '소프트웨어 개발',
-    jobs: [
-      { id: 100, name: '프론트엔드' },
-      { id: 101, name: '백엔드' },
-      { id: 102, name: '풀스택' },
-      { id: 103, name: '모바일 / 앱' },
-      { id: 104, name: '게임' },
-      { id: 105, name: '임베디드' },
-    ],
-  },
-  {
-    id: 21, label: '데이터 및 인공지능',
-    jobs: [
-      { id: 110, name: 'AI/머신러닝 엔지니어' },
-      { id: 111, name: '데이터 사이언티스트' },
-      { id: 112, name: '데이터 엔지니어' },
-      { id: 113, name: '프롬프트 엔지니어' },
-    ],
-  },
-  {
-    id: 22, label: 'IT 인프라 및 운영',
-    jobs: [
-      { id: 120, name: '클라우드 엔지니어' },
-      { id: 121, name: 'DevOps/SRE' },
-      { id: 122, name: '정보보안 전문가' },
-      { id: 123, name: '네트워크/시스템 관리자' },
-    ],
-  },
-  {
-    id: 23, label: 'IT 기획 및 서비스',
-    jobs: [
-      { id: 130, name: 'IT 프로젝트 매니저(PM)' },
-      { id: 131, name: '서비스 기획자/PO' },
-      { id: 132, name: 'UI/UX 디자이너' },
-      { id: 133, name: 'QA 엔지니어' },
-    ],
-  },
-]
 
 const MAX_SELECT = 3
 
@@ -63,6 +23,23 @@ const formatDate = (val) => {
   return val.replace(/\./g, '-')
 }
 
+// YYYY-MM-DD 형식 + 실제 날짜 유효성 검증
+const isValidDate = (val) => {
+    if (!val) return true // 선택 입력이면 빈 값 허용
+    const formatted = formatDate(val) // YYYY-MM-DD로 변환
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(formatted)) return false
+
+    const [y, m, d] = formatted.split('-').map(Number)
+    if (m < 1 || m > 12) return false
+    if (d < 1 || d > 31) return false
+
+    // Date 객체로 실제 유효성 확인 (2월 30일 같은 케이스)
+    const date = new Date(y, m - 1, d)
+    return date.getFullYear() === y &&
+           date.getMonth() === m - 1 &&
+           date.getDate() === d
+}
+
 export default function SignupStep2Page() {
   const navigate = useNavigate()
 
@@ -72,8 +49,43 @@ export default function SignupStep2Page() {
   const [endDate, setEndDate]           = useState('')
   const [isPreparing, setIsPreparing]   = useState(true)
   const [errors, setErrors]             = useState({})
+  const [jobCategories, setJobCategories] = useState([])
+  const [categoriesLoading, setCategoriesLoading] = useState(true)
 
-  const currentCategory = JOB_CATEGORIES[activeTab]
+  useEffect(() => {
+      fetchCategories()
+          .then(data => {
+              // JOB 타입만 필터링
+              const jobData = data.filter(c => c.categoryType === 'JOB')
+
+              // DEPTH 1 = 대분류 탭
+              const tabs = jobData
+                  .filter(c => c.depth === 1)
+                  .sort((a, b) => a.sortOrder - b.sortOrder)
+                  .map(tab => ({
+                      id: tab.categoryId,
+                      label: tab.categoryName,
+                      // DEPTH 2 중 parentId가 이 탭의 id인 것
+                      jobs: jobData
+                          .filter(c => c.depth === 2 && c.parentId === tab.categoryId)
+                          .sort((a, b) => a.sortOrder - b.sortOrder)
+                          .map(job => ({
+                              id: job.categoryId,
+                              name: job.categoryName,
+                          }))
+                  }))
+
+              setJobCategories(tabs)
+          })
+          .catch(() => alert('카테고리를 불러오는데 실패했습니다.'))
+          .finally(() => setCategoriesLoading(false))
+  }, [])
+
+  // 기존 JOB_CATEGORIES 상수 삭제
+  // const currentCategory = JOB_CATEGORIES[activeTab] → 아래로 교체
+  const currentCategory = jobCategories[activeTab] || { jobs: [] }
+
+  if (categoriesLoading) return <div>로딩 중...</div>
 
   const handleJobToggle = (job) => {
     const isSelected = selectedJobs.some(j => j.categoryId === job.id)
@@ -96,12 +108,35 @@ export default function SignupStep2Page() {
   }
 
   const validate = () => {
-    const e = {}
-    if (!startDate)
-      e.startDate = '준비 시작일을 입력해 주세요.'
-    if (!isPreparing && !endDate)
-      e.endDate = '종료일을 입력해 주세요.'
-    return e
+      const e = {}
+
+      if (selectedJobs.length > 0) {
+          // 직무 선택한 경우에만 시작일 필수
+          if (!startDate) {
+              e.startDate = '준비 시작일을 입력해 주세요.'
+          } else if (!isValidDate(startDate)) {
+              e.startDate = '올바른 날짜를 입력해 주세요. (예: 2026.01.01)'
+          }
+          if (!isPreparing) {
+              if (!endDate) {
+                  e.endDate = '종료일을 입력해 주세요.'
+              } else if (!isValidDate(endDate)) {
+                  e.endDate = '올바른 날짜를 입력해 주세요. (예: 2026.01.01)'
+              }
+              if (startDate && endDate && isValidDate(startDate) && isValidDate(endDate)) {
+                  if (new Date(formatDate(startDate)) > new Date(formatDate(endDate)))
+                      e.endDate = '종료일은 시작일 이후여야 합니다.'
+              }
+          }
+      } else {
+          // 직무 선택 안 했어도 날짜 입력한 경우 형식 검증
+          if (startDate && !isValidDate(startDate))
+              e.startDate = '올바른 날짜를 입력해 주세요. (예: 2026.01.01)'
+          if (!isPreparing && endDate && !isValidDate(endDate))
+              e.endDate = '올바른 날짜를 입력해 주세요. (예: 2026.01.01)'
+      }
+
+      return e
   }
 
   const handlePrev = () => {
@@ -186,7 +221,7 @@ export default function SignupStep2Page() {
 
         {/* 대분류 탭 */}
         <div className="su2-tabs">
-          {JOB_CATEGORIES.map((cat, idx) => (
+          {jobCategories.map((cat, idx) => (
             <button
               key={cat.id}
               className={`su2-tab ${activeTab === idx ? 'active' : ''}`}
@@ -241,39 +276,46 @@ export default function SignupStep2Page() {
         <div className="su2-period">
           <p className="su2-period-label">직무 준비기간</p>
           <div className="su2-period-row">
-            <input
-              className={`su2-input ${errors.startDate ? 'su2-input--error' : ''}`}
-              type="text"
-              placeholder="시작일 (YYYY.MM.DD)"
-              value={startDate}
-              onChange={e => {
-                setStartDate(autoFormatDate(e.target.value))
-                setErrors(prev => ({ ...prev, startDate: '' }))
-              }}
-              maxLength={10}
-            />
-            <span className="su2-period-dash">-</span>
-            <input
-              className={`su2-input ${errors.endDate ? 'su2-input--error' : ''}`}
-              type="text"
-              placeholder={isPreparing ? 'YYYY.MM.DD' : '종료일 (YYYY.MM.DD)'}
-              value={endDate}
-              onChange={e => {
-                setEndDate(autoFormatDate(e.target.value))
-                setErrors(prev => ({ ...prev, endDate: '' }))
-              }}
-              disabled={isPreparing}
-              maxLength={10}
-            />
+              <input
+                  className={`su2-input ${errors.startDate ? 'su2-input--error' : ''}`}
+                  type="text"
+                  placeholder="시작일 (YYYY.MM.DD)"
+                  value={startDate}
+                  onChange={e => {
+                      setStartDate(autoFormatDate(e.target.value))
+                      setErrors(prev => ({ ...prev, startDate: '' }))
+                  }}
+                  maxLength={10}
+              />
+              <span className="su2-period-dash">-</span>
+              <input
+                  className={`su2-input ${errors.endDate ? 'su2-input--error' : ''}`}
+                  type="text"
+                  placeholder={isPreparing ? 'YYYY.MM.DD' : '종료일 (YYYY.MM.DD)'}
+                  value={endDate}
+                  onChange={e => {
+                      setEndDate(autoFormatDate(e.target.value))
+                      setErrors(prev => ({ ...prev, endDate: '' }))
+                  }}
+                  disabled={isPreparing}
+                  maxLength={10}
+              />
           </div>
-          {errors.startDate && <p className="su2-hint--error">{errors.startDate}</p>}
-          {errors.endDate   && <p className="su2-hint--error">{errors.endDate}</p>}
+          {/* 에러 메시지를 두 칸으로 나눠서 input 위치에 맞게 표시 */}
+          <div style={{ display: 'flex', gap: '16px' }}>
+              <div style={{ flex: 1 }}>
+                  {errors.startDate && <p className="su2-hint--error">{errors.startDate}</p>}
+              </div>
+              <div style={{ flex: 1 }}>
+                  {errors.endDate && <p className="su2-hint--error">{errors.endDate}</p>}
+              </div>
+          </div>
           <label className="su2-checkbox-label">
-            <input type="checkbox" checked={isPreparing} onChange={handlePreparingChange} />
-            준비중
+              <input type="checkbox" checked={isPreparing} onChange={handlePreparingChange} />
+              준비중
           </label>
           <p className="su2-checkbox-hint">체크 시 종료일 비활성화</p>
-        </div>
+      </div>
 
         {/* 버튼 */}
         <div className="su2-btn-row">

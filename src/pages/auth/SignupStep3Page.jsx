@@ -1,50 +1,9 @@
 // src/pages/auth/SignupStep3Page.jsx
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../../api/axiosInstance'
+import { fetchCategories } from '../../api/csCategoryApi'
 import './SignupStep3Page.css'
-
-const JOB_CATEGORIES = [
-  {
-    id: 20, label: '소프트웨어 개발',
-    jobs: [
-      { id: 100, name: '프론트엔드' },
-      { id: 101, name: '백엔드' },
-      { id: 102, name: '풀스택' },
-      { id: 103, name: '모바일 / 앱' },
-      { id: 104, name: '게임' },
-      { id: 105, name: '임베디드' },
-    ],
-  },
-  {
-    id: 21, label: '데이터 및 인공지능',
-    jobs: [
-      { id: 110, name: 'AI/머신러닝 엔지니어' },
-      { id: 111, name: '데이터 사이언티스트' },
-      { id: 112, name: '데이터 엔지니어' },
-      { id: 113, name: '프롬프트 엔지니어' },
-    ],
-  },
-  {
-    id: 22, label: 'IT 인프라 및 운영',
-    jobs: [
-      { id: 120, name: '클라우드 엔지니어' },
-      { id: 121, name: 'DevOps/SRE' },
-      { id: 122, name: '정보보안 전문가' },
-      { id: 123, name: '네트워크/시스템 관리자' },
-    ],
-  },
-  {
-    id: 23, label: 'IT 기획 및 서비스',
-    jobs: [
-      { id: 130, name: 'IT 프로젝트 매니저(PM)' },
-      { id: 131, name: '서비스 기획자/PO' },
-      { id: 132, name: 'UI/UX 디자이너' },
-      { id: 133, name: 'QA 엔지니어' },
-    ],
-  },
-  { id: 24, label: '기타', jobs: [] },
-]
 
 // 날짜 자동 포맷 (숫자 입력 → YYYY.MM.DD)
 const autoFormatDate = (val) => {
@@ -63,6 +22,23 @@ const formatDate = (val) => {
   return val.replace(/\./g, '-')
 }
 
+// YYYY-MM-DD 형식 + 실제 날짜 유효성 검증
+const isValidDate = (val) => {
+    if (!val) return true // 선택 입력이면 빈 값 허용
+    const formatted = formatDate(val) // YYYY-MM-DD로 변환
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(formatted)) return false
+
+    const [y, m, d] = formatted.split('-').map(Number)
+    if (m < 1 || m > 12) return false
+    if (d < 1 || d > 31) return false
+
+    // Date 객체로 실제 유효성 확인 (2월 30일 같은 케이스)
+    const date = new Date(y, m - 1, d)
+    return date.getFullYear() === y &&
+           date.getMonth() === m - 1 &&
+           date.getDate() === d
+}
+
 const newCard = () => ({
   id: Date.now(),
   companyName: '',
@@ -75,7 +51,7 @@ const newCard = () => ({
 })
 
 // 직무 선택 모달
-function JobModal({ onConfirm, onClose, initialCategoryId, initialCategoryName }) {
+function JobModal({ onConfirm, onClose, initialCategoryId, initialCategoryName, jobCategories }) {
   const [activeTab, setActiveTab] = useState(0)
   const [selected, setSelected]   = useState(
     initialCategoryId && initialCategoryId !== 24
@@ -86,8 +62,8 @@ function JobModal({ onConfirm, onClose, initialCategoryId, initialCategoryName }
     initialCategoryId === 24 ? initialCategoryName : ''
   )
 
-  const currentCat = JOB_CATEGORIES[activeTab]
-  const isEtc = currentCat.id === 24
+  const currentCat = jobCategories[activeTab] || { jobs: [] }
+    const isEtc = currentCat.id === 24
 
   const handleConfirm = () => {
     if (isEtc) {
@@ -106,7 +82,7 @@ function JobModal({ onConfirm, onClose, initialCategoryId, initialCategoryName }
       <div className="su3-modal" onClick={e => e.stopPropagation()}>
         <h2 className="su3-modal-title">직무 선택</h2>
         <div className="su3-modal-tabs">
-          {JOB_CATEGORIES.map((cat, idx) => (
+          {jobCategories.map((cat, idx) => (
             <button
               key={cat.id}
               className={`su3-modal-tab ${activeTab === idx ? 'active' : ''}`}
@@ -168,7 +144,7 @@ function JobModal({ onConfirm, onClose, initialCategoryId, initialCategoryName }
 }
 
 // 재직이력 카드
-function CareerCard({ card, index, onChange, onRemove, errors }) {
+function CareerCard({ card, index, onChange, onRemove, errors, jobCategories }) {
   const [showModal, setShowModal] = useState(false)
 
   const handleField = (field, value) => onChange(card.id, { [field]: value })
@@ -231,44 +207,53 @@ function CareerCard({ card, index, onChange, onRemove, errors }) {
         {errors?.categoryId && <p className="su3-hint--error">{errors.categoryId}</p>}
       </div>
 
-      {/* 재직 기간 */}
-      <div className="su3-card-field">
-        <label className="su3-card-label">재직 기간</label>
-        <div className="su3-period-row">
-          <input
+ {/* 재직 기간 */}
+<div className="su3-card-field">
+    <label className="su3-card-label">재직 기간</label>
+    <div className="su3-period-row">
+        <input
             className={`su3-card-input ${errors?.startDate ? 'su3-card-input--error' : ''}`}
             type="text"
             placeholder="입사일 (YYYY.MM.DD)"
             value={card.startDate}
             onChange={e => handleField('startDate', autoFormatDate(e.target.value))}
             maxLength={10}
-          />
-          <span className="su3-period-dash">-</span>
-          <input
-            className={`su3-card-input ${card.isCurrently ? 'su3-card-input--disabled' : ''}`}
+        />
+        <span className="su3-period-dash">-</span>
+        <input
+            className={`su3-card-input ${card.isCurrently ? 'su3-card-input--disabled' : errors?.endDate ? 'su3-card-input--error' : ''}`}
             type="text"
             placeholder={card.isCurrently ? 'YYYY.MM.DD' : '퇴사일 (YYYY.MM.DD)'}
             value={card.endDate}
             onChange={e => handleField('endDate', autoFormatDate(e.target.value))}
             disabled={card.isCurrently}
             maxLength={10}
-          />
+        />
+    </div>
+    {/* 에러 메시지를 두 칸으로 나눠서 input 위치에 맞게 표시 */}
+    <div style={{ display: 'flex', gap: '16px' }}>
+        <div style={{ flex: 1 }}>
+            {errors?.startDate && <p className="su3-hint--error">{errors.startDate}</p>}
         </div>
-        {errors?.startDate && <p className="su3-hint--error">{errors.startDate}</p>}
-        <label className="su3-checkbox-label">
-          <input type="checkbox" checked={card.isCurrently} onChange={handleCurrentlyChange} />
-          재직중
-        </label>
-        <p className="su3-checkbox-hint">재직중 체크 시 퇴사일 비활성화</p>
-      </div>
+        <div style={{ flex: 1 }}>
+            {errors?.endDate && <p className="su3-hint--error">{errors.endDate}</p>}
+        </div>
+    </div>
+    <label className="su3-checkbox-label">
+        <input type="checkbox" checked={card.isCurrently} onChange={handleCurrentlyChange} />
+        재직중
+    </label>
+    <p className="su3-checkbox-hint">재직중 체크 시 퇴사일 비활성화</p>
+</div>
 
       {showModal && (
-        <JobModal
-          onConfirm={handleJobConfirm}
-          onClose={() => setShowModal(false)}
-          initialCategoryId={card.categoryId}
-          initialCategoryName={card.categoryName}
-        />
+          <JobModal
+              onConfirm={handleJobConfirm}
+              onClose={() => setShowModal(false)}
+              initialCategoryId={card.categoryId}
+              initialCategoryName={card.categoryName}
+              jobCategories={jobCategories}  // 추가
+          />
       )}
     </div>
   )
@@ -279,6 +264,30 @@ export default function SignupStep3Page() {
   const [cards, setCards]     = useState([newCard()])
   const [loading, setLoading] = useState(false)
   const [errors, setErrors]   = useState({})
+  const [jobCategories, setJobCategories] = useState([])
+
+  useEffect(() => {
+      fetchCategories()
+          .then(data => {
+              const jobData = data.filter(c => c.categoryType === 'JOB')
+
+              const tabs = jobData
+                  .filter(c => c.depth === 1)
+                  .sort((a, b) => a.sortOrder - b.sortOrder)
+                  .map(tab => ({
+                      id: tab.categoryId,
+                      label: tab.categoryName,
+                      jobs: jobData
+                          .filter(c => c.depth === 2 && c.parentId === tab.categoryId)
+                          .sort((a, b) => a.sortOrder - b.sortOrder)
+                          .map(job => ({ id: job.categoryId, name: job.categoryName }))
+                  }))
+
+              // 기타 탭 추가 (depth 1에 기타가 있으면 자동으로 포함됨)
+              setJobCategories(tabs)
+          })
+          .catch(() => alert('카테고리를 불러오는데 실패했습니다.'))
+  }, [])
 
   const handleCardChange = (id, updates) => {
     setCards(prev => prev.map(c => c.id === id ? { ...c, ...updates } : c))
@@ -301,30 +310,52 @@ export default function SignupStep3Page() {
   const handleAddCard = () => setCards(prev => [...prev, newCard()])
 
   const buildEmployments = () => {
-    const result = []
-    const errs   = {}
+      const result = []
+      const errs   = {}
 
-    for (const card of cards) {
-      if (!card.companyName.trim()) continue  // 회사명 없으면 무시
+      for (const card of cards) {
+          const hasInput = card.companyName.trim() || card.categoryId
 
-      const cardErrs = {}
-      if (!card.categoryId) cardErrs.categoryId = '직무 카테고리를 선택해 주세요.'
-      if (!card.startDate)  cardErrs.startDate  = '입사일을 입력해 주세요.'
+          if (!hasInput) continue  // 아무것도 입력 안 했으면 무시
 
-      if (Object.keys(cardErrs).length > 0) {
-        errs[card.id] = cardErrs
-      } else {
-        result.push({
-          categoryId:   card.categoryId,
-          categoryName: card.categoryName,
-          companyName:  card.companyName.trim(),
-          startDate:    formatDate(card.startDate),
-          endDate:      card.isCurrently ? null : formatDate(card.endDate),
-        })
+          const cardErrs = {}
+
+          // 회사명 또는 카테고리 중 하나라도 입력하면 나머지도 필수
+          if (!card.companyName.trim()) cardErrs.companyName = '회사명을 입력해 주세요.'
+          if (!card.categoryId) cardErrs.categoryId = '직무 카테고리를 선택해 주세요.'
+
+          // 입사일 필수
+          if (!card.startDate) {
+              cardErrs.startDate = '입사일을 입력해 주세요.'
+          } else if (!isValidDate(card.startDate)) {
+              cardErrs.startDate = '올바른 날짜를 입력해 주세요. (예: 2024.01.01)'
+          }
+
+          // 퇴사일 검증 (재직중 아닐 때만)
+          if (!card.isCurrently) {
+              if (card.endDate && !isValidDate(card.endDate)) {
+                  cardErrs.endDate = '올바른 날짜를 입력해 주세요. (예: 2024.01.01)'
+              }
+              if (card.startDate && card.endDate && isValidDate(card.startDate) && isValidDate(card.endDate)) {
+                  if (new Date(formatDate(card.startDate)) > new Date(formatDate(card.endDate)))
+                      cardErrs.endDate = '퇴사일은 입사일 이후여야 합니다.'
+              }
+          }
+
+          if (Object.keys(cardErrs).length > 0) {
+              errs[card.id] = cardErrs
+          } else {
+              result.push({
+                  categoryId:   card.categoryId,
+                  categoryName: card.categoryName,
+                  companyName:  card.companyName.trim(),
+                  startDate:    formatDate(card.startDate),
+                  endDate:      card.isCurrently ? null : formatDate(card.endDate),
+              })
+          }
       }
-    }
 
-    return { employments: result.length > 0 ? result : null, errors: errs }
+      return { employments: result.length > 0 ? result : null, errors: errs }
   }
 
   const handleSubmit = async () => {
@@ -427,14 +458,15 @@ export default function SignupStep3Page() {
         </p>
 
         {cards.map((card, idx) => (
-          <CareerCard
-            key={card.id}
-            card={card}
-            index={idx}
-            onChange={handleCardChange}
-            onRemove={handleCardRemove}
-            errors={errors[card.id]}
-          />
+            <CareerCard
+                key={card.id}
+                card={card}
+                index={idx}
+                onChange={handleCardChange}
+                onRemove={handleCardRemove}
+                errors={errors[card.id]}
+                jobCategories={jobCategories}  // 추가
+            />
         ))}
 
         <button className="su3-add-btn" type="button" onClick={handleAddCard}>

@@ -42,30 +42,29 @@ export default function App() {
 
   useEffect(() => {
     const restoreSession = async () => {
-      const isLoggedOut = sessionStorage.getItem('logged-out')
-      if (isLoggedOut) {
-        logout()
-        setInitializing(false)
-        return
-      }
+        const isLoggedOut = sessionStorage.getItem('logged-out')
+        if (isLoggedOut) {
+            logout()
+            setInitializing(false)
+            return
+        }
 
-      // sessionStorage에 이미 인증 상태면 /me 생략
-      const currentStatus = useAuthStore.getState().authStatus
-      if (currentStatus === 'authenticated') {
-          setInitializing(false)
-          return
-      }
+        const currentStatus = useAuthStore.getState().authStatus
+        // unauthenticated면 이미 실패한 거니까 재시도 안 함
+        if (currentStatus === 'authenticated' || currentStatus === 'unauthenticated') {
+            setInitializing(false)
+            return
+        }
 
-      // sessionStorage에 없을 때만 /me 호출
-      try {
-          const me = await fetchMe()
-          if (!me) throw new Error('ME_EMPTY')
-          login({ user: me })
-      } catch {
-          setUnauthenticated()
-      } finally {
-          setInitializing(false)
-      }
+        try {
+            const me = await fetchMe()
+            if (!me) throw new Error('ME_EMPTY')
+            login({ user: me })
+        } catch {
+            setUnauthenticated()
+        } finally {
+            setInitializing(false)
+        }
     }
 
     const handleStorageChange = (e) => {

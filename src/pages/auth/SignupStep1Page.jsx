@@ -102,13 +102,13 @@ export default function SignupStep1Page() {
         onConfirm: () => setModal(null),
       })
     } catch (err) {
-      setIdStatus('duplicate')
-      setIdChecked(false)
-      setModal({
-        type: 'error',
-        message: err.response?.data?.message || '이미 사용 중인 아이디 입니다.',
-        onConfirm: () => { setModal(null); setForm(prev => ({ ...prev, loginId: '' })) },
-      })
+        setIdStatus('duplicate')
+        setIdChecked(false)
+        setModal({
+            type: 'error',
+            message: err.response?.data?.message || '이미 사용 중인 아이디입니다.',
+            onConfirm: () => { setModal(null); setForm(prev => ({ ...prev, loginId: '' })) },
+        })
     }
   }
 
@@ -131,12 +131,12 @@ export default function SignupStep1Page() {
         onConfirm: () => setModal(null),
       })
     } catch (err) {
-      setNicknameStatus('duplicate')
-      setModal({
-        type: 'error',
-        message: err.response?.data?.message || '이미 사용 중인 닉네임 입니다.',
-        onConfirm: () => { setModal(null); setForm(prev => ({ ...prev, nickname: '' })) },
-      })
+        setNicknameStatus('duplicate')
+        setModal({
+            type: 'error',
+            message: err.response?.data?.message || '이미 사용 중인 닉네임입니다.',
+            onConfirm: () => { setModal(null); setForm(prev => ({ ...prev, nickname: '' })) },
+        })
     }
   }
 
@@ -164,13 +164,13 @@ export default function SignupStep1Page() {
         message: '이메일로 전송된 인증코드를 확인해 주세요.',
         onConfirm: () => setModal(null),
       })
-    } catch {
-      setEmailVerifyStep('idle')
-      setModal({
-        type: 'error',
-        message: '인증코드 전송에 실패했습니다. 이메일을 확인해 주세요.',
-        onConfirm: () => setModal(null),
-      })
+    } catch (err) {
+        setEmailVerifyStep('idle')
+        setModal({
+            type: 'error',
+            message: err.response?.data?.message || '인증코드 전송에 실패했습니다.',
+            onConfirm: () => setModal(null),
+        })
     }
   }
 
