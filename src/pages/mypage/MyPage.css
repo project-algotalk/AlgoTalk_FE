@@ -178,6 +178,19 @@
   border-bottom: 1px solid #f0f0f0;
 }
 
+.mp-card-title--compact {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.mp-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
 /* ── 정보 행 ── */
 .mp-row {
   display: flex;
@@ -189,6 +202,43 @@
 
 .mp-row:last-child {
   border-bottom: none;
+}
+
+.mp-target-job-row {
+  justify-content: space-between;
+}
+
+.mp-target-job-name {
+  font-size: 0.875rem;
+  color: #1a1a1a;
+}
+
+.mp-target-job-period,
+.mp-employment-period {
+  font-size: 0.8rem;
+  color: #aaa;
+}
+
+.mp-employment-row {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.mp-employment-company {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.mp-employment-category {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.mp-empty-message {
+  color: #aaa;
+  font-size: 0.875rem;
 }
 
 .mp-row-label {

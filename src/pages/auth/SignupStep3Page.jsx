@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import api from '../../api/axiosInstance'
 import { fetchCategories } from '../../api/csCategoryApi'
 import './SignupStep3Page.css'
+import '../../styles/jobForm.css'
 
 // 날짜 자동 포맷 (숫자 입력 → YYYY.MM.DD)
 const autoFormatDate = (val) => {
@@ -78,64 +79,73 @@ function JobModal({ onConfirm, onClose, initialCategoryId, initialCategoryName, 
   const selectedLabel = isEtc ? customText : selected?.name || ''
 
   return (
-    <div className="su3-modal-overlay" onClick={onClose}>
-      <div className="su3-modal" onClick={e => e.stopPropagation()}>
-        <h2 className="su3-modal-title">직무 선택</h2>
-        <div className="su3-modal-tabs">
-          {jobCategories.map((cat, idx) => (
-            <button
-              key={cat.id}
-              className={`su3-modal-tab ${activeTab === idx ? 'active' : ''}`}
-              onClick={() => { setActiveTab(idx); setSelected(null) }}
-              type="button"
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
-        <div className="su3-modal-body">
-          {isEtc ? (
-            <div className="su3-modal-etc">
-              <p className="su3-modal-etc-guide">목록에 없는 직무를 직접 입력 해주세요.</p>
-              <input
-                className="su3-modal-etc-input"
-                type="text"
-                placeholder="예: 블록체인 개발자, VR 개발자 등"
-                value={customText}
-                onChange={e => setCustomText(e.target.value)}
-                autoFocus
-              />
-              <p className="su3-modal-etc-hint">입력 후 "선택 완료"를 눌러 저장하세요.</p>
-            </div>
-          ) : (
-            <div className="su3-modal-chips">
-              {currentCat.jobs.map(job => (
+    <div className="jf-modal-overlay" onClick={onClose}>
+      <div className="jf-modal" onClick={e => e.stopPropagation()}>
+        <div className="jf-modal-content">
+          <h2 className="jf-modal-title">직무 선택</h2>
+
+          {/* 탭 스크롤 래퍼 */}
+          <div className="jf-modal-tabs-scroll">
+            <div className="jf-modal-tabs">
+              {jobCategories.map((cat, idx) => (
                 <button
-                  key={job.id}
-                  className={`su3-modal-chip ${selected?.id === job.id ? 'selected' : ''}`}
-                  onClick={() => setSelected({ id: job.id, name: job.name })}
+                  key={cat.id}
+                  className={`jf-modal-tab ${activeTab === idx ? 'active' : ''}`}
+                  onClick={() => { setActiveTab(idx); setSelected(null) }}
                   type="button"
                 >
-                  {job.name}
+                  {cat.label}
                 </button>
               ))}
             </div>
-          )}
-        </div>
-        <div className="su3-modal-footer">
-          <span className="su3-modal-selected-text">
-            선택: <strong>{selectedLabel}</strong>
-          </span>
-          <div className="su3-modal-btns">
-            <button className="su3-modal-btn su3-modal-btn--cancel" onClick={onClose} type="button">취소</button>
-            <button
-              className="su3-modal-btn su3-modal-btn--confirm"
-              onClick={handleConfirm}
-              type="button"
-              disabled={isEtc ? !customText.trim() : !selected}
-            >
-              선택 완료
-            </button>
+          </div>
+
+          <div className="jf-modal-body">
+            {isEtc ? (
+              <div className="jf-modal-etc">
+                <p className="jf-modal-etc-guide">목록에 없는 직무를 직접 입력 해주세요.</p>
+                <input
+                  className="jf-card-input"
+                  type="text"
+                  placeholder="예: 블록체인 개발자, VR 개발자 등"
+                  value={customText}
+                  onChange={e => setCustomText(e.target.value)}
+                  autoFocus
+                  style={{ marginBottom: 6, width: '100%', boxSizing: 'border-box' }}
+                />
+                <p className="jf-modal-etc-hint">입력 후 "선택 완료"를 눌러 저장하세요.</p>
+              </div>
+            ) : (
+              <div className="jf-modal-chips">
+                {currentCat.jobs.map(job => (
+                  <button
+                    key={job.id}
+                    className={`jf-modal-chip ${selected?.id === job.id ? 'selected' : ''}`}
+                    onClick={() => setSelected({ id: job.id, name: job.name })}
+                    type="button"
+                  >
+                    {job.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="jf-modal-footer">
+            <span className="jf-modal-selected-text">
+              선택: <strong>{selectedLabel}</strong>
+            </span>
+            <div className="jf-modal-btns">
+              <button className="jf-modal-btn jf-modal-btn--cancel" onClick={onClose} type="button">취소</button>
+              <button
+                className="jf-modal-btn jf-modal-btn--confirm"
+                onClick={handleConfirm}
+                type="button"
+                disabled={isEtc ? !customText.trim() : !selected}
+              >
+                선택 완료
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -166,53 +176,53 @@ function CareerCard({ card, index, onChange, onRemove, errors, jobCategories }) 
   }
 
   return (
-    <div className="su3-card">
-      <div className="su3-card-header">
-        <span className="su3-card-title">재직 이력 #{index + 1}</span>
-        <button className="su3-card-delete" onClick={() => onRemove(card.id)} type="button">x 삭제</button>
+    <div className="jf-card">
+      <div className="jf-card-header">
+        <span className="jf-card-title">재직 이력 #{index + 1}</span>
+        <button className="jf-card-delete" onClick={() => onRemove(card.id)} type="button">x 삭제</button>
       </div>
 
       {/* 회사명 */}
-      <div className="su3-card-field">
-        <label className="su3-card-label">회사명</label>
+      <div className="jf-card-field">
+        <label className="jf-card-label">회사명</label>
         <input
-          className={`su3-card-input ${errors?.companyName ? 'su3-card-input--error' : ''}`}
+          className={`jf-card-input ${errors?.companyName ? 'jf-card-input--error' : ''}`}
           type="text"
           placeholder="회사명을 입력해 주세요."
           value={card.companyName}
           onChange={e => handleField('companyName', e.target.value)}
         />
-        {errors?.companyName && <p className="su3-hint--error">{errors.companyName}</p>}
+        {errors?.companyName && <p className="jf-hint--error">{errors.companyName}</p>}
       </div>
 
       {/* 직무 카테고리 */}
-      <div className="su3-card-field">
-        <label className="su3-card-label">직무 카테고리</label>
-        <div className={`su3-job-trigger ${errors?.categoryId ? 'su3-job-trigger--error' : ''}`} onClick={() => setShowModal(true)}>
+      <div className="jf-card-field">
+        <label className="jf-card-label">직무 카테고리</label>
+        <div className={`jf-job-trigger ${errors?.categoryId ? 'jf-job-trigger--error' : ''}`} onClick={() => setShowModal(true)}>
           {card.categoryId
-            ? <span className="su3-job-trigger-edit">✎ 직무 변경</span>
-            : <span className="su3-job-trigger-placeholder">+ 직무를 선택해 주세요.</span>
+            ? <span className="jf-job-trigger-edit">✎ 직무 변경</span>
+            : <span className="jf-job-trigger-placeholder">+ 직무를 선택해 주세요.</span>
           }
         </div>
         {card.categoryId ? (
-          <div className="su3-job-selected">
-            <span className="su3-job-chip">
+          <div className="jf-job-selected">
+            <span className="jf-job-chip-selected">
               {card.categoryName}
-              <button className="su3-job-chip-remove" onClick={handleRemoveJob} type="button">✕</button>
+              <button className="jf-job-chip-remove" onClick={handleRemoveJob} type="button">✕</button>
             </span>
           </div>
         ) : (
-          <p className="su3-job-empty">선택된 직무가 없습니다.</p>
+          <p className="jf-job-empty">선택된 직무가 없습니다.</p>
         )}
-        {errors?.categoryId && <p className="su3-hint--error">{errors.categoryId}</p>}
+        {errors?.categoryId && <p className="jf-hint--error">{errors.categoryId}</p>}
       </div>
 
  {/* 재직 기간 */}
-<div className="su3-card-field">
-    <label className="su3-card-label">재직 기간</label>
+<div className="jf-card-field">
+    <label className="jf-card-label">재직 기간</label>
     <div className="su3-period-row">
         <input
-            className={`su3-card-input ${errors?.startDate ? 'su3-card-input--error' : ''}`}
+            className={`jf-card-input ${errors?.startDate ? 'jf-card-input--error' : ''}`}
             type="text"
             placeholder="입사일 (YYYY.MM.DD)"
             value={card.startDate}
@@ -221,7 +231,7 @@ function CareerCard({ card, index, onChange, onRemove, errors, jobCategories }) 
         />
         <span className="su3-period-dash">-</span>
         <input
-            className={`su3-card-input ${card.isCurrently ? 'su3-card-input--disabled' : errors?.endDate ? 'su3-card-input--error' : ''}`}
+            className={`jf-card-input ${card.isCurrently ? 'jf-card-input--disabled' : errors?.endDate ? 'jf-card-input--error' : ''}`}
             type="text"
             placeholder={card.isCurrently ? 'YYYY.MM.DD' : '퇴사일 (YYYY.MM.DD)'}
             value={card.endDate}
@@ -233,17 +243,17 @@ function CareerCard({ card, index, onChange, onRemove, errors, jobCategories }) 
     {/* 에러 메시지를 두 칸으로 나눠서 input 위치에 맞게 표시 */}
     <div style={{ display: 'flex', gap: '16px' }}>
         <div style={{ flex: 1 }}>
-            {errors?.startDate && <p className="su3-hint--error">{errors.startDate}</p>}
+            {errors?.startDate && <p className="jf-hint--error">{errors.startDate}</p>}
         </div>
         <div style={{ flex: 1 }}>
-            {errors?.endDate && <p className="su3-hint--error">{errors.endDate}</p>}
+            {errors?.endDate && <p className="jf-hint--error">{errors.endDate}</p>}
         </div>
     </div>
-    <label className="su3-checkbox-label">
+    <label className="jf-checkbox-label">
         <input type="checkbox" checked={card.isCurrently} onChange={handleCurrentlyChange} />
         재직중
     </label>
-    <p className="su3-checkbox-hint">재직중 체크 시 퇴사일 비활성화</p>
+    <p className="jf-checkbox-hint">재직중 체크 시 퇴사일 비활성화</p>
 </div>
 
       {showModal && (
@@ -469,7 +479,7 @@ export default function SignupStep3Page() {
             />
         ))}
 
-        <button className="su3-add-btn" type="button" onClick={handleAddCard}>
+        <button className="jf-add-btn" type="button" onClick={handleAddCard}>
           + 이력 추가
         </button>
 

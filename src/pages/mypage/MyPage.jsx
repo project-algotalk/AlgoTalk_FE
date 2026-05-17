@@ -15,6 +15,7 @@ import {
     withdraw,
 } from '../../api/myPageApi'
 import './MyPage.css'
+import '../../styles/jobForm.css'
 
 // ── 공통 성공/에러 모달
 function SuccessModal({ message, onConfirm, type = 'success' }) {
@@ -700,104 +701,105 @@ function TargetJobSection({ initialJobs, onSuccess, onCancel }) {
     }
 
     return (
-        <div className="mp-card">
-            <h3 className="mp-card-title">목표 직무</h3>
-            <p style={{ fontSize: '0.85rem', color: '#888', marginBottom: 16 }}>
-                준비 중인 직무를 선택해 주세요. (최대 3개, 선택 사항)
-            </p>
+    <div className="mp-card">
+        <h3 className="mp-card-title">목표 직무</h3>
+        <p className="jf-guide-title" style={{ marginBottom: 6 }}>
+            준비 중인 직무를 선택해 주세요.
+            <span className="jf-guide-sub"> (최대 3개, 선택 사항)</span>
+        </p>
 
-            {/* 대분류 탭 */}
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
-                {jobCategories.map((cat, idx) => (
-                    <button key={cat.id}
-                        className={`mp-row-btn ${activeTab === idx ? 'primary' : ''}`}
-                        onClick={() => setActiveTab(idx)}>
-                        {cat.label}
+        {/* 대분류 탭 */}
+        <div className="jf-tabs" style={{ marginBottom: 0 }}>
+            {jobCategories.map((cat, idx) => (
+                <button key={cat.id}
+                    className={`jf-tab ${activeTab === idx ? 'active' : ''}`}
+                    onClick={() => setActiveTab(idx)}>
+                    {cat.label}
+                </button>
+            ))}
+        </div>
+        
+        <p className="jf-tab-desc">
+            직무를 선택하면 해당 직무 특화 면접 질문으로 면접 질문을 생성할 수 있습니다.
+        </p>
+
+        {/* 소분류 칩 */}
+        <div className="jf-job-chips" style={{ marginTop: 14 }}>
+            {currentCategory.jobs.map(job => {
+                const isSelected = selectedJobs.some(j => j.categoryId === job.id)
+                const isDisabled = !isSelected && selectedJobs.length >= MAX_SELECT
+                return (
+                    <button key={job.id}
+                        className={`jf-job-chip ${isSelected ? 'selected' : ''} ${isDisabled ? 'disabled' : ''}`}
+                        onClick={() => handleJobToggle(job)}
+                        disabled={isDisabled}>
+                        {job.name}
                     </button>
+                )
+            })}
+        </div>
+
+        {/* 선택된 직무 박스 */}
+        <div className="jf-selected-box">
+            <div className="jf-selected-header">
+                <span className="jf-selected-title">선택된 직무 ({selectedJobs.length} / {MAX_SELECT})</span>
+                <span className="jf-selected-limit">3개 초과 선택 불가</span>
+            </div>
+            <div className="jf-selected-chips">
+                {selectedJobs.map(j => (
+                    <span key={j.categoryId} className="jf-selected-chip">
+                        {j.categoryName}
+                        <button className="jf-chip-remove"
+                            onClick={() => setSelectedJobs(p => p.filter(x => x.categoryId !== j.categoryId))}>
+                            X
+                        </button>
+                    </span>
                 ))}
             </div>
-
-            {/* 소분류 칩 */}
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
-                {currentCategory.jobs.map(job => {
-                    const isSelected = selectedJobs.some(j => j.categoryId === job.id)
-                    const isDisabled = !isSelected && selectedJobs.length >= MAX_SELECT
-                    return (
-                        <button key={job.id}
-                            onClick={() => handleJobToggle(job)}
-                            disabled={isDisabled}
-                            style={{
-                                padding: '6px 14px', borderRadius: 20, fontSize: '0.85rem',
-                                border: `1px solid ${isSelected ? '#1a1a1a' : '#d0d0d0'}`,
-                                background: isSelected ? '#1a1a1a' : '#fff',
-                                color: isSelected ? '#fff' : '#444',
-                                cursor: isDisabled ? 'not-allowed' : 'pointer',
-                                opacity: isDisabled ? 0.4 : 1,
-                            }}>
-                            {job.name}
-                        </button>
-                    )
-                })}
-            </div>
-
-            {/* 선택된 직무 */}
-            <div style={{ background: '#f8f9fb', borderRadius: 8, padding: '12px 16px', marginBottom: 16 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                    <span style={{ fontSize: '0.85rem', color: '#555' }}>
-                        선택된 직무 ({selectedJobs.length} / {MAX_SELECT})
-                    </span>
-                    <span style={{ fontSize: '0.78rem', color: '#aaa' }}>3개 초과 선택 불가</span>
-                </div>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                    {selectedJobs.map(j => (
-                        <span key={j.categoryId} style={{
-                            display: 'inline-flex', alignItems: 'center', gap: 6,
-                            padding: '4px 10px', background: '#e8ecf3', borderRadius: 20,
-                            fontSize: '0.82rem', color: '#1a1a1a'
-                        }}>
-                            {j.categoryName}
-                            <button onClick={() => setSelectedJobs(p => p.filter(x => x.categoryId !== j.categoryId))}
-                                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: '#888' }}>
-                                ✕
-                            </button>
-                        </span>
-                    ))}
-                </div>
-            </div>
-
-            {/* 직무 준비기간 */}
-            <div style={{ marginBottom: 16 }}>
-                <p style={{ fontSize: '0.85rem', fontWeight: 600, color: '#555', marginBottom: 8 }}>직무 준비기간</p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <input className={`mp-modal-input ${errors.startDate ? 'error' : ''}`}
-                        style={{ flex: 1 }} type="text" placeholder="시작일 (YYYY.MM.DD)"
-                        value={startDate} maxLength={10}
-                        onChange={e => { setStartDate(autoFormatDate(e.target.value)); setErrors({}) }} />
-                    <span style={{ color: '#888' }}>-</span>
-                    <input className="mp-modal-input" style={{ flex: 1 }} type="text"
-                        placeholder={isPreparing ? 'YYYY.MM.DD' : '종료일 (YYYY.MM.DD)'}
-                        value={endDate} maxLength={10} disabled={isPreparing}
-                        onChange={e => setEndDate(autoFormatDate(e.target.value))} />
-                </div>
-                {errors.startDate && <p className="mp-hint error">{errors.startDate}</p>}
-                <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8, fontSize: '0.875rem', cursor: 'pointer' }}>
-                    <input type="checkbox" checked={isPreparing}
-                        onChange={e => { setIsPreparing(e.target.checked); if (e.target.checked) setEndDate('') }} />
-                    준비중
-                </label>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
-                <button className="mp-modal-btn" onClick={() => {
-                    setSelectedJobs(initialJobs.map(j => ({ categoryId: j.categoryId, categoryName: j.categoryName })))
-                    onCancel()
-                }}>취소</button>
-                <button className="mp-modal-btn primary" onClick={handleSave} disabled={loading}>
-                    {loading ? '처리 중...' : '저장'}
-                </button>
-            </div>
         </div>
-    )
+
+        {/* 직무 준비기간 */}
+        <div className="jf-period">
+            <p className="jf-period-label">직무 준비기간</p>
+            <div className="jf-period-row">
+                <input className={`jf-input ${errors.startDate ? 'jf-input--error' : ''}`}
+                    type="text" placeholder="시작일 (YYYY.MM.DD)"
+                    value={startDate} maxLength={10}
+                    onChange={e => { setStartDate(autoFormatDate(e.target.value)); setErrors({}) }} />
+                <span className="jf-period-dash">-</span>
+                <input className={`jf-input ${isPreparing ? '' : errors.endDate ? 'jf-input--error' : ''}`}
+                    type="text"
+                    placeholder={isPreparing ? 'YYYY.MM.DD' : '종료일 (YYYY.MM.DD)'}
+                    value={endDate} maxLength={10} disabled={isPreparing}
+                    onChange={e => setEndDate(autoFormatDate(e.target.value))} />
+            </div>
+            <div style={{ display: 'flex', gap: '16px' }}>
+                <div style={{ flex: 1 }}>
+                    {errors.startDate && <p className="jf-hint--error">{errors.startDate}</p>}
+                </div>
+                <div style={{ flex: 1 }}>
+                    {errors.endDate && <p className="jf-hint--error">{errors.endDate}</p>}
+                </div>
+            </div>
+            <label className="jf-checkbox-label">
+                <input type="checkbox" checked={isPreparing}
+                    onChange={e => { setIsPreparing(e.target.checked); if (e.target.checked) setEndDate('') }} />
+                준비중
+            </label>
+            <p className="jf-checkbox-hint">체크 시 종료일 비활성화</p>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+            <button className="mp-modal-btn" onClick={() => {
+                setSelectedJobs(initialJobs.map(j => ({ categoryId: j.categoryId, categoryName: j.categoryName })))
+                onCancel()
+            }}>취소</button>
+            <button className="mp-modal-btn primary" onClick={handleSave} disabled={loading}>
+                {loading ? '처리 중...' : '저장'}
+            </button>
+        </div>
+    </div>
+)
 }
 
 const empAutoFormatDate = (val) => {
@@ -915,81 +917,101 @@ function EmploymentSection({ initialEmployments, onSuccess, onCancel }) {
             </p>
 
             {cards.map((card, idx) => (
-                <div key={card.id} style={{ border: '1px solid #e8ecf3', borderRadius: 8, padding: 16, marginBottom: 12 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-                        <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>재직 이력 #{idx + 1}</span>
-                        <button className="mp-modal-btn danger" style={{ height: 28, padding: '0 12px', fontSize: '0.78rem' }}
-                            onClick={() => setCards(p => p.filter(c => c.id !== card.id))}>
-                            x 삭제
-                        </button>
-                    </div>
-
-                    {/* 회사명 */}
-                    <div className="mp-modal-field">
-                        <label className="mp-modal-label">회사명</label>
-                        <input className={`mp-modal-input ${errors[card.id]?.companyName ? 'error' : ''}`}
-                            type="text" placeholder="회사명을 입력해 주세요."
-                            value={card.companyName}
-                            onChange={e => handleCardChange(card.id, { companyName: e.target.value })} />
-                        {errors[card.id]?.companyName && <p className="mp-hint error">{errors[card.id].companyName}</p>}
-                    </div>
-
-                    {/* 직무 카테고리 */}
-                    <div className="mp-modal-field">
-                        <label className="mp-modal-label">직무 카테고리</label>
-                        <div onClick={() => setShowModalFor(card.id)}
-                            style={{ border: `1px solid ${errors[card.id]?.categoryId ? '#d32f2f' : '#d0d0d0'}`,
-                                borderRadius: 6, padding: '10px 12px', cursor: 'pointer', fontSize: '0.875rem',
-                                color: card.categoryId ? '#1a1a1a' : '#aaa' }}>
-                            {card.categoryId ? `✎ ${card.categoryName}` : '+ 직무를 선택해 주세요.'}
-                        </div>
-                        {errors[card.id]?.categoryId && <p className="mp-hint error">{errors[card.id].categoryId}</p>}
-                    </div>
-
-                    {/* 재직 기간 */}
-                    <div className="mp-modal-field">
-                        <label className="mp-modal-label">재직 기간</label>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <input className={`mp-modal-input ${errors[card.id]?.startDate ? 'error' : ''}`}
-                                style={{ flex: 1 }} type="text" placeholder="입사일 (YYYY.MM.DD)"
-                                value={card.startDate} maxLength={10}
-                                onChange={e => handleCardChange(card.id, { startDate: empAutoFormatDate(e.target.value) })} />
-                            <span style={{ color: '#888' }}>-</span>
-                            <input className="mp-modal-input" style={{ flex: 1 }} type="text"
-                                placeholder={card.isCurrently ? 'YYYY.MM.DD' : '퇴사일 (YYYY.MM.DD)'}
-                                value={card.endDate} maxLength={10} disabled={card.isCurrently}
-                                onChange={e => handleCardChange(card.id, { endDate: empAutoFormatDate(e.target.value) })} />
-                        </div>
-                        {errors[card.id]?.startDate && <p className="mp-hint error">{errors[card.id].startDate}</p>}
-                        <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8, fontSize: '0.875rem', cursor: 'pointer' }}>
-                            <input type="checkbox" checked={card.isCurrently}
-                                onChange={e => handleCardChange(card.id, {
-                                    isCurrently: e.target.checked,
-                                    endDate: e.target.checked ? '' : card.endDate
-                                })} />
-                            재직중
-                        </label>
-                    </div>
-
-                    {/* 직무 선택 모달 */}
-                    {showModalFor === card.id && (
-                        <EmpJobModal
-                            jobCategories={jobCategories}
-                            onConfirm={(job) => {
-                                handleCardChange(card.id, { categoryId: job.id, categoryName: job.name })
-                                setShowModalFor(null)
-                            }}
-                            onClose={() => setShowModalFor(null)}
-                        />
-                    )}
-                </div>
-            ))}
-
-            <button onClick={() => setCards(p => [...p, newEmpCard()])}
-                style={{ width: '100%', padding: '10px', border: '1px dashed #d0d0d0', borderRadius: 8,
-                    background: '#fff', cursor: 'pointer', fontSize: '0.875rem', color: '#888', marginBottom: 16 }}>
-                + 이력 추가
+    <div key={card.id} className="jf-card">
+        <div className="jf-card-header">
+            <span className="jf-card-title">재직 이력 #{idx + 1}</span>
+            <button className="jf-card-delete"
+                onClick={() => setCards(p => p.filter(c => c.id !== card.id))}>
+                x 삭제
             </button>
+        </div>
+
+        {/* 회사명 */}
+        <div className="jf-card-field">
+            <label className="jf-card-label">회사명</label>
+            <input className={`jf-card-input ${errors[card.id]?.companyName ? 'jf-card-input--error' : ''}`}
+                type="text" placeholder="회사명을 입력해 주세요."
+                value={card.companyName}
+                onChange={e => handleCardChange(card.id, { companyName: e.target.value })} />
+            {errors[card.id]?.companyName && <p className="jf-hint--error">{errors[card.id].companyName}</p>}
+        </div>
+
+        {/* 직무 카테고리 */}
+        <div className="jf-card-field">
+            <label className="jf-card-label">직무 카테고리</label>
+            <div className={`jf-job-trigger ${errors[card.id]?.categoryId ? 'jf-job-trigger--error' : ''}`}
+                onClick={() => setShowModalFor(card.id)}>
+                {card.categoryId
+                    ? <span className="jf-job-trigger-edit">✎ 직무 변경</span>
+                    : <span className="jf-job-trigger-placeholder">+ 직무를 선택해 주세요.</span>
+                }
+            </div>
+            {card.categoryId ? (
+                <div className="jf-job-selected">
+                    <span className="jf-job-chip-selected">
+                        {card.categoryName}
+                        <button className="jf-job-chip-remove"
+                            onClick={() => handleCardChange(card.id, { categoryId: null, categoryName: '' })}>
+                            ✕
+                        </button>
+                    </span>
+                </div>
+            ) : (
+                <p className="jf-job-empty">선택된 직무가 없습니다.</p>
+            )}
+            {errors[card.id]?.categoryId && <p className="jf-hint--error">{errors[card.id].categoryId}</p>}
+        </div>
+
+        {/* 재직 기간 */}
+        <div className="jf-card-field">
+            <label className="jf-card-label">재직 기간</label>
+            <div className="jf-period-row">
+                <input className={`jf-card-input ${errors[card.id]?.startDate ? 'jf-card-input--error' : ''}`}
+                    type="text" placeholder="입사일 (YYYY.MM.DD)"
+                    value={card.startDate} maxLength={10}
+                    onChange={e => handleCardChange(card.id, { startDate: empAutoFormatDate(e.target.value) })} />
+                <span className="jf-period-dash">-</span>
+                <input className={`jf-card-input ${card.isCurrently ? 'jf-card-input--disabled' : errors[card.id]?.endDate ? 'jf-card-input--error' : ''}`}
+                    type="text"
+                    placeholder={card.isCurrently ? 'YYYY.MM.DD' : '퇴사일 (YYYY.MM.DD)'}
+                    value={card.endDate} maxLength={10} disabled={card.isCurrently}
+                    onChange={e => handleCardChange(card.id, { endDate: empAutoFormatDate(e.target.value) })} />
+            </div>
+            <div style={{ display: 'flex', gap: '16px' }}>
+                <div style={{ flex: 1 }}>
+                    {errors[card.id]?.startDate && <p className="jf-hint--error">{errors[card.id].startDate}</p>}
+                </div>
+                <div style={{ flex: 1 }}>
+                    {errors[card.id]?.endDate && <p className="jf-hint--error">{errors[card.id].endDate}</p>}
+                </div>
+            </div>
+            <label className="jf-checkbox-label">
+                <input type="checkbox" checked={card.isCurrently}
+                    onChange={e => handleCardChange(card.id, {
+                        isCurrently: e.target.checked,
+                        endDate: e.target.checked ? '' : card.endDate
+                    })} />
+                재직중
+            </label>
+            <p className="jf-checkbox-hint">재직중 체크 시 퇴사일 비활성화</p>
+        </div>
+
+        {showModalFor === card.id && (
+            <EmpJobModal
+                jobCategories={jobCategories}
+                onConfirm={(job) => {
+                    handleCardChange(card.id, { categoryId: job.id, categoryName: job.name })
+                    setShowModalFor(null)
+                }}
+                onClose={() => setShowModalFor(null)}
+            />
+        )}
+    </div>
+))}
+
+<button className="jf-add-btn" onClick={() => setCards(p => [...p, newEmpCard()])}>
+    + 이력 추가
+</button>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
                 <button className="mp-modal-btn" onClick={() => {setCards(
@@ -1014,48 +1036,92 @@ function EmploymentSection({ initialEmployments, onSuccess, onCancel }) {
     )
 }
 
-// 재직이력용 직무 선택 모달 (mp-modal 스타일 사용)
+// 재직이력용 직무 선택 모달
 function EmpJobModal({ jobCategories, onConfirm, onClose }) {
     const [activeTab, setActiveTab] = useState(0)
     const [selected, setSelected] = useState(null)
+    const [customText, setCustomText] = useState('')
     const currentCat = jobCategories[activeTab] || { jobs: [] }
+    const isEtc = currentCat.id === 24  // 기타 카테고리 id
+
+    const handleConfirm = () => {
+        if (isEtc) {
+            if (!customText.trim()) return
+            onConfirm({ id: 24, name: customText.trim() })
+        } else {
+            if (!selected) return
+            onConfirm(selected)
+        }
+    }
+
+    const selectedLabel = isEtc ? customText : selected?.name || ''
 
     return (
-        <div className="mp-modal-overlay" onClick={onClose}>
-            <div className="mp-modal" onClick={e => e.stopPropagation()}>
-                <h2 className="mp-modal-title">직무 선택</h2>
-                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
+<div className="jf-modal-overlay" onClick={onClose}>
+    <div className="jf-modal" onClick={e => e.stopPropagation()}>
+        <div className="jf-modal-content">
+            <h2 className="jf-modal-title">직무 선택</h2>
+
+            {/* 탭 스크롤 래퍼 분리 */}
+            <div className="jf-modal-tabs-scroll">
+                <div className="jf-modal-tabs">
                     {jobCategories.map((cat, idx) => (
                         <button key={cat.id}
-                            className={`mp-row-btn ${activeTab === idx ? 'primary' : ''}`}
-                            onClick={() => { setActiveTab(idx); setSelected(null) }}>
+                            className={`jf-modal-tab ${activeTab === idx ? 'active' : ''}`}
+                            onClick={() => { setActiveTab(idx); setSelected(null); setCustomText('') }}>
                             {cat.label}
                         </button>
                     ))}
                 </div>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', minHeight: 80, marginBottom: 16 }}>
-                    {currentCat.jobs.map(job => (
-                        <button key={job.id}
-                            onClick={() => setSelected({ id: job.id, name: job.name })}
-                            style={{
-                                padding: '6px 14px', borderRadius: 20, fontSize: '0.85rem',
-                                border: `1px solid ${selected?.id === job.id ? '#1a1a1a' : '#d0d0d0'}`,
-                                background: selected?.id === job.id ? '#1a1a1a' : '#fff',
-                                color: selected?.id === job.id ? '#fff' : '#444',
-                                cursor: 'pointer',
-                            }}>
-                            {job.name}
-                        </button>
-                    ))}
-                </div>
-                <div className="mp-modal-btn-row">
-                    <button className="mp-modal-btn" onClick={onClose}>취소</button>
-                    <button className="mp-modal-btn primary" onClick={() => selected && onConfirm(selected)} disabled={!selected}>
-                        선택 완료
-                    </button>
-                </div>
             </div>
+
+            <div className="jf-modal-body">
+                    {isEtc ? (
+            <div>
+                <p style={{ fontSize: '0.875rem', color: '#555', marginBottom: 10 }}>
+                    목록에 없는 직무를 직접 입력 해주세요.
+                </p>
+                <input
+                    className="jf-card-input"
+                    type="text"
+                    placeholder="예: 블록체인 개발자, VR 개발자 등"
+                    value={customText}
+                    onChange={e => setCustomText(e.target.value)}
+                    autoFocus
+                    style={{ marginBottom: 6, width: '100%', boxSizing: 'border-box' }}
+                />
+                <p style={{ fontSize: '0.78rem', color: '#aaa' }}>
+                    입력 후 "선택 완료"를 눌러 저장하세요.
+                </p>
+            </div>
+        ) : (
+                        <div className="jf-modal-chips">
+                            {currentCat.jobs.map(job => (
+                                <button key={job.id}
+                                    className={`jf-modal-chip ${selected?.id === job.id ? 'selected' : ''}`}
+                                    onClick={() => setSelected({ id: job.id, name: job.name })}>
+                                    {job.name}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+                <div className="jf-modal-footer">
+                    <span className="jf-modal-selected-text">
+                        선택: <strong>{selectedLabel}</strong>
+                    </span>
+                    <div className="jf-modal-btns">
+                        <button className="jf-modal-btn jf-modal-btn--cancel" onClick={onClose}>취소</button>
+                        <button className="jf-modal-btn jf-modal-btn--confirm"
+                            onClick={handleConfirm}
+                            disabled={isEtc ? !customText.trim() : !selected}>
+                            선택 완료
+                        </button>
+                    </div>
+                </div>
         </div>
+    </div>
+</div>
     )
 }
 
@@ -1289,21 +1355,21 @@ export default function MyPage() {
                     {tab === 'targetJob' && (
                         !editingTargetJob ? (
                             <div className="mp-card">
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                                    <h3 className="mp-card-title" style={{ marginBottom: 0 }}>목표 직무</h3>
+                                <div className="mp-section-header">
+                                    <h3 className="mp-card-title mp-card-title--compact">목표 직무</h3>
                                     <button className="mp-row-btn" onClick={() => setEditingTargetJob(true)}>목표 직무 변경</button>
                                 </div>
                                 {info?.targetJobs?.length > 0 ? (
                                     info.targetJobs.map((job, i) => (
-                                        <div key={i} className="mp-row">
-                                            <span className="mp-row-value">{job.categoryName}</span>
-                                            <span style={{ fontSize: '0.8rem', color: '#aaa' }}>
+                                        <div key={i} className="mp-row mp-target-job-row">
+                                            <span className="mp-target-job-name">{job.categoryName}</span>
+                                            <span className="mp-target-job-period">
                                                 {job.startDate} ~ {job.endDate === '9999-12-31' || !job.endDate ? '준비중' : job.endDate}
                                             </span>
                                         </div>
                                     ))
                                 ) : (
-                                    <p style={{ color: '#aaa', fontSize: '0.875rem' }}>등록된 목표 직무가 없습니다.</p>
+                                    <p className="mp-empty-message">등록된 목표 직무가 없습니다.</p>
                                 )}
                             </div>
                         ) : (
@@ -1323,22 +1389,22 @@ export default function MyPage() {
                     {tab === 'employment' && (
                         !editingEmployment ? (
                             <div className="mp-card">
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                                    <h3 className="mp-card-title" style={{ marginBottom: 0 }}>재직 이력</h3>
+                                <div className="mp-section-header">
+                                    <h3 className="mp-card-title mp-card-title--compact">재직 이력</h3>
                                     <button className="mp-row-btn" onClick={() => setEditingEmployment(true)}>재직 이력 변경</button>
                                 </div>
                                 {info?.employments?.length > 0 ? (
                                     info.employments.map((emp, i) => (
-                                        <div key={i} className="mp-row" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
-                                            <span style={{ fontWeight: 600, color: '#1a1a1a' }}>{emp.companyName}</span>
-                                            <span style={{ fontSize: '0.85rem', color: '#666' }}>{emp.categoryName}</span>
-                                            <span style={{ fontSize: '0.8rem', color: '#aaa' }}>
+                                        <div key={i} className="mp-row mp-employment-row">
+                                            <span className="mp-employment-company">{emp.companyName}</span>
+                                            <span className="mp-employment-category">{emp.categoryName}</span>
+                                            <span className="mp-employment-period">
                                                 {emp.startDate} ~ {emp.endDate === '9999-12-31' || !emp.endDate ? '재직중' : emp.endDate}
                                             </span>
                                         </div>
                                     ))
                                 ) : (
-                                    <p style={{ color: '#aaa', fontSize: '0.875rem' }}>등록된 재직 이력이 없습니다.</p>
+                                    <p className="mp-empty-message">등록된 재직 이력이 없습니다.</p>
                                 )}
                             </div>
                         ) : (

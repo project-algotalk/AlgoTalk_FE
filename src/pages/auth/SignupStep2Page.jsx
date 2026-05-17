@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { fetchCategories } from '../../api/csCategoryApi'
 import './SignupStep2Page.css'
+import '../../styles/jobForm.css'
 
 const MAX_SELECT = 3
 
@@ -211,20 +212,20 @@ export default function SignupStep2Page() {
           </div>
         </div>
 
-        <p className="su2-guide-title">
+        <p className="jf-guide-title">
           준비 중인 직무를 선택해 주세요.
-          <span className="su2-guide-sub"> (최대 3개, 선택 사항)</span>
+          <span className="jf-guide-sub"> (최대 3개, 선택 사항)</span>
         </p>
         <p className="su2-guide-desc">
           분류 &nbsp;<span className="su2-guide-em">탭 선택 → 해당 직무 목록 표시</span>
         </p>
 
         {/* 대분류 탭 */}
-        <div className="su2-tabs">
+        <div className="jf-tabs">
           {jobCategories.map((cat, idx) => (
             <button
               key={cat.id}
-              className={`su2-tab ${activeTab === idx ? 'active' : ''}`}
+              className={`jf-tab ${activeTab === idx ? 'active' : ''}`}
               onClick={() => setActiveTab(idx)}
               type="button"
             >
@@ -233,19 +234,19 @@ export default function SignupStep2Page() {
           ))}
         </div>
 
-        <p className="su2-tab-desc">
+        <p className="jf-tab-desc">
           직무를 선택하면 해당 직무 특화 면접 질문으로 면접 질문을 생성할 수 있습니다.
         </p>
 
         {/* 중분류 칩 */}
-        <div className="su2-job-chips">
+        <div className="jf-job-chips">
           {currentCategory.jobs.map(job => {
             const isSelected = selectedJobs.some(j => j.categoryId === job.id)
             const isDisabled = !isSelected && selectedJobs.length >= MAX_SELECT
             return (
               <button
                 key={job.id}
-                className={`su2-job-chip ${isSelected ? 'selected' : ''} ${isDisabled ? 'disabled' : ''}`}
+                className={`jf-job-chip ${isSelected ? 'selected' : ''} ${isDisabled ? 'disabled' : ''}`}
                 onClick={() => handleJobToggle(job)}
                 type="button"
                 disabled={isDisabled}
@@ -257,27 +258,27 @@ export default function SignupStep2Page() {
         </div>
 
         {/* 선택된 직무 박스 */}
-        <div className="su2-selected-box">
-          <div className="su2-selected-header">
-            <span className="su2-selected-title">선택된 직무 ( {selectedJobs.length} / {MAX_SELECT} )</span>
-            <span className="su2-selected-limit">3개 초과 선택 불가</span>
+        <div className="jf-selected-box">
+          <div className="jf-selected-header">
+            <span className="jf-selected-title">선택된 직무 ( {selectedJobs.length} / {MAX_SELECT} )</span>
+            <span className="jf-selected-limit">3개 초과 선택 불가</span>
           </div>
-          <div className="su2-selected-chips">
+          <div className="jf-selected-chips">
             {selectedJobs.map(j => (
-              <span key={j.categoryId} className="su2-selected-chip">
+              <span key={j.categoryId} className="jf-selected-chip">
                 {j.categoryName}
-                <button className="su2-chip-remove" onClick={() => handleRemoveJob(j.categoryId)} type="button">X</button>
+                <button className="jf-chip-remove" onClick={() => handleRemoveJob(j.categoryId)} type="button">X</button>
               </span>
             ))}
           </div>
         </div>
 
         {/* 직무 준비기간 */}
-        <div className="su2-period">
-          <p className="su2-period-label">직무 준비기간</p>
-          <div className="su2-period-row">
+        <div className="jf-period">
+          <p className="jf-period-label">직무 준비기간</p>
+          <div className="jf-period-row">
               <input
-                  className={`su2-input ${errors.startDate ? 'su2-input--error' : ''}`}
+                  className={`jf-input ${errors.startDate ? 'jf-input--error' : ''}`}
                   type="text"
                   placeholder="시작일 (YYYY.MM.DD)"
                   value={startDate}
@@ -287,9 +288,9 @@ export default function SignupStep2Page() {
                   }}
                   maxLength={10}
               />
-              <span className="su2-period-dash">-</span>
+              <span className="jf-period-dash">-</span>
               <input
-                  className={`su2-input ${errors.endDate ? 'su2-input--error' : ''}`}
+                  className={`jf-input ${errors.endDate ? 'jf-input--error' : ''}`}
                   type="text"
                   placeholder={isPreparing ? 'YYYY.MM.DD' : '종료일 (YYYY.MM.DD)'}
                   value={endDate}
@@ -304,17 +305,17 @@ export default function SignupStep2Page() {
           {/* 에러 메시지를 두 칸으로 나눠서 input 위치에 맞게 표시 */}
           <div style={{ display: 'flex', gap: '16px' }}>
               <div style={{ flex: 1 }}>
-                  {errors.startDate && <p className="su2-hint--error">{errors.startDate}</p>}
+                  {errors.startDate && <p className="jf-hint--error">{errors.startDate}</p>}
               </div>
               <div style={{ flex: 1 }}>
-                  {errors.endDate && <p className="su2-hint--error">{errors.endDate}</p>}
+                  {errors.endDate && <p className="jf-hint--error">{errors.endDate}</p>}
               </div>
           </div>
-          <label className="su2-checkbox-label">
+          <label className="jf-checkbox-label">
               <input type="checkbox" checked={isPreparing} onChange={handlePreparingChange} />
               준비중
           </label>
-          <p className="su2-checkbox-hint">체크 시 종료일 비활성화</p>
+          <p className="jf-checkbox-hint">체크 시 종료일 비활성화</p>
       </div>
 
         {/* 버튼 */}
