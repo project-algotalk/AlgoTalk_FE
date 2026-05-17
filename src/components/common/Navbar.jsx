@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import useAuthStore from '../../store/authStore'
 import api from '../../api/axiosInstance'
 import './Navbar.css'
+import AlertModal from './AlertModal'
 
 export default function Navbar() {
   const navigate = useNavigate()
@@ -60,27 +61,14 @@ export default function Navbar() {
 
       {/* 로그아웃 확인 모달 */}
       {showLogoutModal && (
-        <div className="modal-overlay" onClick={() => setShowLogoutModal(false)}>
-          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-icon">
-              <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                <circle cx="24" cy="24" r="22" stroke="#1a7f4b" strokeWidth="2.5" />
-                <path
-                  d="M14 24l7 7 13-14"
-                  stroke="#1a7f4b"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
-            <h2 className="modal-title">로그아웃</h2>
-            <p className="modal-desc">{user?.nickname}님 안녕히가세요!</p>
-            <button className="modal-confirm-btn" onClick={handleLogout}>
-              확인
-            </button>
-          </div>
-        </div>
+        <AlertModal
+          type="success"
+          title="로그아웃"
+          message={`${user?.nickname}님 안녕히가세요!`}
+          onConfirm={handleLogout}
+          onClose={() => setShowLogoutModal(false)}
+          align="left"
+        />
       )}
     </>
   )

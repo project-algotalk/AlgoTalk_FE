@@ -3,30 +3,13 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import api from '../../api/axiosInstance'
 import './FindAccountPage.css'
+import AlertModal from '../../components/common/AlertModal'
 
 const EMAIL_DOMAINS = [
   'naver.com', 'gmail.com', 'daum.net', 'kakao.com',
   'nate.com', 'hanmail.net', 'outlook.com', '직접입력',
 ]
 const PW_RULE = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[\W_]).{8,16}$/
-
-function AlertModal({ type, title, message, onConfirm }) {
-  return (
-    <div className="fa-modal-overlay">
-      <div className="fa-modal-box">
-        <div className="fa-modal-icon">
-          {type === 'success'
-            ? <svg width="48" height="48" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" stroke="#1a7f4b" strokeWidth="2.5" fill="none"/><path d="M14 24l7 7 13-14" stroke="#1a7f4b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-            : <svg width="48" height="48" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" stroke="#d32f2f" strokeWidth="2.5" fill="none"/><path d="M16 16l16 16M32 16L16 32" stroke="#d32f2f" strokeWidth="2.5" strokeLinecap="round"/></svg>
-          }
-        </div>
-        {title && <h2 className="fa-modal-title">{title}</h2>}
-        <p className="fa-modal-message">{message}</p>
-        <button className="fa-modal-confirm" onClick={onConfirm}>확인</button>
-      </div>
-    </div>
-  )
-}
 
 // ── 아이디 찾기 탭
 function FindIdTab() {
@@ -220,8 +203,7 @@ function FindIdTab() {
         </>
       )}
 
-      {modal && <AlertModal type={modal.type} title={modal.title} message={modal.message} onConfirm={modal.onConfirm} />}
-    </div>
+      {modal && <AlertModal type={modal.type} title={modal.title} message={modal.message} onConfirm={modal.onConfirm} onClose={modal.onConfirm} align="center" zIndex={1000} />}    </div>
   )
 }
 
@@ -496,8 +478,7 @@ function FindPasswordTab() {
         </>
       )}
 
-      {modal && <AlertModal type={modal.type} title={modal.title} message={modal.message} onConfirm={modal.onConfirm} />}
-
+      {modal && <AlertModal type={modal.type} title={modal.title} message={modal.message} onConfirm={modal.onConfirm} onClose={modal.onConfirm} align="center" zIndex={1000} />}
       {showSuccessModal && (
         <AlertModal
           type="success"
