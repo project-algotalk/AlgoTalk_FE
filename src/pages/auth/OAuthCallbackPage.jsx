@@ -11,11 +11,12 @@ export default function OAuthCallbackPage() {
     useEffect(() => {
         const resolveSocialLogin = async () => {
             const isLinkMode = sessionStorage.getItem('oauth2_link_mode') === 'true'
+            const errorCode = new URLSearchParams(location.search).get('error')
 
             // 연결 실패
             if (location.pathname === '/oauth2/link/failure') {
                 sessionStorage.removeItem('oauth2_link_mode')
-                navigate('/mypage', { replace: true, state: { linkError: true } })
+                navigate('/mypage', { replace: true, state: { linkError: true, linkErrorCode: errorCode } })
                 return
             }
 
@@ -38,8 +39,7 @@ export default function OAuthCallbackPage() {
             }
         }
         resolveSocialLogin()
-    }, [login, navigate, setUnauthenticated, location.pathname])
-
+    }, [login, navigate, setUnauthenticated, location.pathname, location.search])
     return (
         <div style={{
             display: 'flex',

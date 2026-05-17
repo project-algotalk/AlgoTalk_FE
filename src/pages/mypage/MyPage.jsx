@@ -617,11 +617,23 @@ export default function MyPage() {
     const [loading, setLoading] = useState(true)
     const [modal, setModal] = useState(null) // 'password' | 'nickname' | 'name' | 'email' | 'addr' | 'unlink' | 'withdraw'
     const [unlinkProvider, setUnlinkProvider] = useState(null)
+    const getSocialLinkErrorMessage = (errorCode) => {
+        const messageByCode = {
+            USER_058: '이미 내 계정에 연결된 소셜 계정입니다.',
+            USER_059: '다른 계정에 이미 연결된 소셜 계정입니다.',
+            USER_061: '소셜 계정 연결에 실패했습니다. 잠시 후 다시 시도해 주세요.',
+        }
+
+        return messageByCode[errorCode] || '소셜 계정 연결에 실패했습니다.'
+    }
+    
     const [resultModal, setResultModal] = useState(() => {
         if (location.state?.linkSuccess) return { type: 'success', message: '소셜 계정이 연결되었습니다.' }
-        if (location.state?.linkError) return { type: 'error', message: '소셜 계정 연결에 실패했습니다.' }
-        return null
+        if (location.state?.linkError) {
+            return { type: 'error', message: getSocialLinkErrorMessage(location.state?.linkErrorCode) }
+        }        return null
     }) // { type: 'success'|'error', message }
+
 
     useEffect(() => {
         if (location.state?.linkSuccess) {
