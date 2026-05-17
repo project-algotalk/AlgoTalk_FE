@@ -3,6 +3,9 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useAuthStore from '../../store/authStore'
 import Navbar from '../../components/common/Navbar'
+import AlertModal from '../../components/common/AlertModal'
+import BaseModal from '../../components/common/BaseModal'
+import JobCategoryModal from '../../components/common/JobCategoryModal'
 import { useLocation } from 'react-router-dom'
 import { fetchCategories } from '../../api/csCategoryApi'
 import {
@@ -16,38 +19,6 @@ import {
 } from '../../api/myPageApi'
 import './MyPage.css'
 import '../../styles/jobForm.css'
-
-// ── 공통 성공/에러 모달
-function SuccessModal({ message, onConfirm, type = 'success' }) {
-    const isError = type === 'error'
-    const color = isError ? '#d32f2f' : '#1a7f4b'
-
-    return (
-        <div className="mp-modal-overlay">
-            <div className="mp-modal" style={{ textAlign: 'center', padding: '36px' }}>
-                <div style={{ marginBottom: 16 }}>
-                    {isError ? (
-                        <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
-                            <circle cx="26" cy="26" r="24" stroke={color} strokeWidth="2.5" fill="none"/>
-                            <path d="M18 18l16 16M34 18l-16 16" stroke={color} strokeWidth="2.5" strokeLinecap="round"/>
-                        </svg>
-                    ) : (
-                        <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
-                            <circle cx="26" cy="26" r="24" stroke={color} strokeWidth="2.5" fill="none"/>
-                            <path d="M15 26l8 8 14-14" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                    )}
-                </div>
-                <p style={{ fontSize: '1rem', fontWeight: 600, color: '#1a1a1a', marginBottom: 24 }}>
-                    {message}
-                </p>
-                <button className="mp-modal-btn primary" style={{ width: '100%', height: 44 }} onClick={onConfirm}>
-                    확인
-                </button>
-            </div>
-        </div>
-    )
-}
 
 // 공통 에러 메시지 파싱
 const parseError = (err, fallback = '처리에 실패했습니다.') => {
@@ -66,7 +37,7 @@ function LoginIdModal({ current, onClose, onSuccess }) {
     const RULE = /^[a-zA-Z0-9]{4,20}$/
 
     if (done) return (
-        <SuccessModal message="아이디가 변경되었습니다." onConfirm={() => onSuccess(loginId)} />
+        <AlertModal align="center" message="아이디가 변경되었습니다." onConfirm={() => onSuccess(loginId)} />
     )
 
     const handleSubmit = async () => {
@@ -83,9 +54,14 @@ function LoginIdModal({ current, onClose, onSuccess }) {
     }
 
     return (
-        <div className="mp-modal-overlay" onClick={onClose}>
-            <div className="mp-modal" onClick={e => e.stopPropagation()}>
-                <h2 className="mp-modal-title">아이디 변경</h2>
+        <BaseModal title="아이디 변경" onClose={onClose} actions={
+                <div className="mp-modal-btn-row">
+                    <button className="mp-modal-btn" onClick={onClose}>취소</button>
+                    <button className="mp-modal-btn primary" onClick={handleSubmit} disabled={loading}>
+                        {loading ? '처리 중...' : '변경하기'}
+                    </button>
+                </div>
+            }>
                 <div className="mp-modal-field">
                     <label className="mp-modal-label">새 아이디 <span className="mp-modal-required">*</span></label>
                     <input
@@ -96,14 +72,7 @@ function LoginIdModal({ current, onClose, onSuccess }) {
                     />
                     {error ? <p className="mp-hint error">{error}</p> : <p className="mp-hint">영문, 숫자 조합 4~20자</p>}
                 </div>
-                <div className="mp-modal-btn-row">
-                    <button className="mp-modal-btn" onClick={onClose}>취소</button>
-                    <button className="mp-modal-btn primary" onClick={handleSubmit} disabled={loading}>
-                        {loading ? '처리 중...' : '변경하기'}
-                    </button>
-                </div>
-            </div>
-        </div>
+        </BaseModal>
     )
 }
 
@@ -116,10 +85,7 @@ function PasswordModal({ passwordSetYn, onClose, onSuccess }) {
     const isSet = passwordSetYn === 'N'
 
     if (done) return (
-        <SuccessModal
-            message={isSet ? '비밀번호가 설정되었습니다.' : '비밀번호가 변경되었습니다.'}
-            onConfirm={onSuccess}
-        />
+        <AlertModal align="center" message={isSet ? '비밀번호가 설정되었습니다.' : '비밀번호가 변경되었습니다.'} onConfirm={onSuccess} />
     )
 
     const handleChange = (e) => {
@@ -197,7 +163,7 @@ function NicknameModal({ current, onClose, onSuccess }) {
     const [done, setDone] = useState(false)
 
     if (done) return (
-        <SuccessModal message="닉네임이 변경되었습니다." onConfirm={() => onSuccess(nickname)} />
+        <AlertModal align="center" message="닉네임이 변경되었습니다." onConfirm={() => onSuccess(nickname)} />
     )
 
     const handleSubmit = async () => {
@@ -243,7 +209,7 @@ function NameModal({ current, onClose, onSuccess }) {
     const [done, setDone] = useState(false)
 
     if (done) return (
-        <SuccessModal message="이름이 변경되었습니다." onConfirm={() => onSuccess(name)} />
+        <AlertModal align="center" message="이름이 변경되었습니다." onConfirm={() => onSuccess(name)} />
     )
 
     const handleSubmit = async () => {
@@ -294,7 +260,7 @@ function EmailModal({ onClose, onSuccess }) {
     const fullEmail = `${emailLocal}@${emailDomain}`
 
     if (done) return (
-        <SuccessModal message="이메일이 변경되었습니다." onConfirm={() => onSuccess(fullEmail)} />
+        <AlertModal align="center" message="이메일이 변경되었습니다." onConfirm={() => onSuccess(fullEmail)} />
     )
 
     const handleSendCode = async () => {
@@ -397,7 +363,7 @@ function AddrModal({ current1, current2, onClose, onSuccess }) {
     const [done, setDone] = useState(false)
 
     if (done) return (
-        <SuccessModal message="주소가 변경되었습니다." onConfirm={() => onSuccess(addr1, addr2)} />
+        <AlertModal align="center" message="주소가 변경되었습니다." onConfirm={() => onSuccess(addr1, addr2)} />
     )
 
     const handleAddrSearch = () => {
@@ -997,7 +963,7 @@ function EmploymentSection({ initialEmployments, onSuccess, onCancel }) {
         </div>
 
         {showModalFor === card.id && (
-            <EmpJobModal
+            <JobCategoryModal
                 jobCategories={jobCategories}
                 onConfirm={(job) => {
                     handleCardChange(card.id, { categoryId: job.id, categoryName: job.name })
@@ -1033,95 +999,6 @@ function EmploymentSection({ initialEmployments, onSuccess, onCancel }) {
                 </button>
             </div>
         </div>
-    )
-}
-
-// 재직이력용 직무 선택 모달
-function EmpJobModal({ jobCategories, onConfirm, onClose }) {
-    const [activeTab, setActiveTab] = useState(0)
-    const [selected, setSelected] = useState(null)
-    const [customText, setCustomText] = useState('')
-    const currentCat = jobCategories[activeTab] || { jobs: [] }
-    const isEtc = currentCat.id === 24  // 기타 카테고리 id
-
-    const handleConfirm = () => {
-        if (isEtc) {
-            if (!customText.trim()) return
-            onConfirm({ id: 24, name: customText.trim() })
-        } else {
-            if (!selected) return
-            onConfirm(selected)
-        }
-    }
-
-    const selectedLabel = isEtc ? customText : selected?.name || ''
-
-    return (
-<div className="jf-modal-overlay" onClick={onClose}>
-    <div className="jf-modal" onClick={e => e.stopPropagation()}>
-        <div className="jf-modal-content">
-            <h2 className="jf-modal-title">직무 선택</h2>
-
-            {/* 탭 스크롤 래퍼 분리 */}
-            <div className="jf-modal-tabs-scroll">
-                <div className="jf-modal-tabs">
-                    {jobCategories.map((cat, idx) => (
-                        <button key={cat.id}
-                            className={`jf-modal-tab ${activeTab === idx ? 'active' : ''}`}
-                            onClick={() => { setActiveTab(idx); setSelected(null); setCustomText('') }}>
-                            {cat.label}
-                        </button>
-                    ))}
-                </div>
-            </div>
-
-            <div className="jf-modal-body">
-                    {isEtc ? (
-            <div>
-                <p style={{ fontSize: '0.875rem', color: '#555', marginBottom: 10 }}>
-                    목록에 없는 직무를 직접 입력 해주세요.
-                </p>
-                <input
-                    className="jf-card-input"
-                    type="text"
-                    placeholder="예: 블록체인 개발자, VR 개발자 등"
-                    value={customText}
-                    onChange={e => setCustomText(e.target.value)}
-                    autoFocus
-                    style={{ marginBottom: 6, width: '100%', boxSizing: 'border-box' }}
-                />
-                <p style={{ fontSize: '0.78rem', color: '#aaa' }}>
-                    입력 후 "선택 완료"를 눌러 저장하세요.
-                </p>
-            </div>
-        ) : (
-                        <div className="jf-modal-chips">
-                            {currentCat.jobs.map(job => (
-                                <button key={job.id}
-                                    className={`jf-modal-chip ${selected?.id === job.id ? 'selected' : ''}`}
-                                    onClick={() => setSelected({ id: job.id, name: job.name })}>
-                                    {job.name}
-                                </button>
-                            ))}
-                        </div>
-                    )}
-                </div>
-                <div className="jf-modal-footer">
-                    <span className="jf-modal-selected-text">
-                        선택: <strong>{selectedLabel}</strong>
-                    </span>
-                    <div className="jf-modal-btns">
-                        <button className="jf-modal-btn jf-modal-btn--cancel" onClick={onClose}>취소</button>
-                        <button className="jf-modal-btn jf-modal-btn--confirm"
-                            onClick={handleConfirm}
-                            disabled={isEtc ? !customText.trim() : !selected}>
-                            선택 완료
-                        </button>
-                    </div>
-                </div>
-        </div>
-    </div>
-</div>
     )
 }
 
@@ -1443,7 +1320,8 @@ export default function MyPage() {
             )}
 
             {resultModal && (
-                <SuccessModal
+                <AlertModal
+                    align="center"
                     type={resultModal.type}
                     message={resultModal.message}
                     onConfirm={() => setResultModal(null)}
