@@ -51,6 +51,14 @@ export const unlinkSocial = async (provider) => {
     await api.delete(`/mypage/v1/social/${provider}`)
 }
 
+export const updateTargetJobs = async (payload) => {
+    await api.post('/mypage/v1/target-jobs', payload)
+}
+
+export const updateEmployments = async (payload) => {
+    await api.post('/mypage/v1/employments', payload)
+}
+
 export const withdraw = async (payload) => {
     await api.delete('/mypage/v1/withdraw', { data: payload })
 }
