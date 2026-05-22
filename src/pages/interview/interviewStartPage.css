@@ -1,0 +1,274 @@
+.in-page {
+  min-height: 100vh;
+  background: #fafafa;
+}
+
+.in-container {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+.in-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 6px;
+}
+
+.in-subtitle {
+  font-size: 0.875rem;
+  color: #888;
+  margin-bottom: 32px;
+}
+
+/* 섹션 */
+.in-section {
+  margin-bottom: 32px;
+}
+
+.in-section-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 12px;
+}
+
+.in-section-sub {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: #888;
+  margin-left: 4px;
+}
+
+/* 모드 카드 */
+.in-mode-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.in-mode-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px 16px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+
+.in-mode-card:hover {
+  border-color: #ccc;
+}
+
+.in-mode-card.active {
+  border-color: #e57373;
+  background: #fff5f5;
+}
+
+.in-mode-card strong {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.in-mode-card span {
+  font-size: 0.8rem;
+  color: #888;
+  line-height: 1.5;
+}
+
+/* 카테고리 그룹 */
+.in-category-group-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 8px;
+  margin-top: 16px;
+}
+
+.in-job-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.in-job-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.in-job-group-label {
+  font-size: 0.8rem;
+  color: #888;
+  margin-bottom: 4px;
+}
+
+/* 칩 */
+.in-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.in-chip {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1.5px solid #e0e0e0;
+  background: #fff;
+  font-size: 0.85rem;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.in-chip:hover:not(.disabled) {
+  border-color: #bbb;
+}
+
+.in-chip.selected {
+  border-color: #1a1a1a;
+  background: #1a1a1a;
+  color: #fff;
+}
+
+.in-chip.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* 직접입력 */
+.in-manual-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.in-manual-card {
+  border: 1.5px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 16px;
+  background: #fff;
+}
+
+.in-manual-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.in-manual-card-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.in-manual-delete {
+  font-size: 0.8rem;
+  color: #e57373;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.in-manual-field {
+  margin-bottom: 10px;
+}
+
+.in-manual-label {
+  font-size: 0.8rem;
+  color: #888;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.in-manual-select {
+  width: 100%;
+  height: 38px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 0 10px;
+  font-size: 0.875rem;
+  color: #333;
+  background: #fff;
+  cursor: pointer;
+}
+
+.in-manual-textarea {
+  width: 100%;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.875rem;
+  color: #333;
+  resize: none;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.in-manual-textarea:focus {
+  outline: none;
+  border-color: #888;
+}
+
+.in-add-btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+  border: 1.5px dashed #ccc;
+  border-radius: 10px;
+  background: none;
+  font-size: 0.875rem;
+  color: #888;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.in-add-btn:hover {
+  border-color: #999;
+  color: #555;
+}
+
+/* 에러 */
+.in-error {
+  font-size: 0.875rem;
+  color: #e57373;
+  margin-bottom: 12px;
+  text-align: right;
+}
+
+/* 하단 버튼 */
+.in-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.in-start-btn {
+  padding: 12px 40px;
+  background: #3a3a3a;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.in-start-btn:hover:not(:disabled) {
+  background: #1a1a1a;
+}
+
+.in-start-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

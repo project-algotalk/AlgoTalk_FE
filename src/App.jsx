@@ -18,6 +18,7 @@ import FindAccountPage from './pages/auth/FindAccountPage'
 // Interview
 import InterviewStartPage from './pages/interview/InterviewStartPage'
 import InterviewNewPage from './pages/interview/InterviewNewPage'
+import DeviceCheckPage from './pages/interview/DeviceCheckPage'
 import InterviewSessionPage from './pages/interview/InterviewSessionPage'
 import InterviewResultPage from './pages/interview/InterviewResultPage'
 import InterviewFeedbackPage from './pages/interview/InterviewFeedbackPage'
@@ -123,6 +124,7 @@ export default function App() {
         <Route element={<PrivateRoute />}>
           <Route path="/interview" element={<InterviewStartPage />} />
           <Route path="/interview/new" element={<InterviewNewPage />} />
+          <Route path="/interview/device-check" element={<DeviceCheckPage />} />
           <Route path="/interview/session" element={<InterviewSessionPage />} />
           <Route path="/interview/result/:sessionId" element={<InterviewResultPage />} />
           <Route path="/interview/result/:sessionId/q/:qNo" element={<InterviewFeedbackPage />} />
