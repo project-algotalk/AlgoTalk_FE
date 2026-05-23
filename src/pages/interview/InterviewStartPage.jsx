@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/common/Navbar";
+import AlertModal from "../../components/common/AlertModal";
 import {
   fetchCsCategories,
   createLlmSession,
   createManualSession,
 } from "../../api/interviewApi";
+import { fetchTargetJobs } from "../../api/myPageApi";
 import "./InterviewStartPage.css";
 
 const MODE = {
@@ -17,45 +19,36 @@ const MODE = {
 export default function InterviewStartPage() {
   const navigate = useNavigate();
 
-  // 질문 구성 방식
   const [mode, setMode] = useState(MODE.LLM);
-
-  // 카테고리 데이터
-  const [commonCategories, setCommonCategories] = useState([]); // COMMON_CS
-  const [jobCategories, setJobCategories] = useState([]); // JOB (depth 1)
-  const [jobSubCategories, setJobSubCategories] = useState([]); // JOB (depth 2)
-
-  // LLM 모드 선택 상태
-  const [selectedCategories, setSelectedCategories] = useState([]); // { categoryId, categoryType }
+  const [commonCategories, setCommonCategories] = useState([]);
+  const [jobCategories, setJobCategories] = useState([]);
+  const [jobSubCategories, setJobSubCategories] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
   const [questionCount, setQuestionCount] = useState(3);
-
-  // 직접입력 모드 상태
+  const [loadingMyInfo, setLoadingMyInfo] = useState(false);
   const [manualQuestions, setManualQuestions] = useState([
     { id: Date.now(), categoryId: null, categoryName: "", questionText: "" },
   ]);
-
-  // 로딩/에러
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [errorModal, setErrorModal] = useState(null);
+  const [categoryError, setCategoryError] = useState("");
+  const [questionErrors, setQuestionErrors] = useState({});
 
   useEffect(() => {
     fetchCsCategories().then((data) => {
-      // COMMON_CS depth 1 (자료구조/알고리즘, 데이터베이스 등)
       const common = data
         .filter((c) => c.categoryType === "COMMON_CS" && c.depth === 1)
         .sort((a, b) => a.sortOrder - b.sortOrder);
       setCommonCategories(common);
 
-      // JOB depth 1 (기타/직접입력 categoryId 24 제외)
       const jobDepth1 = data
         .filter(
           (c) =>
-            c.categoryType === "JOB" && c.depth === 1 && c.categoryId !== 24,
+            c.categoryType === "JOB" && c.depth === 1 && c.categoryId !== 24
         )
         .sort((a, b) => a.sortOrder - b.sortOrder);
       setJobCategories(jobDepth1);
 
-      // JOB depth 2 (백엔드 개발자, 프론트엔드 개발자 등)
       const jobDepth2 = data
         .filter((c) => c.categoryType === "JOB" && c.depth === 2)
         .sort((a, b) => a.sortOrder - b.sortOrder);
@@ -63,14 +56,44 @@ export default function InterviewStartPage() {
     });
   }, []);
 
-  // ── LLM 모드: 카테고리 토글
+  const handleLoadMyInfo = async () => {
+    setLoadingMyInfo(true);
+    setErrorModal(null);
+    try {
+      const targetJobs = await fetchTargetJobs();
+      if (!targetJobs || targetJobs.length === 0) {
+        setErrorModal({
+          message:
+            "등록된 목표 직무가 없습니다. 마이페이지에서 목표 직무를 설정해주세요.",
+        });
+        return;
+      }
+      const newSelections = [...selectedCategories];
+      for (const job of targetJobs) {
+        const alreadySelected = newSelections.some(
+          (s) => s.categoryId === job.categoryId
+        );
+        if (!alreadySelected && newSelections.length < 3) {
+          newSelections.push({ categoryId: job.categoryId, categoryType: "JOB" });
+        }
+      }
+      setSelectedCategories(newSelections);
+      setCategoryError("");
+    } catch {
+      setErrorModal({ message: "내 정보를 불러오는데 실패했습니다." });
+    } finally {
+      setLoadingMyInfo(false);
+    }
+  };
+
   const toggleCategory = (categoryId, categoryType) => {
+    setCategoryError("");
     const isSelected = selectedCategories.some(
-      (c) => c.categoryId === categoryId,
+      (c) => c.categoryId === categoryId
     );
     if (isSelected) {
       setSelectedCategories((prev) =>
-        prev.filter((c) => c.categoryId !== categoryId),
+        prev.filter((c) => c.categoryId !== categoryId)
       );
     } else {
       if (selectedCategories.length >= 3) return;
@@ -78,7 +101,6 @@ export default function InterviewStartPage() {
     }
   };
 
-  // ── 직접입력 모드: 질문 추가/삭제/변경
   const addManualQuestion = () => {
     if (manualQuestions.length >= 5) return;
     setManualQuestions((prev) => [
@@ -90,74 +112,84 @@ export default function InterviewStartPage() {
   const removeManualQuestion = (id) => {
     if (manualQuestions.length <= 1) return;
     setManualQuestions((prev) => prev.filter((q) => q.id !== id));
+    setQuestionErrors((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
   };
 
   const updateManualQuestion = (id, updates) => {
+    // 수정된 필드 에러 초기화
+    setQuestionErrors((prev) => ({
+      ...prev,
+      [id]: {
+        ...prev[id],
+        ...Object.keys(updates).reduce((acc, k) => ({ ...acc, [k]: "" }), {}),
+      },
+    }));
     setManualQuestions((prev) =>
-      prev.map((q) => (q.id === id ? { ...q, ...updates } : q)),
+      prev.map((q) => (q.id === id ? { ...q, ...updates } : q))
     );
   };
 
-  // ── 면접 시작
   const handleStart = async () => {
-    setError("");
+    setErrorModal(null);
+    setCategoryError("");
+    setQuestionErrors({});
 
     if (mode === MODE.LLM) {
       if (selectedCategories.length === 0) {
-        setError("카테고리를 최소 1개 선택해주세요.");
+        setCategoryError("카테고리를 최소 1개 선택해주세요.");
         return;
       }
-
       setLoading(true);
       try {
-        const session = await createLlmSession({
-          selectedCategories,
-          questionCount,
-        });
-        // 세션 정보를 state로 넘기고 장치 설정 페이지로 이동
+        const session = await createLlmSession({ selectedCategories, questionCount });
         navigate("/interview/device-check", { state: { session } });
       } catch (err) {
-        setError(
-          err.response?.data?.message ||
+        setErrorModal({
+          message:
+            err.response?.data?.message ||
             "세션 생성에 실패했습니다. 잠시 후 다시 시도해주세요.",
-        );
+        });
       } finally {
         setLoading(false);
       }
     } else if (mode === MODE.MANUAL) {
-      const validQuestions = manualQuestions.filter((q) =>
-        q.questionText.trim(),
-      );
-      if (validQuestions.length === 0) {
-        setError("질문을 최소 1개 입력해주세요.");
-        return;
-      }
-      const missingCategory = validQuestions.some((q) => !q.categoryId);
-      if (missingCategory) {
-        setError("모든 질문에 카테고리를 선택해주세요.");
+      const errs = {};
+      manualQuestions.forEach((q) => {
+        const cardErr = {};
+        if (!q.categoryId) cardErr.categoryId = "카테고리를 선택해주세요.";
+        if (!q.questionText.trim()) cardErr.questionText = "질문을 입력해주세요.";
+        if (Object.keys(cardErr).length > 0) errs[q.id] = cardErr;
+      });
+
+      if (Object.keys(errs).length > 0) {
+        setQuestionErrors(errs);
         return;
       }
 
       setLoading(true);
       try {
         const session = await createManualSession({
-          questions: validQuestions.map((q) => ({
+          questions: manualQuestions.map((q) => ({
             categoryId: q.categoryId,
             questionText: q.questionText.trim(),
           })),
         });
         navigate("/interview/device-check", { state: { session } });
       } catch (err) {
-        setError(
-          err.response?.data?.message ||
+        setErrorModal({
+          message:
+            err.response?.data?.message ||
             "세션 생성에 실패했습니다. 잠시 후 다시 시도해주세요.",
-        );
+        });
       } finally {
         setLoading(false);
       }
     } else {
-      // 스크랩 - 추후 구현
-      setError("질문 불러오기는 준비 중입니다.");
+      setErrorModal({ message: "질문 불러오기는 준비 중입니다." });
     }
   };
 
@@ -213,7 +245,8 @@ export default function InterviewStartPage() {
           <>
             <section className="in-section">
               <p className="in-section-label">
-                카테고리 선택 <span className="in-section-sub">(최대 3개)</span>
+                카테고리 선택{" "}
+                <span className="in-section-sub">(최대 3개)</span>
               </p>
 
               {/* 직무 공통 */}
@@ -221,7 +254,7 @@ export default function InterviewStartPage() {
               <div className="in-chips">
                 {commonCategories.map((c) => {
                   const isSelected = selectedCategories.some(
-                    (s) => s.categoryId === c.categoryId,
+                    (s) => s.categoryId === c.categoryId
                   );
                   const isDisabled =
                     !isSelected && selectedCategories.length >= 3;
@@ -238,8 +271,22 @@ export default function InterviewStartPage() {
                 })}
               </div>
 
+              {/* 카테고리 에러 메시지 */}
+              {categoryError && (
+                <p className="in-field-error">{categoryError}</p>
+              )}
+
               {/* 직무 특화 */}
-              <p className="in-category-group-label">직무 특화</p>
+              <div className="in-category-group-header">
+                <p className="in-category-group-label">직무 특화</p>
+                <button
+                  className="in-load-my-info-btn"
+                  onClick={handleLoadMyInfo}
+                  disabled={loadingMyInfo}
+                >
+                  {loadingMyInfo ? "불러오는 중..." : "+ 내 정보 불러오기"}
+                </button>
+              </div>
               <div className="in-job-section">
                 {jobCategories.map((cat) => (
                   <div key={cat.categoryId} className="in-job-group">
@@ -249,7 +296,7 @@ export default function InterviewStartPage() {
                         .filter((sub) => sub.parentId === cat.categoryId)
                         .map((sub) => {
                           const isSelected = selectedCategories.some(
-                            (s) => s.categoryId === sub.categoryId,
+                            (s) => s.categoryId === sub.categoryId
                           );
                           const isDisabled =
                             !isSelected && selectedCategories.length >= 3;
@@ -294,7 +341,8 @@ export default function InterviewStartPage() {
         {mode === MODE.MANUAL && (
           <section className="in-section">
             <p className="in-section-label">
-              질문지 입력 <span className="in-section-sub">(최대 5개)</span>
+              질문지 입력{" "}
+              <span className="in-section-sub">(최대 5개)</span>
             </p>
             <div className="in-manual-list">
               {manualQuestions.map((q, idx) => (
@@ -311,17 +359,18 @@ export default function InterviewStartPage() {
                     </button>
                   </div>
 
-                  {/* 카테고리 선택 */}
                   <div className="in-manual-field">
                     <label className="in-manual-label">카테고리</label>
                     <select
-                      className="in-manual-select"
+                      className={`in-manual-select ${questionErrors[q.id]?.categoryId ? "error" : ""}`}
                       value={q.categoryId || ""}
                       onChange={(e) => {
                         const selected = [
                           ...commonCategories,
                           ...jobSubCategories,
-                        ].find((c) => c.categoryId === Number(e.target.value));
+                        ].find(
+                          (c) => c.categoryId === Number(e.target.value)
+                        );
                         updateManualQuestion(q.id, {
                           categoryId: selected?.categoryId || null,
                           categoryName: selected?.categoryName || "",
@@ -344,11 +393,15 @@ export default function InterviewStartPage() {
                         ))}
                       </optgroup>
                     </select>
+                    {questionErrors[q.id]?.categoryId && (
+                      <p className="in-field-error">
+                        {questionErrors[q.id].categoryId}
+                      </p>
+                    )}
                   </div>
 
-                  {/* 질문 입력 */}
                   <textarea
-                    className="in-manual-textarea"
+                    className={`in-manual-textarea ${questionErrors[q.id]?.questionText ? "error" : ""}`}
                     placeholder="질문지를 입력해 주세요."
                     value={q.questionText}
                     onChange={(e) =>
@@ -358,6 +411,11 @@ export default function InterviewStartPage() {
                     }
                     rows={2}
                   />
+                  {questionErrors[q.id]?.questionText && (
+                    <p className="in-field-error">
+                      {questionErrors[q.id].questionText}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
@@ -379,10 +437,6 @@ export default function InterviewStartPage() {
           </section>
         )}
 
-        {/* 에러 메시지 */}
-        {error && <p className="in-error">{error}</p>}
-
-        {/* 면접 시작 버튼 */}
         <div className="in-footer">
           <button
             className="in-start-btn"
@@ -393,6 +447,16 @@ export default function InterviewStartPage() {
           </button>
         </div>
       </div>
+
+      {/* 에러 모달 */}
+      {errorModal && (
+        <AlertModal
+          type="error"
+          align="center"
+          message={errorModal.message}
+          onConfirm={() => setErrorModal(null)}
+        />
+      )}
     </div>
   );
 }

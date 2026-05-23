@@ -62,3 +62,8 @@ export const updateEmployments = async (payload) => {
 export const withdraw = async (payload) => {
     await api.delete('/mypage/v1/withdraw', { data: payload })
 }
+
+export const fetchTargetJobs = async () => {
+    const { data } = await api.get('/mypage/v1/target-jobs')
+    return data?.data
+}
