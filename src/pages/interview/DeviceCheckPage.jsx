@@ -14,10 +14,12 @@ export default function DeviceCheckPage() {
   const [micStatus, setMicStatus] = useState('idle')         // idle | checking | ok | error
   const [micLevel, setMicLevel] = useState(0)
 
+  const isDeviceReady = cameraStatus === 'ok' && micStatus === 'ok'
+
   // 세션 없으면 뒤로
   useEffect(() => {
     if (!session) {
-      navigate('/interview/new', { replace: true })
+      navigate('/interview', { replace: true })
     }
   }, [session, navigate])
 
@@ -28,7 +30,7 @@ export default function DeviceCheckPage() {
     }
   }, [])
 
-  const stopStream = () => {
+  function stopStream() {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop())
       streamRef.current = null
@@ -89,6 +91,8 @@ export default function DeviceCheckPage() {
 
   // 면접 시작
   const handleStart = () => {
+    if (!isDeviceReady) return
+
     stopStream()
     navigate('/interview/session', { state: { session } })
   }
@@ -161,6 +165,8 @@ export default function DeviceCheckPage() {
           <button
             className="dc-start-btn"
             onClick={handleStart}
+            disabled={!isDeviceReady}
+            title={!isDeviceReady ? '카메라와 마이크 체크를 완료해주세요.' : ''}
           >
             면접 시작
           </button>

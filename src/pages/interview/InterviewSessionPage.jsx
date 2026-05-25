@@ -30,15 +30,86 @@ export default function InterviewSessionPage() {
   const timerRef = useRef(null)
   const mediaRecorderRef = useRef(null)   // MediaRecorder 인스턴스
   const audioChunksRef = useRef([])       // 녹음 청크 데이터
+  const isMountedRef = useRef(true)
+  const phaseRef = useRef(PHASE.PREP)
+  const timeLeftRef = useRef(PREP_TIME)
 
   const currentQuestion = questions[currentIdx]
   const isLastQuestion = currentIdx === questions.length - 1
 
+  const currentQuestionRef = useRef(currentQuestion)
+
   useEffect(() => {
+    phaseRef.current = phase
+  }, [phase])
+
+  useEffect(() => {
+    timeLeftRef.current = timeLeft
+  }, [timeLeft])
+
+  useEffect(() => {
+    isMountedRef.current = true
     if (!session) {
       navigate('/interview', { replace: true })
     }
+    return () => {
+      isMountedRef.current = false
+    }
   }, [session, navigate])
+
+  useEffect(() => {
+    currentQuestionRef.current = currentQuestion
+  }, [currentQuestion])
+
+  // 녹음 종료 -> STT 호출 -> 결과 저장
+  // questionId를 인자로 받아 onstop 비동기 시점에도 저장 대상 질문을 고정
+  const stopRecordingAndTranscribe = useCallback((questionId) => {
+    return new Promise((resolve) => {
+      const mediaRecorder = mediaRecorderRef.current
+      if (!mediaRecorder || mediaRecorder.state === 'inactive') {
+        resolve(null)
+        return
+      }
+
+      mediaRecorder.onstop = async () => {
+        const mimeType = mediaRecorderRef.current?.mimeType || 'audio/webm'
+        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType })
+
+        if (isMountedRef.current) setSttLoading(true)  // ← 가드 추가
+        try {
+          let sttResult = null
+
+          const isTooShort = audioBlob.size < 1000
+          if (!isTooShort) {
+            sttResult = await transcribeAudio(audioBlob)
+          }
+
+        // sttResult가 null이면 저장 스킵
+        if (sttResult) {
+          const payload = {
+            answerText: sttResult.answerText,
+            answerDuration: sttResult.answerDuration,
+            wpm: sttResult.wpm,
+            silenceRatio: sttResult.silenceRatio,
+            asrConfidence: sttResult.asrConfidence,
+            fillerCount: sttResult.fillerCount,
+            fillerRatio: sttResult.fillerRatio,
+          }
+          await saveAnswer(session.sessionId, questionId, payload)
+        }
+        resolve(sttResult)
+
+        } catch (err) {
+          console.error('STT 처리 실패:', err)
+          resolve(null)
+        } finally {
+          if (isMountedRef.current) setSttLoading(false)  // ← 이미 있음
+        }
+      }
+
+      mediaRecorder.stop()
+    })
+  }, [session?.sessionId])
 
   // 카메라/마이크 스트림 시작
   useEffect(() => {
@@ -74,25 +145,50 @@ export default function InterviewSessionPage() {
     if (phase === PHASE.ENDED) return
 
     timerRef.current = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(timerRef.current)
-          if (phase === PHASE.PREP) {
-            setPhase(PHASE.ANSWERING)
-            setTimeLeft(ANSWER_TIME)
-            startRecording()  // 답변 시작 시 녹음 시작
-          } else {
-            setPhase(PHASE.ENDED)
-            setTimeLeft(0)
-            stopRecordingAndTranscribe(currentQuestion.sessionQuestionId)  // 답변 종료 시 녹음 종료 + STT
-          }
-          return 0
-        }
-        if (phase === PHASE.ANSWERING && prev - 1 <= WARNING_TIME) {
-          setPhase(PHASE.WARNING)
-        }
-        return prev - 1
-      })
+      const nextTime = Math.max(timeLeftRef.current - 1, 0)
+      timeLeftRef.current = nextTime
+      setTimeLeft(nextTime)
+
+      if (phaseRef.current === PHASE.ANSWERING && nextTime <= WARNING_TIME) {
+        setPhase(PHASE.WARNING)
+        phaseRef.current = PHASE.WARNING
+      }
+
+      if (nextTime !== 0) return
+      clearInterval(timerRef.current)
+
+      if (phaseRef.current === PHASE.PREP) {
+        setPhase(PHASE.ANSWERING)
+        phaseRef.current = PHASE.ANSWERING
+        setTimeLeft(ANSWER_TIME)
+        timeLeftRef.current = ANSWER_TIME
+        startRecording()
+        return
+      }
+
+      if (phaseRef.current === PHASE.ANSWERING || phaseRef.current === PHASE.WARNING) {
+        setPhase(PHASE.ENDED)
+        phaseRef.current = PHASE.ENDED
+        stopRecordingAndTranscribe(currentQuestionRef.current?.sessionQuestionId)
+          .then(() => {
+            if (isMountedRef.current) {
+              // 마지막 질문이면 결과 페이지로, 아니면 다음 질문으로
+              setCurrentIdx((prev) => {
+                const nextIdx = prev + 1
+                if (nextIdx >= questions.length) {
+                  stopStream()
+                  navigate(`/interview/result/${session.sessionId}`, { state: { session } })
+                } else {
+                  setPhase(PHASE.PREP)
+                  phaseRef.current = PHASE.PREP
+                  setTimeLeft(PREP_TIME)
+                  timeLeftRef.current = PREP_TIME
+                }
+                return nextIdx >= questions.length ? prev : nextIdx
+              })
+            }
+          })
+      }
     }, 1000)
 
     return () => clearInterval(timerRef.current)
@@ -109,6 +205,9 @@ export default function InterviewSessionPage() {
   const startRecording = () => {
     if (!streamRef.current) {
       console.error('스트림 없음')
+      return
+    }
+    if (mediaRecorderRef.current?.state === 'recording') {
       return
     }
 
@@ -146,58 +245,6 @@ export default function InterviewSessionPage() {
     }
   }
 
-  // 녹음 종료 -> STT 호출 -> 결과 저장
-  // questionId를 인자로 받아 onstop 비동기 시점에도 저장 대상 질문을 고정
-  const stopRecordingAndTranscribe = useCallback((questionId) => {
-    return new Promise((resolve) => {
-      const mediaRecorder = mediaRecorderRef.current
-      if (!mediaRecorder || mediaRecorder.state === 'inactive') {
-        resolve(null)
-        return
-      }
-
-      mediaRecorder.onstop = async () => {
-        const mimeType = mediaRecorderRef.current?.mimeType || 'audio/webm'
-        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType })
-
-        // 녹음 데이터가 너무 작으면 STT 스킵
-        if (audioBlob.size < 1000) {
-          resolve(null)
-          return
-        }
-
-        setSttLoading(true)
-        try {
-          // aiService STT 호출
-          const sttResult = await transcribeAudio(audioBlob)
-
-          // interviewService 답변 저장
-          await saveAnswer(
-            session.sessionId,
-            questionId,
-            {
-              answerText: sttResult.answerText,
-              answerDuration: sttResult.answerDuration,
-              wpm: sttResult.wpm,
-              silenceRatio: sttResult.silenceRatio,
-              asrConfidence: sttResult.asrConfidence,
-              fillerCount: sttResult.fillerCount,
-              fillerRatio: sttResult.fillerRatio,
-            }
-          )
-          resolve(sttResult)
-        } catch (err) {
-          console.error('STT 처리 실패:', err)
-          resolve(null)
-        } finally {
-          setSttLoading(false)
-        }
-      }
-
-      mediaRecorder.stop()
-    })
-  }, [session?.sessionId])
-
   // 답변 시작
   const handleStartAnswer = () => {
     clearInterval(timerRef.current)
@@ -217,10 +264,15 @@ export default function InterviewSessionPage() {
   // 건너뛰기 (녹음 중이면 종료)
   const handleSkip = async () => {
     clearInterval(timerRef.current)
+
+    // 건너뛰기는 저장하지 않고 녹음만 중단
     if (mediaRecorderRef.current?.state === 'recording') {
-      // 녹음 저장 완료를 기다린 뒤 다음 질문으로 이동 (질문, 답변 매핑 보장)
-      await stopRecordingAndTranscribe(currentQuestion.sessionQuestionId)
+      mediaRecorderRef.current.onstop = null
+      mediaRecorderRef.current.ondataavailable = null
+      mediaRecorderRef.current.stop()
+      audioChunksRef.current = []
     }
+
     goNextQuestion()
   }
 
@@ -273,7 +325,7 @@ export default function InterviewSessionPage() {
       <div className="is-container">
         {/* 질문 */}
         <p className="is-question">
-          Qn. {currentQuestion.questionText}
+          Q{currentQuestion.questionOrder}. {currentQuestion.questionText}
         </p>
 
         {/* 카메라 영역 */}

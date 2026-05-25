@@ -205,3 +205,12 @@
 .dc-start-btn:hover {
   background: #1a1a1a;
 }
+
+.dc-start-btn:disabled {
+  background: #bdbdbd;
+  cursor: not-allowed;
+}
+
+.dc-start-btn:disabled:hover {
+  background: #bdbdbd;
+}
