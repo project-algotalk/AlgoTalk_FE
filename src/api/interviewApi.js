@@ -25,7 +25,7 @@ export const transcribeAudio = async (audioBlob) => {
     const { data } = await api.post('/ai/v1/stt/transcribe', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
     })
-    return data  // data?.data → data 로 수정
+    return data?.data ?? data  // 백엔드 응답이 { data: ... } 또는 중첩 없는 객체여도 동일 형태로 사용하도록 정규화
 }
 
 // 답변 분석 결과 저장

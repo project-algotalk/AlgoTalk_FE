@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { transcribeAudio, saveAnswer } from '../../api/interviewApi'
 import './InterviewSessionPage.css'
@@ -54,7 +54,18 @@ export default function InterviewSessionPage() {
       }
     }
     startCamera()
-    return () => stopStream()
+    return () => {
+      // 페이지 이탈 시 녹음이 살아있으면 먼저 stop 처리
+      if (mediaRecorderRef.current?.state === 'recording') {
+        mediaRecorderRef.current.stop()
+      }
+      if (mediaRecorderRef.current) {
+        // 언마운트 이후 비동기 콜백이 실행되지 않도록 핸들러 제거
+        mediaRecorderRef.current.onstop = null
+        mediaRecorderRef.current.ondataavailable = null
+      }
+      stopStream()
+    }
   }, [])
 
   // 타이머
@@ -66,7 +77,15 @@ export default function InterviewSessionPage() {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timerRef.current)
-          handleTimeUp()
+          if (phase === PHASE.PREP) {
+            setPhase(PHASE.ANSWERING)
+            setTimeLeft(ANSWER_TIME)
+            startRecording()  // 답변 시작 시 녹음 시작
+          } else {
+            setPhase(PHASE.ENDED)
+            setTimeLeft(0)
+            stopRecordingAndTranscribe(currentQuestion.sessionQuestionId)  // 답변 종료 시 녹음 종료 + STT
+          }
           return 0
         }
         if (phase === PHASE.ANSWERING && prev - 1 <= WARNING_TIME) {
@@ -77,9 +96,9 @@ export default function InterviewSessionPage() {
     }, 1000)
 
     return () => clearInterval(timerRef.current)
-  }, [phase])
+  }, [phase, currentQuestion?.sessionQuestionId, stopRecordingAndTranscribe])
 
-  const stopStream = () => {
+  function stopStream() {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((t) => t.stop())
       streamRef.current = null
@@ -127,8 +146,9 @@ export default function InterviewSessionPage() {
     }
   }
 
-  // 녹음 종료 → STT 호출 → 결과 저장
-  const stopRecordingAndTranscribe = () => {
+  // 녹음 종료 -> STT 호출 -> 결과 저장
+  // questionId를 인자로 받아 onstop 비동기 시점에도 저장 대상 질문을 고정
+  const stopRecordingAndTranscribe = useCallback((questionId) => {
     return new Promise((resolve) => {
       const mediaRecorder = mediaRecorderRef.current
       if (!mediaRecorder || mediaRecorder.state === 'inactive') {
@@ -154,7 +174,7 @@ export default function InterviewSessionPage() {
           // interviewService 답변 저장
           await saveAnswer(
             session.sessionId,
-            currentQuestion.sessionQuestionId,
+            questionId,
             {
               answerText: sttResult.answerText,
               answerDuration: sttResult.answerDuration,
@@ -176,19 +196,7 @@ export default function InterviewSessionPage() {
 
       mediaRecorder.stop()
     })
-  }
-
-  const handleTimeUp = () => {
-    if (phase === PHASE.PREP) {
-      setPhase(PHASE.ANSWERING)
-      setTimeLeft(ANSWER_TIME)
-      startRecording()  // 답변 시작 시 녹음 시작
-    } else {
-      setPhase(PHASE.ENDED)
-      setTimeLeft(0)
-      stopRecordingAndTranscribe()  // 답변 종료 시 녹음 종료 + STT
-    }
-  }
+  }, [session?.sessionId])
 
   // 답변 시작
   const handleStartAnswer = () => {
@@ -203,14 +211,15 @@ export default function InterviewSessionPage() {
     clearInterval(timerRef.current)
     setPhase(PHASE.ENDED)
     setTimeLeft(0)
-    await stopRecordingAndTranscribe()  // 녹음 종료 + STT
+    await stopRecordingAndTranscribe(currentQuestion.sessionQuestionId)  // 녹음 종료 + STT
   }
 
   // 건너뛰기 (녹음 중이면 종료)
-  const handleSkip = () => {
+  const handleSkip = async () => {
     clearInterval(timerRef.current)
     if (mediaRecorderRef.current?.state === 'recording') {
-      mediaRecorderRef.current.stop()
+      // 녹음 저장 완료를 기다린 뒤 다음 질문으로 이동 (질문, 답변 매핑 보장)
+      await stopRecordingAndTranscribe(currentQuestion.sessionQuestionId)
     }
     goNextQuestion()
   }
