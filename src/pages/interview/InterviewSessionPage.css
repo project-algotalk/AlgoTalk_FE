@@ -195,3 +195,17 @@
 .is-direct-analysis:hover {
   color: #c62828;
 }
+
+/* STT 로딩 */
+.is-stt-loading {
+  font-size: 0.875rem;
+  color: #888;
+  margin-bottom: 12px;
+  text-align: center;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}

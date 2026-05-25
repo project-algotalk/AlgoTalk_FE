@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { transcribeAudio, saveAnswer } from '../../api/interviewApi'
 import './InterviewSessionPage.css'
 
 const PHASE = {
@@ -22,22 +23,24 @@ export default function InterviewSessionPage() {
   const [currentIdx, setCurrentIdx] = useState(0)
   const [phase, setPhase] = useState(PHASE.PREP)
   const [timeLeft, setTimeLeft] = useState(PREP_TIME)
+  const [sttLoading, setSttLoading] = useState(false)  // STT 처리 중 로딩 상태
 
   const videoRef = useRef(null)
   const streamRef = useRef(null)
   const timerRef = useRef(null)
+  const mediaRecorderRef = useRef(null)   // MediaRecorder 인스턴스
+  const audioChunksRef = useRef([])       // 녹음 청크 데이터
 
   const currentQuestion = questions[currentIdx]
   const isLastQuestion = currentIdx === questions.length - 1
 
-  // 세션 없으면 면접 시작 페이지로
   useEffect(() => {
     if (!session) {
       navigate('/interview', { replace: true })
     }
   }, [session, navigate])
 
-  // 카메라 스트림 시작
+  // 카메라/마이크 스트림 시작
   useEffect(() => {
     const startCamera = async () => {
       try {
@@ -57,7 +60,6 @@ export default function InterviewSessionPage() {
   // 타이머
   useEffect(() => {
     clearInterval(timerRef.current)
-
     if (phase === PHASE.ENDED) return
 
     timerRef.current = setInterval(() => {
@@ -67,7 +69,6 @@ export default function InterviewSessionPage() {
           handleTimeUp()
           return 0
         }
-        // 답변 중 30초 이하 경고
         if (phase === PHASE.ANSWERING && prev - 1 <= WARNING_TIME) {
           setPhase(PHASE.WARNING)
         }
@@ -85,16 +86,107 @@ export default function InterviewSessionPage() {
     }
   }
 
-  // 시간 초과 처리
+  // 녹음 시작
+  const startRecording = () => {
+    if (!streamRef.current) {
+      console.error('스트림 없음')
+      return
+    }
+
+    audioChunksRef.current = []
+
+    // 오디오 트랙만 분리해서 새 스트림 생성
+    const audioTracks = streamRef.current.getAudioTracks()
+    const audioStream = new MediaStream(audioTracks)
+
+    const mimeType = [
+      'audio/webm;codecs=opus',
+      'audio/webm',
+      'audio/ogg;codecs=opus',
+      'audio/mp4',
+      '',
+    ].find(type => type === '' || MediaRecorder.isTypeSupported(type))
+
+    try {
+      const mediaRecorder = new MediaRecorder(
+        audioStream,
+        mimeType ? { mimeType } : {}
+      )
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          audioChunksRef.current.push(e.data)
+        }
+      }
+
+      mediaRecorderRef.current = mediaRecorder
+      mediaRecorder.start()
+      console.log('녹음 시작! mimeType:', mediaRecorder.mimeType)
+    } catch (err) {
+      console.error('MediaRecorder 생성 실패:', err)
+    }
+  }
+
+  // 녹음 종료 → STT 호출 → 결과 저장
+  const stopRecordingAndTranscribe = () => {
+    return new Promise((resolve) => {
+      const mediaRecorder = mediaRecorderRef.current
+      if (!mediaRecorder || mediaRecorder.state === 'inactive') {
+        resolve(null)
+        return
+      }
+
+      mediaRecorder.onstop = async () => {
+        const mimeType = mediaRecorderRef.current?.mimeType || 'audio/webm'
+        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType })
+
+        // 녹음 데이터가 너무 작으면 STT 스킵
+        if (audioBlob.size < 1000) {
+          resolve(null)
+          return
+        }
+
+        setSttLoading(true)
+        try {
+          // aiService STT 호출
+          const sttResult = await transcribeAudio(audioBlob)
+
+          // interviewService 답변 저장
+          await saveAnswer(
+            session.sessionId,
+            currentQuestion.sessionQuestionId,
+            {
+              answerText: sttResult.answerText,
+              answerDuration: sttResult.answerDuration,
+              wpm: sttResult.wpm,
+              silenceRatio: sttResult.silenceRatio,
+              asrConfidence: sttResult.asrConfidence,
+              fillerCount: sttResult.fillerCount,
+              fillerRatio: sttResult.fillerRatio,
+            }
+          )
+          resolve(sttResult)
+        } catch (err) {
+          console.error('STT 처리 실패:', err)
+          resolve(null)
+        } finally {
+          setSttLoading(false)
+        }
+      }
+
+      mediaRecorder.stop()
+    })
+  }
+
   const handleTimeUp = () => {
     if (phase === PHASE.PREP) {
-      // 준비 시간 완료 → 답변 시작
       setPhase(PHASE.ANSWERING)
       setTimeLeft(ANSWER_TIME)
+      startRecording()  // 답변 시작 시 녹음 시작
     } else {
-      // 답변 시간 완료
       setPhase(PHASE.ENDED)
       setTimeLeft(0)
+      stopRecordingAndTranscribe()  // 답변 종료 시 녹음 종료 + STT
     }
   }
 
@@ -103,18 +195,23 @@ export default function InterviewSessionPage() {
     clearInterval(timerRef.current)
     setPhase(PHASE.ANSWERING)
     setTimeLeft(ANSWER_TIME)
+    startRecording()  // 녹음 시작
   }
 
   // 답변 종료
-  const handleEndAnswer = () => {
+  const handleEndAnswer = async () => {
     clearInterval(timerRef.current)
     setPhase(PHASE.ENDED)
     setTimeLeft(0)
+    await stopRecordingAndTranscribe()  // 녹음 종료 + STT
   }
 
-  // 건너뛰기
+  // 건너뛰기 (녹음 중이면 종료)
   const handleSkip = () => {
     clearInterval(timerRef.current)
+    if (mediaRecorderRef.current?.state === 'recording') {
+      mediaRecorderRef.current.stop()
+    }
     goNextQuestion()
   }
 
@@ -127,7 +224,6 @@ export default function InterviewSessionPage() {
   // 다음 질문
   const goNextQuestion = () => {
     if (isLastQuestion) {
-      // 마지막 질문 → 결과 페이지
       stopStream()
       navigate(`/interview/result/${session.sessionId}`, { state: { session } })
       return
@@ -137,20 +233,18 @@ export default function InterviewSessionPage() {
     setTimeLeft(PREP_TIME)
   }
 
-  // 바로 분석 (남은 질문 전부 스킵)
+  // 바로 분석
   const handleDirectAnalysis = () => {
     stopStream()
     navigate(`/interview/result/${session.sessionId}`, { state: { session } })
   }
 
-  // 타이머 색상
   const getTimerColor = () => {
     if (phase === PHASE.PREP) return '#bbb'
     if (phase === PHASE.WARNING || phase === PHASE.ENDED) return '#e53935'
     return '#f9a825'
   }
 
-  // 시간 포맷 (MM:SS)
   const formatTime = (sec) => {
     const m = String(Math.floor(sec / 60)).padStart(2, '0')
     const s = String(sec % 60).padStart(2, '0')
@@ -182,7 +276,6 @@ export default function InterviewSessionPage() {
             playsInline
             className="is-video"
           />
-          {/* 녹화 중 표시 */}
           {(phase === PHASE.ANSWERING || phase === PHASE.WARNING) && (
             <div className="is-rec-dot" />
           )}
@@ -197,6 +290,13 @@ export default function InterviewSessionPage() {
             {phase === PHASE.PREP ? '답변 준비 시간' : '남은 답변 시간'}
           </span>
         </div>
+
+        {/* STT 처리 중 로딩 */}
+        {sttLoading && (
+          <div className="is-stt-loading">
+            🎙️ 답변을 분석하고 있습니다...
+          </div>
+        )}
 
         {/* 버튼 영역 */}
         <div className="is-btn-wrap">
@@ -214,19 +314,23 @@ export default function InterviewSessionPage() {
           )}
           {phase === PHASE.ENDED && (
             <>
-              <button className="is-btn-skip" onClick={handleRetry}>다시 답변</button>
-              <button className="is-btn-main" onClick={goNextQuestion}>
+              <button className="is-btn-skip" onClick={handleRetry} disabled={sttLoading}>다시 답변</button>
+              <button className="is-btn-main" onClick={goNextQuestion} disabled={sttLoading}>
                 {isLastQuestion ? '결과 보기' : '다음 질문'}
               </button>
             </>
           )}
         </div>
 
-        {/* 기타 옵션 (ENDED 상태에서만) */}
+        {/* 기타 옵션 */}
         {phase === PHASE.ENDED && (
           <div className="is-extra-opts">
             <div className="is-divider"><span>기타 옵션</span></div>
-            <button className="is-direct-analysis" onClick={handleDirectAnalysis}>
+            <button
+              className="is-direct-analysis"
+              onClick={handleDirectAnalysis}
+              disabled={sttLoading}
+            >
               바로 분석(남은 질문 전부 스킵)
             </button>
           </div>
