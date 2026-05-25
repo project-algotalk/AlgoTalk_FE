@@ -71,11 +71,14 @@ export default function InterviewSessionPage() {
         return
       }
 
-      mediaRecorder.onstop = async () => {
-        const mimeType = mediaRecorderRef.current?.mimeType || 'audio/webm'
-        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType })
+      // stop 전에 캡처 + 로딩 먼저 올리기
+      const capturedMimeType = mediaRecorder.mimeType || 'audio/webm'
+      const capturedChunks = [...audioChunksRef.current]
+      if (isMountedRef.current) setSttLoading(true)
 
-        if (isMountedRef.current) setSttLoading(true)  // ← 가드 추가
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(capturedChunks, { type: capturedMimeType })
+
         try {
           let sttResult = null
 
@@ -203,11 +206,10 @@ export default function InterviewSessionPage() {
 
   // 녹음 시작
   const startRecording = () => {
-    if (!streamRef.current) {
-      console.error('스트림 없음')
-      return
-    }
-    if (mediaRecorderRef.current?.state === 'recording') {
+    if (!streamRef.current) return
+    if (mediaRecorderRef.current?.state === 'recording') return
+    if (typeof MediaRecorder === 'undefined') {
+      console.error('MediaRecorder 미지원 브라우저')
       return
     }
 
@@ -325,7 +327,7 @@ export default function InterviewSessionPage() {
       <div className="is-container">
         {/* 질문 */}
         <p className="is-question">
-          Q{currentQuestion.questionOrder}. {currentQuestion.questionText}
+          Q{currentQuestion.questionOrder ?? (currentIdx + 1)}. {currentQuestion.questionText}
         </p>
 
         {/* 카메라 영역 */}
