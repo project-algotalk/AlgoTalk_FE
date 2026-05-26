@@ -205,6 +205,40 @@
   animation: pulse 1.5s infinite;
 }
 
+/* 디버그 오버레이 canvas */
+.is-debug-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;  /* 클릭 이벤트 통과 */
+}
+
+/* 분석 상태 UI */
+.is-detection-status {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 6px 10px;
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+.is-status-on {
+  font-size: 11px;
+  color: #4caf50;  /* 초록색: 감지됨 */
+}
+
+.is-status-off {
+  font-size: 11px;
+  color: #f44336;  /* 빨간색: 미감지 */
+}
+
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }
