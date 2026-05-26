@@ -4,6 +4,8 @@ import { transcribeAudio, saveAnswer } from "../../api/interviewApi";
 import { useMediaPipeAnalysis } from "../../hooks/useMediaPipeAnalysis";
 import "./InterviewSessionPage.css";
 
+const IS_DEBUG = import.meta.env.VITE_MEDIAPIPE_DEBUG === 'true'
+
 const PHASE = {
   PREP: "prep", // 답변 준비 (30초)
   ANSWERING: "answering", // 답변 중 (90초)
@@ -40,7 +42,7 @@ export default function InterviewSessionPage() {
 
   const currentQuestionRef = useRef(currentQuestion);
 
-  const { initMediaPipe, stopAndGetResult, resetAnalysis, closeMediaPipe } =
+  const { initMediaPipe, stopAndGetResult, resetAnalysis, closeMediaPipe, debugCanvasRef, detectionStatus } =
     useMediaPipeAnalysis();
   useEffect(() => {
     phaseRef.current = phase;
@@ -422,6 +424,31 @@ export default function InterviewSessionPage() {
             playsInline
             className="is-video"
           />
+
+          {/* 디버그 모드: 랜드마크 오버레이 canvas */}
+          {IS_DEBUG && (
+            <canvas
+              ref={debugCanvasRef}
+              className="is-debug-canvas"
+              width={640}
+              height={480}
+            />
+          )}
+
+          {/* 실전 모드: 분석 상태 UI (우상단 작게 표시) */}
+          {(phase === PHASE.ANSWERING || phase === PHASE.WARNING) && (
+            <div className="is-detection-status">
+              <span className={detectionStatus.face ? 'is-status-on' : 'is-status-off'}>
+                ● 시선 분석
+              </span>
+              <span className={detectionStatus.pose ? 'is-status-on' : 'is-status-off'}>
+                ● 자세 분석
+              </span>
+              <span className="is-status-on">● 음성 녹음</span>
+            </div>
+          )}
+
+          {/* 녹음 중 표시 */}
           {(phase === PHASE.ANSWERING || phase === PHASE.WARNING) && (
             <div className="is-rec-dot" />
           )}
