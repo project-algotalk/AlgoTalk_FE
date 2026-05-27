@@ -7,7 +7,7 @@ import '../../styles/jobForm.css'
 
 const MAX_SELECT = 3
 
-// 날짜 자동 포맷 (숫자 입력 → YYYY.MM.DD)
+// 날짜 자동 포맷 (숫자 입력 -> YYYY.MM.DD)
 const autoFormatDate = (val) => {
   const digits = val.replace(/\D/g, '').slice(0, 8)
   if (digits.length <= 4) return digits
@@ -15,7 +15,7 @@ const autoFormatDate = (val) => {
   return `${digits.slice(0,4)}.${digits.slice(4,6)}.${digits.slice(6)}`
 }
 
-// YYYY.MM.DD → YYYY-MM-DD (백엔드 전송용)
+// YYYY.MM.DD -> YYYY-MM-DD (백엔드 전송용)
 const formatDate = (val) => {
   if (!val) return null
   if (/^\d{4}-\d{2}-\d{2}$/.test(val)) return val
@@ -83,7 +83,7 @@ export default function SignupStep2Page() {
   }, [])
 
   // 기존 JOB_CATEGORIES 상수 삭제
-  // const currentCategory = JOB_CATEGORIES[activeTab] → 아래로 교체
+  // const currentCategory = JOB_CATEGORIES[activeTab] -> 아래로 교체
   const currentCategory = jobCategories[activeTab] || { jobs: [] }
 
   if (categoriesLoading) return <div>로딩 중...</div>
@@ -143,7 +143,7 @@ export default function SignupStep2Page() {
   const handlePrev = () => {
     const isSocialSignup = sessionStorage.getItem('oauth-temp-token')
     if (isSocialSignup) {
-      // 소셜 회원가입은 이전으로 갈 곳이 없음 → 로그인으로
+      // 소셜 회원가입은 이전으로 갈 곳이 없음 -> 로그인으로
       navigate('/login')
     } else {
       navigate('/signup')

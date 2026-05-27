@@ -156,7 +156,7 @@ export function useMediaPipeAnalysis() {
         isEyeClosedRef.current = true;
       } else {
         if (isEyeClosedRef.current) {
-          // 눈 떠짐 → 깜빡임 1회 완료
+          // 눈 떠짐 -> 깜빡임 1회 완료
           blinkCountRef.current += 1;
           isEyeClosedRef.current = false;
         }

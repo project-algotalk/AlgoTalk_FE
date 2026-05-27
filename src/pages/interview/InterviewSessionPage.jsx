@@ -36,6 +36,7 @@ export default function InterviewSessionPage() {
   const isMountedRef = useRef(true);
   const phaseRef = useRef(PHASE.PREP);
   const timeLeftRef = useRef(PREP_TIME);
+  const isSkippingRef = useRef(false);
 
   const currentQuestion = questions[currentIdx];
   const isLastQuestion = currentIdx === questions.length - 1;
@@ -77,32 +78,16 @@ export default function InterviewSessionPage() {
           return;
         }
 
-        // 분석 결과 캡처 (stop 전에)
         const analysisResult = stopAndGetResult();
-
-        console.log("MediaPipe 분석 결과:", analysisResult);
-
-        // mimeType만 미리 캡처
         const capturedMimeType = mediaRecorder.mimeType || "audio/webm";
         if (isMountedRef.current) setSttLoading(true);
 
         mediaRecorder.onstop = async () => {
-          // stop 이후 dataavailable까지 반영된 chunks를 사용
           const finalChunks = [...audioChunksRef.current];
-
-          const audioBlob = new Blob(finalChunks, {
-            type: capturedMimeType,
-          });
-
-          console.log("녹음 Blob 정보:", {
-            size: audioBlob.size,
-            type: audioBlob.type,
-            chunksLength: finalChunks.length,
-          });
+          const audioBlob = new Blob(finalChunks, { type: capturedMimeType });
 
           try {
             let sttResult = null;
-
             const isTooShort = audioBlob.size < 1000;
 
             if (!isTooShort) {
@@ -112,27 +97,28 @@ export default function InterviewSessionPage() {
               console.warn("녹음 파일이 너무 짧아서 STT 요청을 보내지 않음");
             }
 
-            console.log("MediaPipe 분석 결과:", analysisResult);
-
-            if (!sttResult) {
-              console.warn("sttResult가 없어서 saveAnswer를 호출하지 않음");
-              resolve(null);
-              return;
-            }
+            // answerStatus 결정
+            // sttResult가 없거나 answerText가 비어있으면 QUALITY_FAIL
+            const answerStatus = (!sttResult || !sttResult.answerText?.trim())
+              ? "QUALITY_FAIL"
+              : "ANSWERED";
 
             const payload = {
-              answerText: sttResult.answerText,
-              answerDuration: sttResult.answerDuration,
-              wpm: sttResult.wpm,
-              silenceRatio: sttResult.silenceRatio,
-              asrConfidence: sttResult.asrConfidence,
-              fillerCount: sttResult.fillerCount,
-              fillerRatio: sttResult.fillerRatio,
+              answerStatus,
+              questionText: currentQuestion?.questionText ?? null,
+              keywords: currentQuestion?.questionKeywords ?? [],
+              answerText: sttResult?.answerText ?? "",
+              answerDuration: sttResult?.answerDuration ?? 0,
+              wpm: sttResult?.wpm ?? 0,
+              silenceRatio: sttResult?.silenceRatio ?? 0,
+              asrConfidence: sttResult?.asrConfidence ?? 0,
+              fillerCount: sttResult?.fillerCount ?? 0,
+              fillerRatio: sttResult?.fillerRatio ?? 0,
               gazeRatio: analysisResult.gazeRatio,
               gestureDeductions: analysisResult.gestureDeductions,
               scores: {
-                gaze: Math.round(analysisResult.gazeRatio * 25), // gazeRatio 0~1 → 0~25점
-                gesture: analysisResult.gestureScore, // 20점 만점
+                gaze: Math.round(analysisResult.gazeRatio * 25),
+                gesture: analysisResult.gestureScore,
                 speed: null,
                 voice: null,
                 content: null,
@@ -141,7 +127,6 @@ export default function InterviewSessionPage() {
             };
 
             console.log("답변 저장 payload:", payload);
-
             await saveAnswer(session.sessionId, questionId, payload);
             resolve(sttResult);
           } catch (err) {
@@ -332,9 +317,12 @@ export default function InterviewSessionPage() {
 
   // 건너뛰기 (녹음 중이면 종료)
   const handleSkip = async () => {
+    if (isSkippingRef.current) return;
+    isSkippingRef.current = true;
+
     clearInterval(timerRef.current);
 
-    // 건너뛰기는 저장하지 않고 녹음만 중단
+    // 녹음 중이면 중단
     if (mediaRecorderRef.current?.state === "recording") {
       mediaRecorderRef.current.onstop = null;
       mediaRecorderRef.current.ondataavailable = null;
@@ -342,7 +330,39 @@ export default function InterviewSessionPage() {
       audioChunksRef.current = [];
     }
 
-    goNextQuestion();
+    const analysisResult = stopAndGetResult();
+    const currentQuestion = questions[currentIdx];
+
+    // 백그라운드에서 저장 (await 하지 않음)
+    saveAnswer(session.sessionId, currentQuestion.sessionQuestionId, {
+      answerStatus: "SKIPPED",
+      questionText: currentQuestion?.questionText ?? null,
+      keywords: currentQuestion?.questionKeywords ?? [],
+      answerText: "",
+      answerDuration: 0,
+      wpm: 0,
+      silenceRatio: 0,
+      asrConfidence: 0,
+      fillerCount: 0,
+      fillerRatio: 0.0,
+      gazeRatio: analysisResult.gazeRatio,
+      gestureDeductions: analysisResult.gestureDeductions,
+      scores: {
+        gaze: Math.round(analysisResult.gazeRatio * 25),
+        gesture: analysisResult.gestureScore,
+        speed: null,
+        voice: null,
+        content: null,
+        total: null,
+      },
+    }).catch((err) => {
+      console.error("SKIPPED 저장 실패:", err);
+    }).finally(() => {
+      isSkippingRef.current = false;
+    });
+
+    resetAnalysis();
+    goNextQuestion(); // 저장 기다리지 않고 즉시 이동
   };
 
   // 다시 답변
@@ -353,6 +373,8 @@ export default function InterviewSessionPage() {
 
   // 다음 질문
   const goNextQuestion = () => {
+    clearInterval(timerRef.current);
+
     if (isLastQuestion) {
       closeMediaPipe();
       stopStream();
