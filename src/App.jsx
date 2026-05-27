@@ -127,7 +127,7 @@ export default function App() {
           <Route path="/interview/device-check" element={<DeviceCheckPage />} />
           <Route path="/interview/session" element={<InterviewSessionPage />} />
           <Route path="/interview/result/:sessionId" element={<InterviewResultPage />} />
-          <Route path="/interview/result/:sessionId/q/:qNo" element={<InterviewFeedbackPage />} />
+          <Route path="/interview/result/:sessionId/questions/:qNo" element={<InterviewFeedbackPage />} />
           <Route path="/board/write" element={<BoardWritePage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/mypage" element={<MyPage />} />

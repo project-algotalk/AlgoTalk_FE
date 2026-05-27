@@ -167,7 +167,7 @@ export default function SignupStep1Page() {
     try {
       await api.post('/user/v1/reg/verify-code', {
         email:      sentEmail,   // 발송 시 고정한 이메일 사용
-        authNumber: verifyCode,  // code → authNumber
+        authNumber: verifyCode,  // code -> authNumber
       })
       setEmailVerifyStep('verified')
       setVerifyMessage('이메일 인증 완료')
