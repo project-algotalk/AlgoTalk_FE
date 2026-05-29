@@ -53,6 +53,7 @@ export function useMediaPipeAnalysis() {
   const gestureDeductionsRef = useRef([]); // 제스처 감점 목록
   const prevWristPosRef = useRef(null); // 손 흔듦 감지용 이전 손목 위치
   const badPostureStartRef = useRef(null); // 자세 무너짐 시작 시간
+  const poseFramesRef = useRef({ total: 0, detected: 0 }); // 자세 감지 프레임 추적(화면에 아무도 없는 경우)
 
   // 디버그 오버레이 ref
   const debugCanvasRef = useRef(null); // 디버그용 canvas 요소
@@ -392,57 +393,60 @@ export function useMediaPipeAnalysis() {
       isRunningRef.current = true;
 
       const analyze = () => {
-        if (!isRunningRef.current) return;
+          if (!isRunningRef.current) return;
 
-        const face = faceLandmarkerRef.current;
-        const pose = poseLandmarkerRef.current;
+          const face = faceLandmarkerRef.current;
+          const pose = poseLandmarkerRef.current;
 
-        if (!face || !pose) return;
+          if (!face || !pose) return;  // ← 먼저 체크
 
-        if (videoElement.readyState >= 2) {
-          const currentTime = videoElement.currentTime;
+          if (videoElement.readyState >= 2) {
+              const currentTime = videoElement.currentTime;
 
-          // 같은 프레임 중복 분석 방지
-          if (currentTime !== lastVideoTimeRef.current) {
-            const timestampMs = performance.now();
+              if (currentTime !== lastVideoTimeRef.current) {
+                  const timestampMs = performance.now();
 
-            try {
-              const faceResult = face.detectForVideo(videoElement, timestampMs);
-              const poseResult = pose.detectForVideo(videoElement, timestampMs);
+                  try {
+                      const faceResult = face.detectForVideo(videoElement, timestampMs);
+                      const poseResult = pose.detectForVideo(videoElement, timestampMs);
 
-              const faceLandmarks = faceResult.faceLandmarks?.[0];
-              const poseLandmarks = poseResult.landmarks?.[0];
+                      const faceLandmarks = faceResult.faceLandmarks?.[0];
+                      const poseLandmarks = poseResult.landmarks?.[0];
 
-              if (faceLandmarks) analyzeGaze(faceLandmarks);
-              if (poseLandmarks) analyzeGesture(poseLandmarks);
+                      // 포즈 프레임 누적 ← 여기에만 있어야 함
+                      poseFramesRef.current.total += 1;
+                      if (poseLandmarks) {
+                          poseFramesRef.current.detected += 1;
+                      }
 
-              // 디버그 오버레이 - poseLandmarks 여부와 관계없이 항상 호출
-              if (debugCanvasRef.current) {
-                drawDebugOverlay(
-                  debugCanvasRef.current,
-                  faceLandmarks,
-                  poseLandmarks,
-                );
+                      if (faceLandmarks) analyzeGaze(faceLandmarks);
+                      if (poseLandmarks) analyzeGesture(poseLandmarks);
+
+                      if (debugCanvasRef.current) {
+                          drawDebugOverlay(
+                              debugCanvasRef.current,
+                              faceLandmarks,
+                              poseLandmarks,
+                          );
+                      }
+
+                      const now = Date.now();
+                      if (now - lastStatusUpdateRef.current > 500) {
+                          setDetectionStatus({
+                              face: !!faceLandmarks,
+                              pose: !!poseLandmarks,
+                          });
+                          lastStatusUpdateRef.current = now;
+                      }
+
+                      lastVideoTimeRef.current = currentTime;
+                  } catch (error) {
+                      console.error("MediaPipe Tasks 분석 중 오류:", error);
+                  }
               }
-
-              // 상태 UI 업데이트 - poseLandmarks 여부와 관계없이 항상 호출
-              const now = Date.now();
-              if (now - lastStatusUpdateRef.current > 500) {
-                setDetectionStatus({
-                  face: !!faceLandmarks,
-                  pose: !!poseLandmarks,
-                });
-                lastStatusUpdateRef.current = now;
-              }
-
-              lastVideoTimeRef.current = currentTime;
-            } catch (error) {
-              console.error("MediaPipe Tasks 분석 중 오류:", error);
-            }
           }
-        }
 
-        animationRef.current = requestAnimationFrame(analyze);
+          animationRef.current = requestAnimationFrame(analyze);
       };
 
       animationRef.current = requestAnimationFrame(analyze);
@@ -452,34 +456,44 @@ export function useMediaPipeAnalysis() {
 
   // 분석 중지 및 결과 반환
   const stopAndGetResult = useCallback(() => {
+      const { total, looking } = gazeFramesRef.current;
+      const gazeRatio = total > 0
+          ? Math.round((looking / total) * 100) / 100
+          : 0;
 
-    const { total, looking } = gazeFramesRef.current;
-    const gazeRatio = total > 0 ? Math.round((looking / total) * 100) / 100 : 0;
+      const totalDeduction = gestureDeductionsRef.current.reduce(
+          (sum, d) => sum + d.deduction, 0
+      );
 
-    const totalDeduction = gestureDeductionsRef.current.reduce(
-      (sum, d) => sum + d.deduction,
-      0,
-    );
+      // 포즈 감지율 계산
+      const { total: poseTotal, detected: poseDetected } = poseFramesRef.current;
+      const poseDetectionRate = poseTotal > 0 ? poseDetected / poseTotal : 0;
 
-    const gestureScore = Math.max(0, 20 - totalDeduction);
+      // 포즈 감지율 기반 추가 감점
+      let poseDeduction = 0;
+      if (poseDetectionRate < 0.5) {
+          poseDeduction = 20;        // 0점
+      } else if (poseDetectionRate < 0.7) {
+          poseDeduction = 13;        // ~7점
+      } else if (poseDetectionRate < 0.9) {
+          poseDeduction = 3;         // ~17점
+      }
 
-    //     return {
-    //       gazeRatio,
-    //       gestureDeductions: gestureDeductionsRef.current,
-    //       gestureScore,
-    //     };
-    //   }, []);
-    return {
-      gazeRatio,
-      gestureDeductions: [...gestureDeductionsRef.current],
-      gestureScore,
-    };
+      const gestureScore = Math.max(0, 20 - totalDeduction - poseDeduction);
+
+      return {
+          gazeRatio,
+          gestureDeductions: [...gestureDeductionsRef.current],
+          gestureScore,
+          poseDetectionRate,  // 디버깅/결과 표시용
+      };
   }, []);
 
   // 다음 질문 시작 시 분석 데이터 초기화
   const resetAnalysis = useCallback(() => {
     gazeFramesRef.current = { total: 0, looking: 0 };
     gestureDeductionsRef.current = [];
+    poseFramesRef.current = { total: 0, detected: 0 };
     prevWristPosRef.current = null;
     badPostureStartRef.current = null;
     // lastVideoTimeRef.current = -1;

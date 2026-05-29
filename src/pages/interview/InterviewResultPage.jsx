@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import Navbar from "../../components/common/Navbar";
+import AnalyzingLoader from "../../components/common/AnalyzingLoader";
 import { fetchSessionResult } from "../../api/interviewApi";
 import "./InterviewResultPage.css";
 
@@ -65,22 +66,52 @@ export default function InterviewResultPage() {
   const { sessionId } = useParams();
   const location = useLocation();
 
-  const [result, setResult] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [result, setResult] = useState(location.state?.result ?? null);  // 기존 결과 있으면 바로 세팅
+  const isResultComplete = location.state?.result &&
+      !location.state.result.questions?.some(q => q.scores?.total === null);
+  const [loading, setLoading] = useState(!isResultComplete);  // ← 초기값에서 바로 결정
+
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchSessionResult(sessionId)
-      .then(setResult)
-      .catch(() => setError("결과를 불러오는데 실패했습니다."))
-      .finally(() => setLoading(false));
+    if (!loading) return;
+
+    let pollCount = 0;
+    const MAX_POLL = 5;
+    const POLL_INTERVAL = 3000;
+
+    const fetchResult = () => {
+        fetchSessionResult(sessionId)
+            .then((data) => {
+                const isAnalyzing = pollCount < MAX_POLL && (
+                    data.questions?.some(q => q.scores?.total === null)
+                    ||
+                    data.questions?.length < data.totalQuestions
+                );
+
+                setResult(data);
+
+                if (isAnalyzing) {
+                    pollCount++;
+                    setTimeout(fetchResult, POLL_INTERVAL);
+                } else {
+                    setLoading(false);
+                }
+            })
+            .catch(() => {
+                setError("결과를 불러오는데 실패했습니다.");
+                setLoading(false);
+            });
+    };
+
+    fetchResult();
   }, [sessionId]);
 
   if (loading) return (
-    <div className="ir-page">
-      <Navbar />
-      <div className="ir-loading">결과를 불러오는 중...</div>
-    </div>
+      <div className="ir-page">
+          <Navbar />
+          <AnalyzingLoader type="result" />
+      </div>
   );
 
   if (error || !result) return (
