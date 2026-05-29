@@ -504,20 +504,20 @@ export default function InterviewSessionPage() {
         <div className="is-btn-wrap">
           {phase === PHASE.PREP && (
             <>
-              <button className="is-btn-skip" onClick={handleSkip}>
+              <button className="is-btn-skip" onClick={handleSkip} disabled={sttLoading}>
                 건너뛰기
               </button>
-              <button className="is-btn-main" onClick={handleStartAnswer}>
+              <button className="is-btn-main" onClick={handleStartAnswer} disabled={sttLoading}>
                 답변 시작
               </button>
             </>
           )}
           {(phase === PHASE.ANSWERING || phase === PHASE.WARNING) && (
             <>
-              <button className="is-btn-skip" onClick={handleSkip}>
+              <button className="is-btn-skip" onClick={handleSkip} disabled={sttLoading}>
                 건너뛰기
               </button>
-              <button className="is-btn-main" onClick={handleEndAnswer}>
+              <button className="is-btn-main" onClick={handleEndAnswer} disabled={sttLoading}>
                 답변 종료
               </button>
             </>
