@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/common/Navbar";
 import AlertModal from "../../components/common/AlertModal";
+import AnalyzingLoader from "../../components/common/AnalyzingLoader";
 import {
   fetchCsCategories,
   createLlmSession,
@@ -192,6 +193,13 @@ export default function InterviewStartPage() {
       setErrorModal({ message: "질문 불러오기는 준비 중입니다." });
     }
   };
+
+  if (loading) return (
+    <div className="in-page">
+        <Navbar />
+        <AnalyzingLoader type="session" />
+    </div>
+  );
 
   return (
     <div className="in-page">
@@ -439,11 +447,11 @@ export default function InterviewStartPage() {
 
         <div className="in-footer">
           <button
-            className="in-start-btn"
-            onClick={handleStart}
-            disabled={loading}
+              className="in-start-btn"
+              onClick={handleStart}
+              disabled={loading}
           >
-            {loading ? "세션 생성 중..." : "면접 시작"}
+              면접 시작
           </button>
         </div>
       </div>

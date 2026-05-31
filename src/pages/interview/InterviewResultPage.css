@@ -3,13 +3,6 @@
   background: #fafafa;
 }
 
-.ir-loading {
-  text-align: center;
-  padding: 80px 24px;
-  color: #888;
-  font-size: 0.9rem;
-}
-
 .ir-container {
   max-width: 860px;
   margin: 0 auto;

@@ -70,7 +70,7 @@ export default function InterviewSessionPage() {
   // 녹음 종료 -> STT 호출 -> 결과 저장
   // questionId를 인자로 받아 onstop 비동기 시점에도 저장 대상 질문을 고정
   const stopRecordingAndTranscribe = useCallback(
-    (questionId) => {
+    (questionId, questionText, keywords) => {
       return new Promise((resolve) => {
         const mediaRecorder = mediaRecorderRef.current;
         if (!mediaRecorder || mediaRecorder.state === "inactive") {
@@ -105,8 +105,8 @@ export default function InterviewSessionPage() {
 
             const payload = {
               answerStatus,
-              questionText: currentQuestion?.questionText ?? null,
-              keywords: currentQuestion?.questionKeywords ?? [],
+              questionText: questionText ?? null,
+              keywords: keywords ?? [],
               answerText: sttResult?.answerText ?? "",
               answerDuration: sttResult?.answerDuration ?? 0,
               wpm: sttResult?.wpm ?? 0,
@@ -222,7 +222,9 @@ export default function InterviewSessionPage() {
         setPhase(PHASE.ENDED);
         phaseRef.current = PHASE.ENDED;
         stopRecordingAndTranscribe(
-          currentQuestionRef.current?.sessionQuestionId,
+            currentQuestionRef.current?.sessionQuestionId,
+            currentQuestionRef.current?.questionText,
+            currentQuestionRef.current?.questionKeywords,
         ).then(() => {
           if (isMountedRef.current) {
             // 마지막 질문이면 결과 페이지로, 아니면 다음 질문으로
@@ -312,7 +314,11 @@ export default function InterviewSessionPage() {
     clearInterval(timerRef.current);
     setPhase(PHASE.ENDED);
     setTimeLeft(0);
-    await stopRecordingAndTranscribe(currentQuestion.sessionQuestionId); // 녹음 종료 + STT
+    await stopRecordingAndTranscribe(
+      currentQuestion.sessionQuestionId,
+      currentQuestion.questionText,
+      currentQuestion.questionKeywords,
+    ); // 녹음 종료 + STT
   };
 
   // 건너뛰기 (녹음 중이면 종료)
@@ -362,13 +368,16 @@ export default function InterviewSessionPage() {
     });
 
     resetAnalysis();
+    isSkippingRef.current = false;
     goNextQuestion(); // 저장 기다리지 않고 즉시 이동
   };
 
   // 다시 답변
   const handleRetry = () => {
     setPhase(PHASE.PREP);
+    phaseRef.current = PHASE.PREP;
     setTimeLeft(PREP_TIME);
+    timeLeftRef.current = PREP_TIME;
   };
 
   // 다음 질문
@@ -495,20 +504,20 @@ export default function InterviewSessionPage() {
         <div className="is-btn-wrap">
           {phase === PHASE.PREP && (
             <>
-              <button className="is-btn-skip" onClick={handleSkip}>
+              <button className="is-btn-skip" onClick={handleSkip} disabled={sttLoading}>
                 건너뛰기
               </button>
-              <button className="is-btn-main" onClick={handleStartAnswer}>
+              <button className="is-btn-main" onClick={handleStartAnswer} disabled={sttLoading}>
                 답변 시작
               </button>
             </>
           )}
           {(phase === PHASE.ANSWERING || phase === PHASE.WARNING) && (
             <>
-              <button className="is-btn-skip" onClick={handleSkip}>
+              <button className="is-btn-skip" onClick={handleSkip} disabled={sttLoading}>
                 건너뛰기
               </button>
-              <button className="is-btn-main" onClick={handleEndAnswer}>
+              <button className="is-btn-main" onClick={handleEndAnswer} disabled={sttLoading}>
                 답변 종료
               </button>
             </>
