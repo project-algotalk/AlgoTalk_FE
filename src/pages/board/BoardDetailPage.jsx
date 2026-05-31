@@ -258,13 +258,15 @@ export default function BoardDetailPage() {
                             <Heart size={15} fill={post.liked ? 'currentColor' : 'none'} />
                             좋아요 {post.likeCount ?? 0}
                         </button>
-                        <button
-                            className={`board-action-btn ${post.scrapped ? 'active' : ''}`}
-                            onClick={handleScrap}
-                        >
-                            <Bookmark size={15} fill={post.scrapped ? 'currentColor' : 'none'} />
-                            스크랩하기
-                        </button>
+                        {post.isScrapable === 'Y' && (   // ← 조건 추가
+                            <button
+                                className={`board-action-btn ${post.scrapped ? 'active' : ''}`}
+                                onClick={handleScrap}
+                            >
+                                <Bookmark size={15} fill={post.scrapped ? 'currentColor' : 'none'} />
+                                스크랩하기
+                            </button>
+                        )}
                     </div>
                 </div>
 
