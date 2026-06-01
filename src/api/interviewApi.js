@@ -44,6 +44,12 @@ export const saveAnswer = async (sessionId, sessionQuestionId, payload) => {
     return data?.data
 }
 
+// 세션 완료 처리
+export const completeSession = async (sessionId) => {
+    const { data } = await api.patch(`/interview/v1/sessions/${sessionId}/complete`)
+    return data?.data
+}
+
 // 세션 결과 조회
 export const fetchSessionResult = async (sessionId) => {
     const { data } = await api.get(`/interview/v1/sessions/${sessionId}/result`)

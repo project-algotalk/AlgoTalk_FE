@@ -125,8 +125,8 @@ export default function InterviewResultPage() {
 
   // 전체 통계 계산 (전체 질문 기준 평균)
   const avgTotal = questions.length > 0
-    ? Math.round(questions.reduce((s, q) => s + (q.scores?.total ?? 0), 0) / questions.length)
-    : 0;
+      ? Math.round(questions.reduce((s, q) => s + (q.scores?.total ?? 0), 0) / questions.length * 10) / 10
+      : 0
   const avgContent = questions.length > 0
     ? Math.round(questions.reduce((s, q) => s + (q.scores?.content ?? 0), 0) / questions.length)
     : 0;
