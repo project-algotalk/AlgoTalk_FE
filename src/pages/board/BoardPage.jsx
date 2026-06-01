@@ -248,8 +248,13 @@ export default function BoardPage() {
                                     <div className="board-item-title">{post.title}</div>
                                     <div className="board-item-info">
                                         <span className="board-item-author">{post.nickname}</span>
+                                        <span>·</span>
                                         <span className="board-item-date">
                                             {post.createdAt?.slice(0, 10)}
+                                        </span>
+                                        <span>·</span>
+                                        <span className="board-item-date">
+                                            조회수 {post.viewCount ?? 0}
                                         </span>
                                     </div>
                                     {post.hashtags?.length > 0 && (
