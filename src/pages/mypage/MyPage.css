@@ -660,6 +660,191 @@
   }
 }
 
+/* ── 내 활동 ── */
+.mp-activity-menu {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid #f0f0f0;
+    margin-bottom: 16px;
+}
+
+.mp-activity-menu-item {
+    padding: 8px 16px;
+    background: none;
+    border: none;
+    font-size: 0.875rem;
+    font-family: 'Noto Sans KR', sans-serif;
+    color: #aaa;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.15s;
+    font-weight: 500;
+}
+
+.mp-activity-menu-item.active {
+    color: #1a1a1a;
+    font-weight: 700;
+    border-bottom-color: #1a1a1a;
+}
+
+.mp-activity-list {
+    min-height: 200px;
+}
+
+.mp-activity-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: #aaa;
+    font-size: 0.875rem;
+}
+
+.mp-activity-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f5f5f5;
+    cursor: pointer;
+    transition: background 0.1s;
+}
+
+.mp-activity-item:last-child {
+    border-bottom: none;
+}
+
+.mp-activity-item:hover {
+    background: #f8f9fb;
+}
+
+.mp-activity-checkbox {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: #1a1a1a;
+}
+
+.mp-activity-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.mp-activity-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mp-activity-meta {
+    display: flex;
+    gap: 4px;
+    font-size: 0.75rem;
+    color: #aaa;
+}
+
+.mp-activity-post-title {
+    font-size: 0.75rem;
+    color: #888;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mp-activity-counts {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    font-size: 0.75rem;
+    color: #aaa;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.mp-activity-counts span {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.mp-activity-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 16px;
+    margin-top: 8px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.mp-activity-select-all {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.875rem;
+    color: #555;
+    cursor: pointer;
+}
+
+.mp-activity-select-all input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    accent-color: #1a1a1a;
+    cursor: pointer;
+}
+
+.mp-activity-footer-btns {
+    display: flex;
+    gap: 8px;
+}
+
+.mp-activity-paging {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin-top: 16px;
+}
+
+.mp-activity-paging button {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: white;
+    font-size: 0.8rem;
+    cursor: pointer;
+    font-family: 'Noto Sans KR', sans-serif;
+    transition: all 0.1s;
+}
+
+.mp-activity-paging button:hover:not(:disabled) {
+    background: #f0f4fb;
+    border-color: #1a1a1a;
+}
+
+.mp-activity-paging button.active {
+    background: #1a1a1a;
+    color: white;
+    border-color: #1a1a1a;
+}
+
+.mp-activity-paging button:disabled {
+    opacity: 0.3;
+    cursor: default;
+}
+
+.mp-page-ellipsis {
+    padding: 0 4px;
+    color: #aaa;
+    font-size: 0.8rem;
+}
+
 @media (max-width: 480px) {
   .mp-row-btn {
     font-size: 0.78rem;

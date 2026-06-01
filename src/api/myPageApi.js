@@ -67,3 +67,39 @@ export const fetchTargetJobs = async () => {
     const { data } = await api.get('/mypage/v1/target-jobs')
     return data?.data
 }
+
+// 내가 작성한 게시글
+export const fetchMyPosts = async (page = 1, size = 10) => {
+    const { data } = await api.get('/mypage/v1/posts', { params: { page, size } })
+    return data?.data
+}
+export const deleteMyPosts = async (postIds) => {
+    await api.delete('/mypage/v1/posts', { data: postIds })
+}
+
+// 내가 작성한 댓글
+export const fetchMyComments = async (page = 1, size = 10) => {
+    const { data } = await api.get('/mypage/v1/comments', { params: { page, size } })
+    return data?.data
+}
+export const deleteMyComments = async (commentIds) => {
+    await api.delete('/mypage/v1/comments', { data: commentIds })
+}
+
+// 내가 스크랩한 게시글
+export const fetchMyScraps = async (page = 1, size = 10) => {
+    const { data } = await api.get('/mypage/v1/scraps', { params: { page, size } })
+    return data?.data
+}
+export const deleteMyScraps = async (postIds) => {
+    await api.delete('/mypage/v1/scraps', { data: postIds })
+}
+
+// 내가 좋아요한 게시글
+export const fetchMyLikes = async (page = 1, size = 10) => {
+    const { data } = await api.get('/mypage/v1/likes', { params: { page, size } })
+    return data?.data
+}
+export const deleteMyLikes = async (postIds) => {
+    await api.delete('/mypage/v1/likes', { data: postIds })
+}

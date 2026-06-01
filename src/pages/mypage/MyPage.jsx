@@ -16,7 +16,12 @@ import {
     issueLinkToken, unlinkSocial,
     updateTargetJobs, updateEmployments,
     withdraw,
+    fetchMyPosts, deleteMyPosts,
+    fetchMyComments, deleteMyComments,
+    fetchMyScraps, deleteMyScraps,
+    fetchMyLikes, deleteMyLikes,
 } from '../../api/myPageApi'
+import { Heart, Bookmark, MessageCircle, Eye } from 'lucide-react'
 import './MyPage.css'
 import '../../styles/jobForm.css'
 
@@ -1002,6 +1007,287 @@ function EmploymentSection({ initialEmployments, onSuccess, onCancel }) {
     )
 }
 
+function ActivityTab() {
+    const navigate = useNavigate()
+    const [activeMenu, setActiveMenu] = useState('posts') // posts | comments | scraps | likes
+    const [items, setItems] = useState([])
+    const [totalCount, setTotalCount] = useState(0)
+    const [page, setPage] = useState(1)
+    const [loading, setLoading] = useState(false)
+    const [selectedIds, setSelectedIds] = useState([])
+    const [confirmModal, setConfirmModal] = useState(false)
+
+    const PAGE_SIZE = 10
+
+    useEffect(() => {
+        loadItems()
+        setSelectedIds([])
+    }, [activeMenu, page])
+
+    const loadItems = async () => {
+        setLoading(true)
+        try {
+            let result
+            if (activeMenu === 'posts')    result = await fetchMyPosts(page, PAGE_SIZE)
+            if (activeMenu === 'comments') result = await fetchMyComments(page, PAGE_SIZE)
+            if (activeMenu === 'scraps')   result = await fetchMyScraps(page, PAGE_SIZE)
+            if (activeMenu === 'likes')    result = await fetchMyLikes(page, PAGE_SIZE)
+            setItems(result || [])
+            setTotalCount(result?.[0]?.totalCount || 0)
+        } catch (e) {
+            console.error(e)
+            setItems([])
+            setTotalCount(0)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const handleMenuChange = (menu) => {
+        setActiveMenu(menu)
+        setPage(1)
+        setSelectedIds([])
+    }
+
+    const handleSelectAll = (e) => {
+        if (e.target.checked) {
+            setSelectedIds(items.map(item =>
+                activeMenu === 'comments' ? item.commentId : item.postId
+            ))
+        } else {
+            setSelectedIds([])
+        }
+    }
+
+    const handleSelect = (id) => {
+        setSelectedIds(prev =>
+            prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+        )
+    }
+
+    const handleDelete = async () => {
+        if (selectedIds.length === 0) return
+        try {
+            if (activeMenu === 'posts')    await deleteMyPosts(selectedIds)
+            if (activeMenu === 'comments') await deleteMyComments(selectedIds)
+            if (activeMenu === 'scraps')   await deleteMyScraps(selectedIds)
+            if (activeMenu === 'likes')    await deleteMyLikes(selectedIds)
+            setConfirmModal(false)
+            setSelectedIds([])
+            setPage(1)
+            await loadItems()
+        } catch (e) {
+            console.error(e)
+        }
+    }
+
+    const handleItemClick = (item) => {
+        const postId = activeMenu === 'comments' ? item.postId : item.postId
+        navigate(`/board/${postId}`)
+    }
+
+    const totalPages = Math.ceil(totalCount / PAGE_SIZE)
+
+    const getPageNumbers = () => {
+        const range = []
+        const delta = 2
+        const left = Math.max(1, page - delta)
+        const right = Math.min(totalPages, page + delta)
+        if (left > 1) range.push(1)
+        if (left > 2) range.push('...')
+        for (let i = left; i <= right; i++) range.push(i)
+        if (right < totalPages - 1) range.push('...')
+        if (right < totalPages) range.push(totalPages)
+        return range
+    }
+
+    const deleteLabel = activeMenu === 'scraps' ? '스크랩 취소'
+        : activeMenu === 'likes' ? '좋아요 취소' : '삭제'
+
+    const emptyMessage = activeMenu === 'posts' ? '작성하신 게시글이 없습니다.'
+        : activeMenu === 'comments' ? '작성하신 댓글이 없습니다.'
+        : activeMenu === 'scraps' ? '스크랩한 게시글이 없습니다.'
+        : '좋아요한 게시글이 없습니다.'
+
+    return (
+        <div className="mp-card">
+            {/* 메뉴 */}
+            <div className="mp-activity-menu">
+                <button
+                    className={`mp-activity-menu-item ${activeMenu === 'posts' ? 'active' : ''}`}
+                    onClick={() => handleMenuChange('posts')}
+                >
+                    작성글
+                </button>
+                <button
+                    className={`mp-activity-menu-item ${activeMenu === 'comments' ? 'active' : ''}`}
+                    onClick={() => handleMenuChange('comments')}
+                >
+                    작성 댓글
+                </button>
+                <button
+                    className={`mp-activity-menu-item ${activeMenu === 'scraps' ? 'active' : ''}`}
+                    onClick={() => handleMenuChange('scraps')}
+                >
+                    스크랩글
+                </button>
+                <button
+                    className={`mp-activity-menu-item ${activeMenu === 'likes' ? 'active' : ''}`}
+                    onClick={() => handleMenuChange('likes')}
+                >
+                    좋아요글
+                </button>
+            </div>
+
+            {/* 목록 */}
+            <div className="mp-activity-list">
+                {loading ? (
+                    <div className="mp-activity-empty">로딩 중...</div>
+                ) : items.length === 0 ? (
+                    <div className="mp-activity-empty">{emptyMessage}</div>
+                ) : (
+                    items.map(item => {
+                        const id = activeMenu === 'comments' ? item.commentId : item.postId
+                        const isSelected = selectedIds.includes(id)
+                        return (
+                            <div key={id} className="mp-activity-item">
+                                <input
+                                    type="checkbox"
+                                    className="mp-activity-checkbox"
+                                    checked={isSelected}
+                                    onChange={() => handleSelect(id)}
+                                    onClick={e => e.stopPropagation()}
+                                />
+                                <div
+                                    className="mp-activity-content"
+                                    onClick={() => handleItemClick(item)}
+                                >
+                                    {activeMenu === 'comments' ? (
+                                        <>
+                                            <div className="mp-activity-title">{item.content}</div>
+                                            <div className="mp-activity-meta">
+                                                <span>{item.categoryName}</span>
+                                                <span>·</span>
+                                                <span>{item.nickname}</span>
+                                                <span>·</span>
+                                                <span>조회수 {item.viewCount ?? 0}</span>
+                                                <span>·</span>
+                                                <span>{item.createdAt?.slice(0, 10)}</span>
+                                            </div>
+                                            <div className="mp-activity-post-title">{item.postTitle}</div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div className="mp-activity-title">{item.title}</div>
+                                            <div className="mp-activity-meta">
+                                                <span>{item.categoryName}</span>
+                                                <span>·</span>
+                                                <span>{item.nickname}</span>
+                                                <span>·</span>
+                                                <span>조회수 {item.viewCount ?? 0}</span>
+                                                <span>·</span>
+                                                <span>{item.createdAt?.slice(0, 10)}</span>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                                <div className="mp-activity-counts">
+                                    {activeMenu !== 'comments' && (
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                                            <Heart size={13} /> {item.likeCount ?? 0}
+                                        </span>
+                                    )}
+                                    <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                                        <Bookmark size={13} /> {item.scrapCount ?? 0}
+                                    </span>
+                                    <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                                        <MessageCircle size={13} /> {item.commentCount ?? 0}
+                                    </span>
+                                </div>
+                            </div>
+                        )
+                    })
+                )}
+            </div>
+
+            {/* 하단: 전체선택 + 삭제 + 글작성 + 페이징 */}
+            {items.length > 0 && (
+                <div className="mp-activity-footer">
+                    <label className="mp-activity-select-all">
+                        <input
+                            type="checkbox"
+                            checked={selectedIds.length === items.length && items.length > 0}
+                            onChange={handleSelectAll}
+                        />
+                        전체 선택
+                    </label>
+                    <div className="mp-activity-footer-btns">
+                        <button
+                            className="mp-modal-btn danger"
+                            onClick={() => {
+                                if (selectedIds.length === 0) return
+                                setConfirmModal(true)
+                            }}
+                            disabled={selectedIds.length === 0}
+                        >
+                            {deleteLabel}
+                        </button>
+                        <button
+                            className="mp-modal-btn primary"
+                            onClick={() => navigate('/board/write')}
+                        >
+                            글 작성
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* 페이징 */}
+            {totalPages > 1 && (
+                <div className="mp-activity-paging">
+                    <button onClick={() => setPage(1)} disabled={page === 1}>{'<<'}</button>
+                    <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>{'<'}</button>
+                    {getPageNumbers().map((p, i) =>
+                        p === '...'
+                            ? <span key={`e-${i}`} className="mp-page-ellipsis">...</span>
+                            : <button
+                                key={p}
+                                className={page === p ? 'active' : ''}
+                                onClick={() => setPage(p)}
+                            >{p}</button>
+                    )}
+                    <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}>{'>'}</button>
+                    <button onClick={() => setPage(totalPages)} disabled={page === totalPages}>{'>>'}</button>
+                </div>
+            )}
+
+            {/* 삭제 확인 모달 */}
+            {confirmModal && (
+                <BaseModal
+                    title={activeMenu === 'scraps' ? '스크랩 취소'
+                        : activeMenu === 'likes' ? '좋아요 취소' : '게시글 삭제'}
+                    onClose={() => setConfirmModal(false)}
+                    actions={
+                        <div className="mp-modal-btn-row">
+                            <button className="mp-modal-btn" onClick={() => setConfirmModal(false)}>취소</button>
+                            <button className="mp-modal-btn danger" onClick={handleDelete}>
+                                {deleteLabel}
+                            </button>
+                        </div>
+                    }
+                >
+                    <p className="mp-modal-help-text">
+                        {activeMenu === 'scraps' ? '선택한 게시글의 스크랩을 취소하시겠습니까?'
+                            : activeMenu === 'likes' ? '선택한 게시글의 좋아요를 취소하시겠습니까?'
+                            : activeMenu === 'comments' ? '선택한 댓글을 삭제하시겠습니까?'
+                            : '선택한 게시글을 삭제하시겠습니까?'}
+                    </p>
+                </BaseModal>
+            )}
+        </div>
+    )
+}
+
 // ── 메인 마이페이지
 export default function MyPage() {
     const navigate = useNavigate()
@@ -1299,10 +1585,7 @@ export default function MyPage() {
                     
                     {/* 내 활동 */}
                     {tab === 'activity' && (
-                        <div className="mp-card">
-                            <h3 className="mp-card-title">내 활동</h3>
-                            <p style={{ color: '#aaa', fontSize: '0.875rem' }}>준비 중입니다.</p>
-                        </div>
+                        <ActivityTab />
                     )}
                 </main>
             </div>

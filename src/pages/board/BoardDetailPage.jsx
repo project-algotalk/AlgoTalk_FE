@@ -258,7 +258,7 @@ export default function BoardDetailPage() {
                             <Heart size={15} fill={post.liked ? 'currentColor' : 'none'} />
                             좋아요 {post.likeCount ?? 0}
                         </button>
-                        {post.isScrapable === 'Y' && (   // ← 조건 추가
+                        {post.isScrapable === 'Y' && (
                             <button
                                 className={`board-action-btn ${post.scrapped ? 'active' : ''}`}
                                 onClick={handleScrap}
