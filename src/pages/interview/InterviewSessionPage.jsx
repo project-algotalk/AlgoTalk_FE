@@ -1,16 +1,16 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { transcribeAudio, saveAnswer } from "../../api/interviewApi";
+import { transcribeAudio, saveAnswer, completeSession } from "../../api/interviewApi";
 import { useMediaPipeAnalysis } from "../../hooks/useMediaPipeAnalysis";
 import "./InterviewSessionPage.css";
 
 const IS_DEBUG = import.meta.env.VITE_MEDIAPIPE_DEBUG === 'true'
 
 const PHASE = {
-  PREP: "prep", // 답변 준비 (30초)
-  ANSWERING: "answering", // 답변 중 (90초)
-  WARNING: "warning", // 30초 이하 경고
-  ENDED: "ended", // 답변 종료
+  PREP: "prep",
+  ANSWERING: "answering",
+  WARNING: "warning",
+  ENDED: "ended",
 };
 
 const PREP_TIME = 30;
@@ -26,13 +26,13 @@ export default function InterviewSessionPage() {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [phase, setPhase] = useState(PHASE.PREP);
   const [timeLeft, setTimeLeft] = useState(PREP_TIME);
-  const [sttLoading, setSttLoading] = useState(false); // STT 처리 중 로딩 상태
+  const [sttLoading, setSttLoading] = useState(false);
 
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const timerRef = useRef(null);
-  const mediaRecorderRef = useRef(null); // MediaRecorder 인스턴스
-  const audioChunksRef = useRef([]); // 녹음 청크 데이터
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
   const isMountedRef = useRef(true);
   const phaseRef = useRef(PHASE.PREP);
   const timeLeftRef = useRef(PREP_TIME);
@@ -45,6 +45,7 @@ export default function InterviewSessionPage() {
 
   const { initMediaPipe, stopAndGetResult, resetAnalysis, closeMediaPipe, debugCanvasRef, detectionStatus } =
     useMediaPipeAnalysis();
+
   useEffect(() => {
     phaseRef.current = phase;
   }, [phase]);
@@ -67,8 +68,6 @@ export default function InterviewSessionPage() {
     currentQuestionRef.current = currentQuestion;
   }, [currentQuestion]);
 
-  // 녹음 종료 -> STT 호출 -> 결과 저장
-  // questionId를 인자로 받아 onstop 비동기 시점에도 저장 대상 질문을 고정
   const stopRecordingAndTranscribe = useCallback(
     (questionId, questionText, keywords) => {
       return new Promise((resolve) => {
@@ -97,8 +96,6 @@ export default function InterviewSessionPage() {
               console.warn("녹음 파일이 너무 짧아서 STT 요청을 보내지 않음");
             }
 
-            // answerStatus 결정
-            // sttResult가 없거나 answerText가 비어있으면 QUALITY_FAIL
             const answerStatus = (!sttResult || !sttResult.answerText?.trim())
               ? "QUALITY_FAIL"
               : "ANSWERED";
@@ -144,7 +141,6 @@ export default function InterviewSessionPage() {
     [session?.sessionId, stopAndGetResult, resetAnalysis],
   );
 
-  // 카메라/마이크 스트림 시작
   useEffect(() => {
     const startCamera = async () => {
       try {
@@ -172,13 +168,11 @@ export default function InterviewSessionPage() {
     startCamera();
 
     return () => {
-      // 페이지 이탈 시 녹음이 살아있으면 먼저 stop 처리
       if (mediaRecorderRef.current?.state === "recording") {
         mediaRecorderRef.current.stop();
       }
 
       if (mediaRecorderRef.current) {
-        // 언마운트 이후 비동기 콜백이 실행되지 않도록 핸들러 제거
         mediaRecorderRef.current.onstop = null;
         mediaRecorderRef.current.ondataavailable = null;
       }
@@ -188,7 +182,6 @@ export default function InterviewSessionPage() {
     };
   }, [initMediaPipe, closeMediaPipe]);
 
-  // 타이머
   useEffect(() => {
     clearInterval(timerRef.current);
     if (phase === PHASE.ENDED) return;
@@ -227,13 +220,19 @@ export default function InterviewSessionPage() {
             currentQuestionRef.current?.questionKeywords,
         ).then(() => {
           if (isMountedRef.current) {
-            // 마지막 질문이면 결과 페이지로, 아니면 다음 질문으로
             setCurrentIdx((prev) => {
               const nextIdx = prev + 1;
               if (nextIdx >= questions.length) {
                 stopStream();
-                navigate(`/interview/result/${session.sessionId}`, {
-                  state: { session },
+                completeSession(session.sessionId).then(() => {
+                  navigate(`/interview/result/${session.sessionId}`, {
+                    state: { session },
+                  });
+                }).catch((err) => {
+                  console.error("세션 완료 처리 실패:", err);
+                  navigate(`/interview/result/${session.sessionId}`, {
+                    state: { session },
+                  });
                 });
               } else {
                 setPhase(PHASE.PREP);
@@ -258,7 +257,6 @@ export default function InterviewSessionPage() {
     }
   }
 
-  // 녹음 시작
   const startRecording = () => {
     if (!streamRef.current) return;
     if (mediaRecorderRef.current?.state === "recording") return;
@@ -269,7 +267,6 @@ export default function InterviewSessionPage() {
 
     audioChunksRef.current = [];
 
-    // 오디오 트랙만 분리해서 새 스트림 생성
     const audioTracks = streamRef.current.getAudioTracks();
     const audioStream = new MediaStream(audioTracks);
 
@@ -301,15 +298,13 @@ export default function InterviewSessionPage() {
     }
   };
 
-  // 답변 시작
   const handleStartAnswer = () => {
     clearInterval(timerRef.current);
     setPhase(PHASE.ANSWERING);
     setTimeLeft(ANSWER_TIME);
-    startRecording(); // 녹음 시작
+    startRecording();
   };
 
-  // 답변 종료
   const handleEndAnswer = async () => {
     clearInterval(timerRef.current);
     setPhase(PHASE.ENDED);
@@ -318,17 +313,15 @@ export default function InterviewSessionPage() {
       currentQuestion.sessionQuestionId,
       currentQuestion.questionText,
       currentQuestion.questionKeywords,
-    ); // 녹음 종료 + STT
+    );
   };
 
-  // 건너뛰기 (녹음 중이면 종료)
   const handleSkip = async () => {
     if (isSkippingRef.current) return;
     isSkippingRef.current = true;
 
     clearInterval(timerRef.current);
 
-    // 녹음 중이면 중단
     if (mediaRecorderRef.current?.state === "recording") {
       mediaRecorderRef.current.onstop = null;
       mediaRecorderRef.current.ondataavailable = null;
@@ -339,7 +332,6 @@ export default function InterviewSessionPage() {
     const analysisResult = stopAndGetResult();
     const currentQuestion = questions[currentIdx];
 
-    // 백그라운드에서 저장 (await 하지 않음)
     saveAnswer(session.sessionId, currentQuestion.sessionQuestionId, {
       answerStatus: "SKIPPED",
       questionText: currentQuestion?.questionText ?? null,
@@ -369,10 +361,9 @@ export default function InterviewSessionPage() {
 
     resetAnalysis();
     isSkippingRef.current = false;
-    goNextQuestion(); // 저장 기다리지 않고 즉시 이동
+    goNextQuestion();
   };
 
-  // 다시 답변
   const handleRetry = () => {
     setPhase(PHASE.PREP);
     phaseRef.current = PHASE.PREP;
@@ -380,13 +371,17 @@ export default function InterviewSessionPage() {
     timeLeftRef.current = PREP_TIME;
   };
 
-  // 다음 질문
-  const goNextQuestion = () => {
+  const goNextQuestion = async () => {
     clearInterval(timerRef.current);
 
     if (isLastQuestion) {
       closeMediaPipe();
       stopStream();
+      try {
+        await completeSession(session.sessionId);
+      } catch (err) {
+        console.error("세션 완료 처리 실패:", err);
+      }
       navigate(`/interview/result/${session.sessionId}`, {
         state: { session },
       });
@@ -401,10 +396,14 @@ export default function InterviewSessionPage() {
     resetAnalysis();
   };
 
-  // 바로 분석
-  const handleDirectAnalysis = () => {
+  const handleDirectAnalysis = async () => {
     closeMediaPipe();
     stopStream();
+    try {
+      await completeSession(session.sessionId);
+    } catch (err) {
+      console.error("세션 완료 처리 실패:", err);
+    }
     navigate(`/interview/result/${session.sessionId}`, { state: { session } });
   };
 
@@ -424,7 +423,6 @@ export default function InterviewSessionPage() {
 
   return (
     <div className="is-page">
-      {/* 헤더 */}
       <header className="is-header">
         <button
           className="is-back"
@@ -440,13 +438,11 @@ export default function InterviewSessionPage() {
       </header>
 
       <div className="is-container">
-        {/* 질문 */}
         <p className="is-question">
           Q{currentQuestion.questionOrder ?? currentIdx + 1}.{" "}
           {currentQuestion.questionText}
         </p>
 
-        {/* 카메라 영역 */}
         <div className="is-video-wrap">
           <video
             ref={videoRef}
@@ -456,7 +452,6 @@ export default function InterviewSessionPage() {
             className="is-video"
           />
 
-          {/* 디버그 모드: 랜드마크 오버레이 canvas */}
           {IS_DEBUG && (
             <canvas
               ref={debugCanvasRef}
@@ -466,7 +461,6 @@ export default function InterviewSessionPage() {
             />
           )}
 
-          {/* 실전 모드: 분석 상태 UI (우상단 작게 표시) */}
           {(phase === PHASE.ANSWERING || phase === PHASE.WARNING) && (
             <div className="is-detection-status">
               <span className={detectionStatus.face ? 'is-status-on' : 'is-status-off'}>
@@ -479,13 +473,11 @@ export default function InterviewSessionPage() {
             </div>
           )}
 
-          {/* 녹음 중 표시 */}
           {(phase === PHASE.ANSWERING || phase === PHASE.WARNING) && (
             <div className="is-rec-dot" />
           )}
         </div>
 
-        {/* 타이머 */}
         <div className="is-timer-wrap">
           <span className="is-timer" style={{ color: getTimerColor() }}>
             {formatTime(timeLeft)}
@@ -495,12 +487,10 @@ export default function InterviewSessionPage() {
           </span>
         </div>
 
-        {/* STT 처리 중 로딩 */}
         {sttLoading && (
           <div className="is-stt-loading">🎙️ 답변을 분석하고 있습니다...</div>
         )}
 
-        {/* 버튼 영역 */}
         <div className="is-btn-wrap">
           {phase === PHASE.PREP && (
             <>
@@ -542,7 +532,6 @@ export default function InterviewSessionPage() {
           )}
         </div>
 
-        {/* 기타 옵션 */}
         {phase === PHASE.ENDED && (
           <div className="is-extra-opts">
             <div className="is-divider">
