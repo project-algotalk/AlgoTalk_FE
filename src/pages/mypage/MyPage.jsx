@@ -1170,9 +1170,9 @@ function ActivityTab() {
                                                 <span>·</span>
                                                 <span>{item.nickname}</span>
                                                 <span>·</span>
-                                                <span>조회수 {item.viewCount ?? 0}</span>
-                                                <span>·</span>
                                                 <span>{item.createdAt?.slice(0, 10)}</span>
+                                                <span>·</span>
+                                                <span>조회수 {item.viewCount ?? 0}</span>
                                             </div>
                                             <div className="mp-activity-post-title">{item.postTitle}</div>
                                         </>
@@ -1184,9 +1184,9 @@ function ActivityTab() {
                                                 <span>·</span>
                                                 <span>{item.nickname}</span>
                                                 <span>·</span>
-                                                <span>조회수 {item.viewCount ?? 0}</span>
-                                                <span>·</span>
                                                 <span>{item.createdAt?.slice(0, 10)}</span>
+                                                <span>·</span>
+                                                <span>조회수 {item.viewCount ?? 0}</span>
                                             </div>
                                         </>
                                     )}
