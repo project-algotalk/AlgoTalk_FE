@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/common/Navbar";
 import AlertModal from "../../components/common/AlertModal";
+import ScrapSelectModal from '../../components/interview/ScrapSelectModal'
 import AnalyzingLoader from "../../components/common/AnalyzingLoader";
 import {
   fetchCsCategories,
@@ -26,6 +27,8 @@ export default function InterviewStartPage() {
   const [jobSubCategories, setJobSubCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [questionCount, setQuestionCount] = useState(3);
+  const [scrapQuestions, setScrapQuestions] = useState([])
+  const [showScrapModal, setShowScrapModal] = useState(false)
   const [loadingMyInfo, setLoadingMyInfo] = useState(false);
   const [manualQuestions, setManualQuestions] = useState([
     { id: Date.now(), categoryId: null, categoryName: "", questionText: "" },
@@ -121,7 +124,6 @@ export default function InterviewStartPage() {
   };
 
   const updateManualQuestion = (id, updates) => {
-    // 수정된 필드 에러 초기화
     setQuestionErrors((prev) => ({
       ...prev,
       [id]: {
@@ -189,15 +191,45 @@ export default function InterviewStartPage() {
       } finally {
         setLoading(false);
       }
-    } else {
-      setErrorModal({ message: "질문 불러오기는 준비 중입니다." });
+    } else if (mode === MODE.SCRAP) {
+      if (scrapQuestions.length === 0) {
+        setErrorModal({ message: '질문을 불러오세요.' })
+        return
+      }
+      setLoading(true)
+      try {
+        const session = await createManualSession({
+          questions: scrapQuestions.map(q => ({
+            categoryId: q.csCategoryId,
+            questionText: q.title,
+          }))
+        })
+        navigate('/interview/device-check', { state: { session } })
+      } catch (err) {
+        setErrorModal({
+          message: err.response?.data?.message || '세션 생성에 실패했습니다. 잠시 후 다시 시도해주세요.',
+        })
+      } finally {
+        setLoading(false)
+      }
     }
   };
 
+  const handleScrapConfirm = (selectedScraps) => {
+    const merged = [...scrapQuestions]
+    for (const s of selectedScraps) {
+      if (!merged.some(q => q.postId === s.postId) && merged.length < 5) {
+        merged.push(s)
+      }
+    }
+    setScrapQuestions(merged)
+    setShowScrapModal(false)
+  }
+
   if (loading) return (
     <div className="in-page">
-        <Navbar />
-        <AnalyzingLoader type="session" />
+      <Navbar />
+      <AnalyzingLoader type="session" />
     </div>
   );
 
@@ -257,7 +289,6 @@ export default function InterviewStartPage() {
                 <span className="in-section-sub">(최대 3개)</span>
               </p>
 
-              {/* 직무 공통 */}
               <p className="in-category-group-label">직무 공통</p>
               <div className="in-chips">
                 {commonCategories.map((c) => {
@@ -279,12 +310,10 @@ export default function InterviewStartPage() {
                 })}
               </div>
 
-              {/* 카테고리 에러 메시지 */}
               {categoryError && (
                 <p className="in-field-error">{categoryError}</p>
               )}
 
-              {/* 직무 특화 */}
               <div className="in-category-group-header">
                 <p className="in-category-group-label">직무 특화</p>
                 <button
@@ -327,7 +356,6 @@ export default function InterviewStartPage() {
               </div>
             </section>
 
-            {/* 질문 수 */}
             <section className="in-section">
               <p className="in-section-label">질문 수</p>
               <div className="in-chips">
@@ -430,7 +458,7 @@ export default function InterviewStartPage() {
 
             {manualQuestions.length < 5 && (
               <button className="in-add-btn" onClick={addManualQuestion}>
-                + 이력 추가
+                + 질문 추가
               </button>
             )}
           </section>
@@ -439,19 +467,56 @@ export default function InterviewStartPage() {
         {/* 스크랩 모드 */}
         {mode === MODE.SCRAP && (
           <section className="in-section">
-            <p style={{ color: "#aaa", fontSize: "0.875rem" }}>
-              준비 중입니다.
+            <p className="in-section-label">
+              질문지 <span className="in-section-sub">(최대 5개)</span>
             </p>
+            <div className="in-manual-list">
+              {scrapQuestions.map((q, idx) => (
+                <div key={q.postId} className="in-manual-card">
+                  <div className="in-manual-card-header">
+                    <span className="in-manual-card-title">질문 #{idx + 1}</span>
+                    <button
+                      className="in-manual-delete"
+                      onClick={() => setScrapQuestions(prev =>
+                        prev.filter(s => s.postId !== q.postId)
+                      )}
+                    >
+                      x 삭제
+                    </button>
+                  </div>
+                  <div style={{
+                    padding: '10px 12px',
+                    fontSize: '0.875rem',
+                    color: '#333',
+                    background: '#fafafa',
+                    border: '1.5px solid #e0e0e0',
+                    borderRadius: '8px',
+                    lineHeight: '1.5',
+                  }}>
+                    {q.title}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {scrapQuestions.length < 5 && (
+              <button
+                className="in-add-btn"
+                onClick={() => setShowScrapModal(true)}
+              >
+                + 불러오기
+              </button>
+            )}
           </section>
         )}
 
         <div className="in-footer">
           <button
-              className="in-start-btn"
-              onClick={handleStart}
-              disabled={loading}
+            className="in-start-btn"
+            onClick={handleStart}
+            disabled={loading}
           >
-              면접 시작
+            면접 시작
           </button>
         </div>
       </div>
@@ -463,6 +528,14 @@ export default function InterviewStartPage() {
           align="center"
           message={errorModal.message}
           onConfirm={() => setErrorModal(null)}
+        />
+      )}
+
+      {/* 스크랩 모달 */}
+      {showScrapModal && (
+        <ScrapSelectModal
+          onConfirm={handleScrapConfirm}
+          onCancel={() => setShowScrapModal(false)}
         />
       )}
     </div>
