@@ -1252,7 +1252,7 @@ function ActivityTab() {
                         p === '...'
                             ? <span key={`e-${i}`} className="mp-page-ellipsis">...</span>
                             : <button
-                                key={p}
+                                key={`page-${p}`}
                                 className={page === p ? 'active' : ''}
                                 onClick={() => setPage(p)}
                             >{p}</button>
