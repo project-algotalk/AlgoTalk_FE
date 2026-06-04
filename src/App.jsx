@@ -56,7 +56,8 @@ export default function App() {
             setInitializing(false)
             return
         }
-
+        
+        // checking 상태일 때만 (최초 방문 시) fetchMe() 호출
         try {
             const me = await fetchMe()
             if (!me) throw new Error('ME_EMPTY')

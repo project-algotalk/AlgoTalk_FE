@@ -58,16 +58,15 @@ export default function InterviewFeedbackPage() {
   const { sessionId, qNo } = useParams();
   const location = useLocation();
 
-  const [fetchedResult, setFetchedResult] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
   const stateResult = location.state?.result;
+
+  const [fetchedResult, setFetchedResult] = useState(null);
+  const [loading, setLoading] = useState(!stateResult);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     // state가 없으면 (직접 URL 접근) API 재조회
     if (!stateResult) {
-      setLoading(true);
       fetchSessionResult(sessionId)
         .then(setFetchedResult)
         .catch(() => setError("결과를 불러오는데 실패했습니다."))

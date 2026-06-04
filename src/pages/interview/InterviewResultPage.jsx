@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import Navbar from "../../components/common/Navbar";
 import AnalyzingLoader from "../../components/common/AnalyzingLoader";
@@ -73,8 +73,10 @@ export default function InterviewResultPage() {
 
   const [error, setError] = useState(null);
 
+  const loadingRef = useRef(!isResultComplete)
+
   useEffect(() => {
-    if (!loading) return;
+    if (!loadingRef.current) return;
 
     let pollCount = 0;
     const MAX_POLL = 5;
@@ -95,11 +97,13 @@ export default function InterviewResultPage() {
                     pollCount++;
                     setTimeout(fetchResult, POLL_INTERVAL);
                 } else {
+                    loadingRef.current = false
                     setLoading(false);
                 }
             })
             .catch(() => {
-                setError("결과를 불러오는데 실패했습니다.");
+              setError("결과를 불러오는데 실패했습니다.");
+              loadingRef.current = false
                 setLoading(false);
             });
     };

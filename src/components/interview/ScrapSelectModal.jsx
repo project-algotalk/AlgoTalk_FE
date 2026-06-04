@@ -13,21 +13,21 @@ export default function ScrapSelectModal({ onConfirm, onCancel }) {
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
+        const loadScraps = async () => {
+            setLoading(true)
+            try {
+                const data = await fetchMyScraps(page, PAGE_SIZE)
+                setScraps(data || [])
+                setTotalCount(data?.[0]?.totalCount || 0)
+            } catch (e) {
+                console.error(e)
+            } finally {
+                setLoading(false)
+            }
+        }
+
         loadScraps()
     }, [page])
-
-    const loadScraps = async () => {
-        setLoading(true)
-        try {
-            const data = await fetchMyScraps(page, PAGE_SIZE)
-            setScraps(data || [])
-            setTotalCount(data?.[0]?.totalCount || 0)
-        } catch (e) {
-            console.error(e)
-        } finally {
-            setLoading(false)
-        }
-    }
 
     const toggleSelect = (scrap) => {
         setSelected(prev => {
