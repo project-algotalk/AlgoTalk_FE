@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/common/Navbar";
 import AlertModal from "../../components/common/AlertModal";
@@ -31,12 +31,13 @@ export default function InterviewStartPage() {
   const [showScrapModal, setShowScrapModal] = useState(false)
   const [loadingMyInfo, setLoadingMyInfo] = useState(false);
   const [manualQuestions, setManualQuestions] = useState([
-    { id: Date.now(), categoryId: null, categoryName: "", questionText: "" },
+    { id: 1, categoryId: null, categoryName: "", questionText: "" },
   ]);
   const [loading, setLoading] = useState(false);
   const [errorModal, setErrorModal] = useState(null);
   const [categoryError, setCategoryError] = useState("");
   const [questionErrors, setQuestionErrors] = useState({});
+  const nextIdRef = useRef(2)
 
   useEffect(() => {
     fetchCsCategories().then((data) => {
@@ -109,7 +110,7 @@ export default function InterviewStartPage() {
     if (manualQuestions.length >= 5) return;
     setManualQuestions((prev) => [
       ...prev,
-      { id: Date.now(), categoryId: null, categoryName: "", questionText: "" },
+      { id: nextIdRef.current++, categoryId: null, categoryName: "", questionText: "" },
     ]);
   };
 

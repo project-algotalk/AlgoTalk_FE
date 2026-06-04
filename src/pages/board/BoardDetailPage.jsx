@@ -37,24 +37,24 @@ export default function BoardDetailPage() {
     const isAuthor = post && user && post.userId === user.userId
 
     useEffect(() => {
+        const loadAll = async () => {
+            setLoading(true)
+            try {
+                const [postData, commentData] = await Promise.all([
+                    fetchPostDetail(postId),
+                    fetchCommentList(postId),
+                ])
+                setPost(postData)
+                setComments(commentData || [])
+            } catch (e) {
+                console.error(e)
+            } finally {
+                setLoading(false)
+            }
+        }
+
         loadAll()
     }, [postId])
-
-    const loadAll = async () => {
-        setLoading(true)
-        try {
-            const [postData, commentData] = await Promise.all([
-                fetchPostDetail(postId),
-                fetchCommentList(postId),
-            ])
-            setPost(postData)
-            setComments(commentData || [])
-        } catch (e) {
-            console.error(e)
-        } finally {
-            setLoading(false)
-        }
-    }
 
     // ==================== 좋아요 / 스크랩 ====================
 

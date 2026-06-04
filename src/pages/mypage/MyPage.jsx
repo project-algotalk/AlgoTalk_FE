@@ -1016,32 +1016,32 @@ function ActivityTab() {
     const [loading, setLoading] = useState(false)
     const [selectedIds, setSelectedIds] = useState([])
     const [confirmModal, setConfirmModal] = useState(false)
+    const [refreshKey, setRefreshKey] = useState(0)
 
     const PAGE_SIZE = 10
 
     useEffect(() => {
-        loadItems()
-        setSelectedIds([])
-    }, [activeMenu, page])
-
-    const loadItems = async () => {
-        setLoading(true)
-        try {
-            let result
-            if (activeMenu === 'posts')    result = await fetchMyPosts(page, PAGE_SIZE)
-            if (activeMenu === 'comments') result = await fetchMyComments(page, PAGE_SIZE)
-            if (activeMenu === 'scraps')   result = await fetchMyScraps(page, PAGE_SIZE)
-            if (activeMenu === 'likes')    result = await fetchMyLikes(page, PAGE_SIZE)
-            setItems(result || [])
-            setTotalCount(result?.[0]?.totalCount || 0)
-        } catch (e) {
-            console.error(e)
-            setItems([])
-            setTotalCount(0)
-        } finally {
-            setLoading(false)
+        const loadItems = async () => {
+            setLoading(true)
+            try {
+                let result
+                if (activeMenu === 'posts')    result = await fetchMyPosts(page, PAGE_SIZE)
+                if (activeMenu === 'comments') result = await fetchMyComments(page, PAGE_SIZE)
+                if (activeMenu === 'scraps')   result = await fetchMyScraps(page, PAGE_SIZE)
+                if (activeMenu === 'likes')    result = await fetchMyLikes(page, PAGE_SIZE)
+                setItems(result || [])
+                setTotalCount(result?.[0]?.totalCount || 0)
+            } catch (e) {
+                console.error(e)
+                setItems([])
+                setTotalCount(0)
+            } finally {
+                setLoading(false)
+            }
         }
-    }
+
+        loadItems()
+    }, [activeMenu, page, refreshKey])
 
     const handleMenuChange = (menu) => {
         setActiveMenu(menu)
@@ -1074,8 +1074,9 @@ function ActivityTab() {
             if (activeMenu === 'likes')    await deleteMyLikes(selectedIds)
             setConfirmModal(false)
             setSelectedIds([])
-            setPage(1)
-            await loadItems()
+            setPage(1)  // page가 이미 1이면 effect가 재실행 안 될 수 있으므로
+            // refreshKey로 강제 리렌더링
+            setRefreshKey(prev => prev + 1)
         } catch (e) {
             console.error(e)
         }
@@ -1251,7 +1252,7 @@ function ActivityTab() {
                         p === '...'
                             ? <span key={`e-${i}`} className="mp-page-ellipsis">...</span>
                             : <button
-                                key={p}
+                                key={`page-${p}`}
                                 className={page === p ? 'active' : ''}
                                 onClick={() => setPage(p)}
                             >{p}</button>

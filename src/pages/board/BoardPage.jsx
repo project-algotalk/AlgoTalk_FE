@@ -46,42 +46,41 @@ export default function BoardPage() {
     }, [])
 
     useEffect(() => {
-        loadPosts()
-    }, [activeTab, keyword, searchType, selectedDepth1Id, selectedDepth2Id, page])
+        const loadPosts = async () => {
+            setLoading(true)
+            try {
+                const childIds = csCategories
+                    .filter(c => c.parentId === selectedDepth1Id && c.depth === 2)
+                    .map(c => c.categoryId)
 
-    const loadPosts = async () => {
-        setLoading(true)
-        try {
-            // depth1 선택 시 하위 depth2 ID 목록 수집
-            const childIds = csCategories
-                .filter(c => c.parentId === selectedDepth1Id && c.depth === 2)
-                .map(c => c.categoryId)
-
-            const params = {
-                categoryCd: TABS[activeTab].categoryCd,
-                keyword: keyword || undefined,
-                searchType: keyword ? searchType : undefined,
-                ...(selectedDepth2Id
-                    ? { csCategoryId: selectedDepth2Id }        // depth2 선택 시 단일 ID
-                    : selectedDepth1Id && childIds.length > 0
-                        ? { csCategoryIds: childIds }           // depth1 선택 + 하위 있음 → 배열
-                        : selectedDepth1Id
-                            ? { csCategoryId: selectedDepth1Id } // depth1 선택 + 하위 없음 (직무 공통)
-                            : {}),                              // 선택 없음
-                page,
-                size: PAGE_SIZE,
+                const params = {
+                    categoryCd: TABS[activeTab].categoryCd,
+                    keyword: keyword || undefined,
+                    searchType: keyword ? searchType : undefined,
+                    ...(selectedDepth2Id
+                        ? { csCategoryId: selectedDepth2Id }
+                        : selectedDepth1Id && childIds.length > 0
+                            ? { csCategoryIds: childIds }
+                            : selectedDepth1Id
+                                ? { csCategoryId: selectedDepth1Id }
+                                : {}),
+                    page,
+                    size: PAGE_SIZE,
+                }
+                const result = await fetchPostList(params)
+                setPosts(result || [])
+                setTotalCount(result?.[0]?.totalCount || 0)
+            } catch (e) {
+                console.error(e)
+                setPosts([])
+                setTotalCount(0)
+            } finally {
+                setLoading(false)
             }
-            const result = await fetchPostList(params)
-            setPosts(result || [])
-            setTotalCount(result?.[0]?.totalCount || 0)
-        } catch (e) {
-            console.error(e)
-            setPosts([])
-            setTotalCount(0)
-        } finally {
-            setLoading(false)
         }
-    }
+
+        loadPosts()
+    }, [activeTab, keyword, searchType, selectedDepth1Id, selectedDepth2Id, page, csCategories])
 
     const commonChildren = csCategories.filter(c => c.depth === 1 && c.categoryType === 'COMMON_CS')
     const jobChildren = csCategories.filter(c =>

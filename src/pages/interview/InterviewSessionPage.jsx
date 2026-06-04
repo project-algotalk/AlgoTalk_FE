@@ -38,6 +38,8 @@ export default function InterviewSessionPage() {
   const phaseRef = useRef(PHASE.PREP);
   const timeLeftRef = useRef(PREP_TIME);
   const isSkippingRef = useRef(false);
+  const questionsRef = useRef(questions);
+  const sessionRef = useRef(session);
 
   const currentQuestion = questions[currentIdx];
   const isLastQuestion = currentIdx === questions.length - 1;
@@ -184,72 +186,74 @@ export default function InterviewSessionPage() {
   }, [initMediaPipe, closeMediaPipe]);
 
   useEffect(() => {
-    clearInterval(timerRef.current);
-    if (phase === PHASE.ENDED) return;
-
-    timerRef.current = setInterval(() => {
-      const nextTime = Math.max(timeLeftRef.current - 1, 0);
-      timeLeftRef.current = nextTime;
-      setTimeLeft(nextTime);
-
-      if (phaseRef.current === PHASE.ANSWERING && nextTime <= WARNING_TIME) {
-        setPhase(PHASE.WARNING);
-        phaseRef.current = PHASE.WARNING;
-      }
-
-      if (nextTime !== 0) return;
       clearInterval(timerRef.current);
+      if (phase === PHASE.ENDED) return;
 
-      if (phaseRef.current === PHASE.PREP) {
-        setPhase(PHASE.ANSWERING);
-        phaseRef.current = PHASE.ANSWERING;
-        setTimeLeft(ANSWER_TIME);
-        timeLeftRef.current = ANSWER_TIME;
-        startRecording();
-        return;
-      }
+      timerRef.current = setInterval(() => {
+          const nextTime = Math.max(timeLeftRef.current - 1, 0);
+          timeLeftRef.current = nextTime;
+          setTimeLeft(nextTime);
 
-      if (
-        phaseRef.current === PHASE.ANSWERING ||
-        phaseRef.current === PHASE.WARNING
-      ) {
-        setPhase(PHASE.ENDED);
-        phaseRef.current = PHASE.ENDED;
-        stopRecordingAndTranscribe(
-            currentQuestionRef.current?.sessionQuestionId,
-            currentQuestionRef.current?.questionText,
-            currentQuestionRef.current?.questionKeywords,
-        ).then(() => {
-          if (isMountedRef.current) {
-            setCurrentIdx((prev) => {
-              const nextIdx = prev + 1;
-              if (nextIdx >= questions.length) {
-                stopStream();
-                completeSession(session.sessionId).then(() => {
-                  navigate(`/interview/result/${session.sessionId}`, {
-                    state: { session },
-                  });
-                }).catch((err) => {
-                  console.error("세션 완료 처리 실패:", err);
-                  navigate(`/interview/result/${session.sessionId}`, {
-                    state: { session },
-                  });
-                });
-              } else {
-                setPhase(PHASE.PREP);
-                phaseRef.current = PHASE.PREP;
-                setTimeLeft(PREP_TIME);
-                timeLeftRef.current = PREP_TIME;
-              }
-              return nextIdx >= questions.length ? prev : nextIdx;
-            });
+          if (phaseRef.current === PHASE.ANSWERING && nextTime <= WARNING_TIME) {
+              setPhase(PHASE.WARNING);
+              phaseRef.current = PHASE.WARNING;
           }
-        });
-      }
-    }, 1000);
 
-    return () => clearInterval(timerRef.current);
-  }, [phase, currentQuestion?.sessionQuestionId, stopRecordingAndTranscribe]);
+          if (nextTime !== 0) return;
+          clearInterval(timerRef.current);
+
+          if (phaseRef.current === PHASE.PREP) {
+              setPhase(PHASE.ANSWERING);
+              phaseRef.current = PHASE.ANSWERING;
+              setTimeLeft(ANSWER_TIME);
+              timeLeftRef.current = ANSWER_TIME;
+              startRecording();
+              return;
+          }
+
+          if (
+              phaseRef.current === PHASE.ANSWERING ||
+              phaseRef.current === PHASE.WARNING
+          ) {
+              setPhase(PHASE.ENDED);
+              phaseRef.current = PHASE.ENDED;
+              stopRecordingAndTranscribe(
+                  currentQuestionRef.current?.sessionQuestionId,
+                  currentQuestionRef.current?.questionText,
+                  currentQuestionRef.current?.questionKeywords,
+              ).then(() => {
+                  if (isMountedRef.current) {
+                      setCurrentIdx((prev) => {
+                          const nextIdx = prev + 1;
+                          if (nextIdx >= questionsRef.current.length) {  // ← questions → questionsRef.current
+                              stopStream();
+                              completeSession(sessionRef.current.sessionId)  // ← session → sessionRef.current
+                                  .then(() => {
+                                      navigate(`/interview/result/${sessionRef.current.sessionId}`, {
+                                          state: { session: sessionRef.current },
+                                      });
+                                  }).catch((err) => {
+                                      console.error("세션 완료 처리 실패:", err);
+                                      navigate(`/interview/result/${sessionRef.current.sessionId}`, {
+                                          state: { session: sessionRef.current },
+                                      });
+                                  });
+                          } else {
+                              setPhase(PHASE.PREP);
+                              phaseRef.current = PHASE.PREP;
+                              setTimeLeft(PREP_TIME);
+                              timeLeftRef.current = PREP_TIME;
+                          }
+                          return nextIdx >= questionsRef.current.length ? prev : nextIdx;
+                      });
+                  }
+              });
+          }
+      }, 1000);
+
+      return () => clearInterval(timerRef.current);
+  }, [phase, currentQuestion?.sessionQuestionId, stopRecordingAndTranscribe, navigate])
+  //                                                                           ^^^^^^^^ navigate 추가
 
   function stopStream() {
     if (streamRef.current) {
