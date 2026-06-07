@@ -2,8 +2,143 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import useAuthStore from '../../store/authStore'
 import api from '../../api/axiosInstance'
-import './Navbar.css'
+import styled from 'styled-components'
 import AlertModal from './AlertModal'
+
+const Nav = styled.nav`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  height: 56px;
+  background: #ffffff;
+  border-bottom: 1px solid #e8edf5;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-sizing: border-box;
+`
+
+const Logo = styled(Link)`
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #0F2854;
+  text-decoration: none;
+  letter-spacing: -0.5px;
+`
+
+const Menu = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 28px;
+
+  @media (max-width: 650px) {
+    display: none;
+  }
+`
+
+const NavLink = styled(Link)`
+  font-size: 0.9rem;
+  color: #444;
+  text-decoration: none;
+  transition: color 0.15s;
+
+  &:hover {
+    color: #1C4D8D;
+  }
+`
+
+const NavLinkUser = styled(NavLink)`
+  color: #1C4D8D;
+  font-weight: 600;
+`
+
+const NavBtn = styled.button`
+  background: #0F2854;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 18px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Noto Sans KR', sans-serif;
+  transition: background 0.15s;
+
+  &:hover {
+    background: #1C4D8D;
+  }
+`
+
+const Hamburger = styled.button`
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+
+  span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: #0F2854;
+    border-radius: 2px;
+  }
+
+  @media (max-width: 650px) {
+    display: flex;
+  }
+`
+
+const MobileMenu = styled.div`
+  display: none;
+  flex-direction: column;
+  background: #fff;
+  border-bottom: 1px solid #e8edf5;
+  padding: 12px 24px;
+  gap: 4px;
+  position: sticky;
+  top: 56px;
+  z-index: 99;
+
+  @media (max-width: 650px) {
+    display: flex;
+  }
+`
+
+const MobileLink = styled(Link)`
+  font-size: 0.9rem;
+  color: #444;
+  text-decoration: none;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f0f0;
+
+  &:last-of-type {
+    border-bottom: none;
+  }
+`
+
+const MobileBtn = styled.button`
+  background: #0F2854;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 18px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Noto Sans KR', sans-serif;
+  margin-top: 8px;
+  width: 100%;
+
+  &:hover {
+    background: #1C4D8D;
+  }
+`
 
 export default function Navbar() {
   const navigate = useNavigate()
@@ -16,7 +151,6 @@ export default function Navbar() {
     try {
       await api.post('/user/v1/logout')
     } catch (e) {
-      // 로그아웃 API 실패해도 프론트 상태는 초기화
       console.error('로그아웃 API 실패:', e)
     } finally {
       sessionStorage.setItem('logged-out', 'true')
@@ -28,63 +162,47 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="navbar">
-        <Link to="/" className="navbar-logo">AlgoTalk</Link>
+      <Nav>
+        <Logo to="/">AlgoTalk</Logo>
 
-        {/* 햄버거 버튼 (650px 이하) */}
-        <button
-          className="navbar-hamburger"
+        <Hamburger
           onClick={() => setMenuOpen(prev => !prev)}
           aria-label="메뉴 열기"
         >
           <span />
           <span />
           <span />
-        </button>
+        </Hamburger>
 
-        {/* 데스크탑 메뉴 */}
-        <div className="navbar-menu">
-          <Link to="/interview" className="navbar-link">면접 보기</Link>
-          <Link to="/board" className="navbar-link">게시판</Link>
-          <Link to="/dashboard" className="navbar-link">dashboard</Link>
+        <Menu>
+          <NavLink to="/interview">면접 보기</NavLink>
+          <NavLink to="/board">게시판</NavLink>
+          <NavLink to="/dashboard">dashboard</NavLink>
           {isLoggedIn ? (
             <>
-              <Link to="/mypage" className="navbar-link navbar-username">
-                {user?.nickname}님
-              </Link>
-              <button className="navbar-btn" onClick={() => setShowLogoutModal(true)}>
-                로그아웃
-              </button>
+              <NavLinkUser to="/mypage">{user?.nickname}님</NavLinkUser>
+              <NavBtn onClick={() => setShowLogoutModal(true)}>로그아웃</NavBtn>
             </>
           ) : (
-            <button className="navbar-btn" onClick={() => navigate('/login')}>
-              로그인
-            </button>
+            <NavBtn onClick={() => navigate('/login')}>로그인</NavBtn>
           )}
-        </div>
-      </nav>
+        </Menu>
+      </Nav>
 
-      {/* 모바일 드롭다운 메뉴 */}
       {menuOpen && (
-        <div className="navbar-mobile-menu">
-          <Link to="/interview" className="navbar-mobile-link" onClick={() => setMenuOpen(false)}>면접 보기</Link>
-          <Link to="/board" className="navbar-mobile-link" onClick={() => setMenuOpen(false)}>게시판</Link>
-          <Link to="/dashboard" className="navbar-mobile-link" onClick={() => setMenuOpen(false)}>dashboard</Link>
+        <MobileMenu>
+          <MobileLink to="/interview" onClick={() => setMenuOpen(false)}>면접 보기</MobileLink>
+          <MobileLink to="/board" onClick={() => setMenuOpen(false)}>게시판</MobileLink>
+          <MobileLink to="/dashboard" onClick={() => setMenuOpen(false)}>dashboard</MobileLink>
           {isLoggedIn ? (
             <>
-              <Link to="/mypage" className="navbar-mobile-link navbar-username" onClick={() => setMenuOpen(false)}>
-                {user?.nickname}님
-              </Link>
-              <button className="navbar-mobile-btn" onClick={() => { setMenuOpen(false); setShowLogoutModal(true) }}>
-                로그아웃
-              </button>
+              <MobileLink to="/mypage" onClick={() => setMenuOpen(false)}>{user?.nickname}님</MobileLink>
+              <MobileBtn onClick={() => { setMenuOpen(false); setShowLogoutModal(true) }}>로그아웃</MobileBtn>
             </>
           ) : (
-            <button className="navbar-mobile-btn" onClick={() => { setMenuOpen(false); navigate('/login') }}>
-              로그인
-            </button>
+            <MobileBtn onClick={() => { setMenuOpen(false); navigate('/login') }}>로그인</MobileBtn>
           )}
-        </div>
+        </MobileMenu>
       )}
 
       {showLogoutModal && (
