@@ -13,7 +13,7 @@ import {
     updateLoginId, updatePassword, setPassword,
     updateNickname, updateName, updateAddr,
     sendEmailCode, verifyEmailCode, updateEmail,
-    issueLinkToken, unlinkSocial,
+    issueLinkToken, unlinkSocial, logoutAllDevices,
     updateTargetJobs, updateEmployments,
     withdraw,
     fetchMyPosts, deleteMyPosts,
@@ -1293,7 +1293,7 @@ function ActivityTab() {
 export default function MyPage() {
     const navigate = useNavigate()
     const location = useLocation()
-    const { user, login } = useAuthStore()
+    const { user, login, logout } = useAuthStore()
     const [tab, setTab] = useState('account')
     const handleTabChange = (newTab) => {
         setTab(newTab)
@@ -1368,6 +1368,18 @@ export default function MyPage() {
     const handleUnlinkSuccess = (provider) => {
         setInfo(p => ({ ...p, socialProviders: p.socialProviders.filter(sp => sp !== provider) }))
         setModal(null)
+    }
+
+    const handleLogoutAll = async () => {
+        try {
+            await logoutAllDevices()
+            sessionStorage.setItem('logged-out', 'true')
+            logout()
+            navigate('/', { replace: true })
+        } catch (err) {
+            setModal(null)
+            setResultModal({ type: 'error', message: parseError(err, '모든 기기 로그아웃에 실패했습니다.') })
+        }
     }
 
     if (loading) return (
@@ -1477,6 +1489,16 @@ export default function MyPage() {
                                             </button>
                                         ))}
                                     </div>
+                                </div>
+
+                                <div className="mp-row">
+                                    <span className="mp-row-label">로그인 세션</span>
+                                    <span className="mp-row-value" style={{ fontSize: '0.875rem', color: '#888' }}>
+                                        모든 기기의 로그인 세션을 종료합니다.
+                                    </span>
+                                    <button className="mp-row-btn danger" onClick={() => setModal('logoutAll')}>
+                                        모든 기기 로그아웃
+                                    </button>
                                 </div>
                             </div>
                         </>
@@ -1626,6 +1648,26 @@ export default function MyPage() {
                     onClose={() => setModal(null)}
                     onSuccess={() => setModal(null)}  // alert 제거
                 />
+            )}
+
+            {modal === 'logoutAll' && (
+                <BaseModal
+                    title="모든 기기 로그아웃"
+                    onClose={() => setModal(null)}
+                    actions={
+                        <div className="mp-modal-btn-row">
+                            <button className="mp-modal-btn" onClick={() => setModal(null)}>취소</button>
+                            <button className="mp-modal-btn danger" onClick={handleLogoutAll}>
+                                {loading ? '처리 중...' : '로그아웃'}
+                            </button>
+                        </div>
+                    }
+                >
+                    <p className="mp-modal-help-text">
+                        모든 기기의 로그인 세션이 종료됩니다.<br />
+                        현재 기기도 로그아웃됩니다.
+                    </p>
+                </BaseModal>
             )}
 
             {modal === 'nickname' && (
