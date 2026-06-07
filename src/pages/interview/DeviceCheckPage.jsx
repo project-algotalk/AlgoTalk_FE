@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import './DeviceCheckPage.css'
 
 export default function DeviceCheckPage() {
   const navigate = useNavigate()

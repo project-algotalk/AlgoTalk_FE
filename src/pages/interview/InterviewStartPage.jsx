@@ -10,7 +10,6 @@ import {
   createManualSession,
 } from "../../api/interviewApi";
 import { fetchTargetJobs } from "../../api/myPageApi";
-import "./InterviewStartPage.css";
 
 const MODE = {
   LLM: "llm",

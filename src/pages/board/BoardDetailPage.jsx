@@ -13,7 +13,6 @@ import {
 } from '../../api/boardApi'
 import useAuthStore from '../../store/authStore'
 import { Heart, Bookmark, MessageCircle, Eye } from 'lucide-react'
-import './BoardDetailPage.css'
 
 export default function BoardDetailPage() {
     const { postId } = useParams()

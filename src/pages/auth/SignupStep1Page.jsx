@@ -2,7 +2,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../../api/axiosInstance'
-import './SignupStep1Page.css'
 import AlertModal from '../../components/common/AlertModal'
 
 const RULES = {

@@ -2,7 +2,6 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import api from '../../api/axiosInstance'
-import './FindAccountPage.css'
 import AlertModal from '../../components/common/AlertModal'
 
 const EMAIL_DOMAINS = [

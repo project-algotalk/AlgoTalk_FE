@@ -3,8 +3,6 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../../api/axiosInstance'
 import { fetchCategories } from '../../api/csCategoryApi'
-import './SignupStep3Page.css'
-import '../../styles/jobForm.css'
 
 // 날짜 자동 포맷 (숫자 입력 -> YYYY.MM.DD)
 const autoFormatDate = (val) => {

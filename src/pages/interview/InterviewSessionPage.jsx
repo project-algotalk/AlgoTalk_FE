@@ -3,8 +3,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { transcribeAudio, saveAnswer, completeSession } from "../../api/interviewApi";
 import { useMediaPipeAnalysis } from "../../hooks/useMediaPipeAnalysis";
 
-import "./InterviewSessionPage.css";
-
 const IS_DEBUG = import.meta.env.VITE_MEDIAPIPE_DEBUG === 'true'
 
 const PHASE = {

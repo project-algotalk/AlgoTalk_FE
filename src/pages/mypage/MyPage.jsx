@@ -22,8 +22,6 @@ import {
     fetchMyLikes, deleteMyLikes,
 } from '../../api/myPageApi'
 import { Heart, Bookmark, MessageCircle, Eye } from 'lucide-react'
-import './MyPage.css'
-import '../../styles/jobForm.css'
 
 // 공통 에러 메시지 파싱
 const parseError = (err, fallback = '처리에 실패했습니다.') => {

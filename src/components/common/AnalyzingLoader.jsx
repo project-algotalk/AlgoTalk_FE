@@ -1,5 +1,3 @@
-import "./AnalyzingLoader.css";
-
 const STEPS = {
     session: [
         { label: "카테고리 분석 중", status: "done" },

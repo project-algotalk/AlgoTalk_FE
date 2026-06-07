@@ -2,8 +2,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { fetchCategories } from '../../api/csCategoryApi'
-import './SignupStep2Page.css'
-import '../../styles/jobForm.css'
 
 const MAX_SELECT = 3
 

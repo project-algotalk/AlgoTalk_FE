@@ -1,6 +1,4 @@
 // 결과/알림 전용 모달
-import './AlertModal.css'
-
 export default function AlertModal({
   type = 'success',
   title,

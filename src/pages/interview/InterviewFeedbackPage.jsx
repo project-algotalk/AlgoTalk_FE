@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import Navbar from "../../components/common/Navbar";
 import { fetchSessionResult } from "../../api/interviewApi";
-import "./InterviewFeedbackPage.css";
 
 const STATUS_LABEL = {
   ANSWERED: { text: "답변", color: "#4caf50" },

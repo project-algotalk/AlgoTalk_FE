@@ -3,7 +3,6 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import Navbar from "../../components/common/Navbar";
 import AnalyzingLoader from "../../components/common/AnalyzingLoader";
 import { fetchSessionResult } from "../../api/interviewApi";
-import "./InterviewResultPage.css";
 
 const STATUS_LABEL = {
   ANSWERED: { text: "답변", color: "#4caf50" },

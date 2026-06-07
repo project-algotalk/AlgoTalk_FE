@@ -5,7 +5,6 @@ import { fetchPostList } from '../../api/boardApi'
 import { fetchCategories } from '../../api/csCategoryApi'
 import useAuthStore from '../../store/authStore'
 import { Heart, Bookmark, MessageCircle, Eye } from 'lucide-react'
-import './BoardPage.css'
 
 const TABS = [
     { label: '질문공유', categoryCd: 'QUESTION' },

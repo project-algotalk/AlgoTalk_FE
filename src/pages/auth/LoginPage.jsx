@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import useAuthStore from '../../store/authStore'
 import { loginWithCredentials } from '../../api/authApi'
-import './LoginPage.css'
 
 export default function LoginPage() {
   const navigate = useNavigate()

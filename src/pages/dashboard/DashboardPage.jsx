@@ -8,7 +8,6 @@ import {
     LineChart, Line, XAxis, YAxis, CartesianGrid,
     Tooltip, ResponsiveContainer
 } from 'recharts'
-import './DashboardPage.css'
 
 const PAGE_SIZE = 5
 

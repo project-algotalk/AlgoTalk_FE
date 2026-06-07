@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Bookmark, MessageCircle } from 'lucide-react'
 import { fetchMyScraps } from '../../api/myPageApi'
-import './ScrapSelectModal.css'
 
 const PAGE_SIZE = 10
 

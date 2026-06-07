@@ -3,9 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import Navbar from '../../components/common/Navbar'
 import { fetchPostDetail, createPost, updatePost } from '../../api/boardApi'
 import { fetchCategories } from '../../api/csCategoryApi'
-import useAuthStore from '../../store/authStore'
 import AlertModal from '../../components/common/AlertModal'
-import './BoardWritePage.css'
 
 const BOARD_CATEGORIES = [
     { label: '질문공유', categoryId: 1, categoryCd: 'QUESTION' },
