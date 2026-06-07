@@ -48,8 +48,10 @@ export const deletePost = async (postId) => {
 // ==================== 댓글 ====================
 
 // 댓글 목록 조회
-export const fetchCommentList = async (postId) => {
-    const { data } = await api.get(`/community/v1/posts/${postId}/comments`)
+export const fetchCommentList = async (postId, sortType = 'ASC') => {
+    const { data } = await api.get(`/community/v1/posts/${postId}/comments`, {
+        params: { sortType }
+    })
     return data?.data
 }
 

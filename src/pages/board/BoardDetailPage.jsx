@@ -22,6 +22,7 @@ export default function BoardDetailPage() {
 
     const [post, setPost] = useState(null)
     const [comments, setComments] = useState([])
+    const [sortType, setSortType] = useState('ASC')
     const [loading, setLoading] = useState(true)
 
     // 댓글 입력
@@ -42,7 +43,7 @@ export default function BoardDetailPage() {
             try {
                 const [postData, commentData] = await Promise.all([
                     fetchPostDetail(postId),
-                    fetchCommentList(postId),
+                    fetchCommentList(postId, sortType),
                 ])
                 setPost(postData)
                 setComments(commentData || [])
@@ -54,7 +55,7 @@ export default function BoardDetailPage() {
         }
 
         loadAll()
-    }, [postId])
+    }, [postId, sortType])
 
     // ==================== 좋아요 / 스크랩 ====================
 
@@ -105,7 +106,7 @@ export default function BoardDetailPage() {
         try {
             await createComment(postId, { content: commentInput })
             setCommentInput('')
-            const updated = await fetchCommentList(postId)
+            const updated = await fetchCommentList(postId, sortType)
             setComments(updated || [])
         } catch (e) {
             console.error(e)
@@ -121,7 +122,7 @@ export default function BoardDetailPage() {
             await createComment(postId, { content, parentId })
             setReplyInputs(prev => ({ ...prev, [parentId]: '' }))
             setOpenReplyIds(prev => ({ ...prev, [parentId]: false }))
-            const updated = await fetchCommentList(postId)
+            const updated = await fetchCommentList(postId, sortType)
             setComments(updated || [])
         } catch (e) {
             console.error(e)
@@ -144,7 +145,7 @@ export default function BoardDetailPage() {
                 delete next[commentId]
                 return next
             })
-            const updated = await fetchCommentList(postId)
+            const updated = await fetchCommentList(postId, sortType)
             setComments(updated || [])
         } catch (e) {
             console.error(e)
@@ -157,7 +158,7 @@ export default function BoardDetailPage() {
         if (!window.confirm('댓글을 삭제하시겠습니까?')) return
         try {
             await deleteComment(postId, commentId)
-            const updated = await fetchCommentList(postId)
+            const updated = await fetchCommentList(postId, sortType)
             setComments(updated || [])
         } catch (e) {
             console.error(e)
@@ -273,8 +274,18 @@ export default function BoardDetailPage() {
                 {/* 댓글 목록 */}
                 <div className="board-detail-comments">
                     <div className="board-comment-header">
-                        <span className="board-comment-sort">등록순</span>
-                        <span className="board-comment-sort">최신순</span>
+                        <span
+                            className={`board-comment-sort ${sortType === 'ASC' ? 'active' : ''}`}
+                            onClick={() => setSortType('ASC')}
+                        >
+                            등록순
+                        </span>
+                        <span
+                            className={`board-comment-sort ${sortType === 'DESC' ? 'active' : ''}`}
+                            onClick={() => setSortType('DESC')}
+                        >
+                            최신순
+                        </span>
                     </div>
 
                     {commentTree.map(comment => (

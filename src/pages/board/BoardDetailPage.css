@@ -322,6 +322,21 @@
 
 .board-comment-edit-wrap {
     margin-bottom: 6px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 12px;
+    background: white;
+}
+
+.board-comment-edit-wrap .board-comment-textarea {
+    min-height: 60px;
+    color: #333;
+}
+
+.board-comment-edit-wrap .board-comment-submit-btn {
+    display: flex;
+    margin-top: 8px;
+    margin-left: auto;
 }
 
 /* 하단 버튼 */
