@@ -800,8 +800,8 @@ function EmploymentSection({ initialEmployments, onSuccess, onCancel }) {
             ? initialEmployments.map((emp, i) => ({
                 id: i,
                 companyName: emp.companyName || '',
-                categoryId: emp.employmentCategoryId || null,
-                categoryName: emp.employmentCategoryName || '',
+                categoryId: emp.categoryId  || null,
+                categoryName: emp.categoryName  || '',
                 startDate: emp.startDate?.replace(/-/g, '.') || '',
                 endDate: emp.endDate === '9999-12-31' || !emp.endDate
                     ? '' : emp.endDate?.replace(/-/g, '.'),
@@ -989,8 +989,8 @@ function EmploymentSection({ initialEmployments, onSuccess, onCancel }) {
                     initialEmployments.length > 0
                         ? initialEmployments.map((emp, i) => ({
                             id: i, companyName: emp.companyName || '',
-                            categoryId: emp.employmentCategoryId || null,
-                            categoryName: emp.employmentCategoryName || '',
+                            categoryId: emp.categoryId  || null,
+                            categoryName: emp.categoryName  || '',
                             startDate: emp.startDate?.replace(/-/g, '.') || '',
                             endDate: emp.endDate === '9999-12-31' || !emp.endDate ? '' : emp.endDate?.replace(/-/g, '.'),
                             isCurrently: !emp.endDate || emp.endDate === '9999-12-31',
