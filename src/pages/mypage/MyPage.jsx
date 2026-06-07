@@ -1166,15 +1166,21 @@ function ActivityTab() {
                                     {activeMenu === 'comments' ? (
                                         <>
                                             <div className="mp-activity-title">{item.content}</div>
-                                            <div className="mp-activity-meta">
-                                                <span>{item.categoryName}</span>
-                                                <span>·</span>
-                                                <span>{item.nickname}</span>
-                                                <span>·</span>
-                                                <span>{item.createdAt?.slice(0, 10)}</span>
-                                                <span>·</span>
-                                                <span>조회수 {item.viewCount ?? 0}</span>
-                                            </div>
+                                            {item.postDeletedYn === 'N' ? (
+                                                <div className="mp-activity-meta">
+                                                    <span>{item.categoryName}</span>
+                                                    <span>·</span>
+                                                    <span>{item.nickname}</span>
+                                                    <span>·</span>
+                                                    <span>{item.updatedAt?.slice(0, 10)}</span>
+                                                    <span>·</span>
+                                                    <span>조회수 {item.viewCount ?? 0}</span>
+                                                </div>
+                                            ) : (
+                                                <div className="mp-activity-meta">
+                                                    <span>{item.updatedAt?.slice(0, 10)}</span>
+                                                </div>
+                                            )}
                                             <div className="mp-activity-post-title">{item.postTitle}</div>
                                         </>
                                     ) : (
@@ -1198,12 +1204,17 @@ function ActivityTab() {
                                             <Heart size={13} /> {item.likeCount ?? 0}
                                         </span>
                                     )}
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                                        <Bookmark size={13} /> {item.scrapCount ?? 0}
-                                    </span>
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                                        <MessageCircle size={13} /> {item.commentCount ?? 0}
-                                    </span>
+                                    {/* postDeletedYn = 'Y'면 스크랩수, 댓글수 숨김 */}
+                                    {!(activeMenu === 'comments' && item.postDeletedYn === 'Y') && (
+                                        <>
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                                                <Bookmark size={13} /> {item.scrapCount ?? 0}
+                                            </span>
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                                                <MessageCircle size={13} /> {item.commentCount ?? 0}
+                                            </span>
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         )
