@@ -177,7 +177,7 @@ export default function Navbar() {
         <Menu>
           <NavLink to="/interview">면접 보기</NavLink>
           <NavLink to="/board">게시판</NavLink>
-          <NavLink to="/dashboard">dashboard</NavLink>
+          <NavLink to="/dashboard">대시보드</NavLink>
           {isLoggedIn ? (
             <>
               <NavLinkUser to="/mypage">{user?.nickname}님</NavLinkUser>

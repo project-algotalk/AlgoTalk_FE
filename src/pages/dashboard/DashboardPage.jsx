@@ -19,20 +19,26 @@ export default function DashboardPage() {
     const [page, setPage] = useState(1)
 
     useEffect(() => {
-        loadDashboard()
-    }, [page])
+        let isCurrentPage = true
 
-    const loadDashboard = async () => {
-        setLoading(true)
-        try {
-            const data = await fetchDashboard(page, PAGE_SIZE)
-            setDashboard(data)
-        } catch (e) {
-            console.error(e)
-        } finally {
-            setLoading(false)
+        const loadDashboard = async () => {
+            setLoading(true)
+            try {
+                const data = await fetchDashboard(page, PAGE_SIZE)
+                if (isCurrentPage) setDashboard(data)
+            } catch (e) {
+                console.error(e)
+            } finally {
+                if (isCurrentPage) setLoading(false)
+            }
         }
-    }
+
+        loadDashboard()
+
+        return () => {
+            isCurrentPage = false
+        }
+    }, [page])
 
     const totalPages = Math.ceil((dashboard?.totalCount || 0) / PAGE_SIZE)
 
