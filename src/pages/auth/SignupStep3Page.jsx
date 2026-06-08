@@ -3,10 +3,8 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../../api/axiosInstance'
 import { fetchCategories } from '../../api/csCategoryApi'
-import './SignupStep3Page.css'
-import '../../styles/jobForm.css'
 
-// 날짜 자동 포맷 (숫자 입력 → YYYY.MM.DD)
+// 날짜 자동 포맷 (숫자 입력 -> YYYY.MM.DD)
 const autoFormatDate = (val) => {
   const digits = val.replace(/\D/g, '').slice(0, 8)
   if (digits.length <= 4) return digits
@@ -14,7 +12,7 @@ const autoFormatDate = (val) => {
   return `${digits.slice(0,4)}.${digits.slice(4,6)}.${digits.slice(6)}`
 }
 
-// YYYY.MM.DD → YYYY-MM-DD (백엔드 전송용)
+// YYYY.MM.DD -> YYYY-MM-DD (백엔드 전송용)
 const formatDate = (val) => {
   if (!val) return null
   if (/^\d{4}-\d{2}-\d{2}$/.test(val)) return val

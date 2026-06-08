@@ -56,7 +56,8 @@ export default function App() {
             setInitializing(false)
             return
         }
-
+        
+        // checking 상태일 때만 (최초 방문 시) fetchMe() 호출
         try {
             const me = await fetchMe()
             if (!me) throw new Error('ME_EMPTY')
@@ -127,7 +128,7 @@ export default function App() {
           <Route path="/interview/device-check" element={<DeviceCheckPage />} />
           <Route path="/interview/session" element={<InterviewSessionPage />} />
           <Route path="/interview/result/:sessionId" element={<InterviewResultPage />} />
-          <Route path="/interview/result/:sessionId/q/:qNo" element={<InterviewFeedbackPage />} />
+          <Route path="/interview/result/:sessionId/questions/:qNo" element={<InterviewFeedbackPage />} />
           <Route path="/board/write" element={<BoardWritePage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/mypage" element={<MyPage />} />

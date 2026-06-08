@@ -2,7 +2,6 @@ import Spline from '@splinetool/react-spline'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../../components/common/Navbar'
-import './MainPage.css'
 
 export default function MainPage() {
   const navigate = useNavigate()

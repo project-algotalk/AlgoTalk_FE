@@ -1,7 +1,6 @@
 // src/pages/auth/SignupCompletePage.jsx
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import './SignupCompletePage.css'
 
 export default function SignupCompletePage() {
   const navigate = useNavigate()
