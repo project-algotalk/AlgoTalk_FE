@@ -1,6 +1,6 @@
 // src/pages/auth/FindAccountPage.jsx
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useLocation } from 'react-router-dom'
 import api from '../../api/axiosInstance'
 import AlertModal from '../../components/common/AlertModal'
 
@@ -493,7 +493,8 @@ function FindPasswordTab() {
 // ── 메인 페이지
 export default function FindAccountPage() {
   const navigate = useNavigate()
-  const [tab, setTab] = useState('id')
+  const location = useLocation()
+  const tab = location.pathname === '/find-password' ? 'password' : 'id'
 
   return (
     <div className="fa-page">
@@ -509,10 +510,10 @@ export default function FindAccountPage() {
         <h1 className="fa-title">ID / PW 찾기</h1>
 
         <div className="fa-tabs">
-          <button className={`fa-tab ${tab === 'id' ? 'active' : ''}`} onClick={() => setTab('id')} type="button">
+          <button className={`fa-tab ${tab === 'id' ? 'active' : ''}`} onClick={() => navigate('/find-id')} type="button">
             아이디
           </button>
-          <button className={`fa-tab ${tab === 'password' ? 'active' : ''}`} onClick={() => setTab('password')} type="button">
+          <button className={`fa-tab ${tab === 'password' ? 'active' : ''}`} onClick={() => navigate('/find-password')} type="button">
             비밀번호
           </button>
         </div>
