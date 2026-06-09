@@ -12,6 +12,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -28,6 +31,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ajh831/algotalk-frontend:latest
+          provenance: false
 
   deploy:
     needs: build-and-push
