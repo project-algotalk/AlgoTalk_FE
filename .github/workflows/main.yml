@@ -23,7 +23,12 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
+          
+      - name: Create .env.production
+        run: |
+          echo "VITE_API_URL=https://api.algotalk.kr" > .env.production
+          echo "VITE_MEDIAPIPE_DEBUG=false" >> .env.production
+          
       - name: Build and Push
         uses: docker/build-push-action@v6
         with:
