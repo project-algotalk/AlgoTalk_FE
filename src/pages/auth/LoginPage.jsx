@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import useAuthStore from '../../store/authStore'
 import { loginWithCredentials } from '../../api/authApi'
+import { ArrowRight, ShieldCheck, Sparkles } from 'lucide-react'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -97,7 +98,11 @@ export default function LoginPage() {
       </nav>
 
       <div className="login-container">
-        <h1 className="login-title">로그인</h1>
+        <div className="auth-heading auth-heading--login">
+          <span className="auth-eyebrow"><Sparkles size={14} /> WELCOME BACK</span>
+          <h1 className="login-title">다시 만나서 반가워요.</h1>
+          <p className="auth-subtitle">로그인하고 나만의 면접 준비를 이어가세요.</p>
+        </div>
 
         <form className="login-form" onSubmit={handleLogin} noValidate>
 
@@ -149,7 +154,7 @@ export default function LoginPage() {
             className="login-btn login-btn--primary"
             disabled={loading}
           >
-            {loading ? '로그인 중...' : '로그인'}
+            {loading ? '로그인 중...' : <>로그인 <ArrowRight size={17} /></>}
           </button>
 
           <button
@@ -190,6 +195,8 @@ export default function LoginPage() {
             네이버로 로그인
           </button>
         </div>
+
+        <div className="auth-security"><ShieldCheck size={14} /> 계정 정보는 안전하게 보호됩니다.</div>
 
         <div className="login-find">
           <Link to="/find-id">아이디 찾기</Link>
