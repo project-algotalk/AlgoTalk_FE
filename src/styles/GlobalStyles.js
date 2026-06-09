@@ -7001,6 +7001,149 @@ a {
   .dash-session-badge { display: none; }
 }
 
+
+/* Unified modal system */
+.alert-modal-overlay, .mp-modal-overlay, .jf-modal-overlay, .ssm-overlay {
+  padding: 20px;
+  background: rgba(8, 18, 36, .58);
+  backdrop-filter: blur(8px);
+  animation: modalFadeIn .18s ease-out;
+}
+
+.alert-modal-box, .mp-modal, .jf-modal, .ssm-modal {
+  border: 1px solid rgba(224,229,238,.95);
+  box-shadow: 0 28px 80px rgba(5,14,32,.24), 0 8px 24px rgba(5,14,32,.08);
+  animation: modalRiseIn .22s ease-out;
+}
+
+.alert-modal-box {
+  width: 380px;
+  padding: 31px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 19px;
+  background: linear-gradient(180deg,#fff,#fbfcfe);
+}
+.alert-modal-box::before { content: ''; height: 3px; position: absolute; left: 0; right: 0; top: 0; background: #5e62c4; }
+.alert-modal-box--error::before { background: #d96376; }
+.alert-modal-close, .mp-modal-close, .jf-modal-close, .ssm-close {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border: 1px solid #e3e7ee;
+  border-radius: 9px;
+  color: #8792a3;
+  background: #f8f9fb;
+  cursor: pointer;
+  transition: color .18s ease, border-color .18s ease, background .18s ease;
+}
+.alert-modal-close:hover, .mp-modal-close:hover, .jf-modal-close:hover, .ssm-close:hover { color: #5558b9; border-color: #d2d4ee; background: #f1f2ff; }
+.alert-modal-close { position: absolute; right: 17px; top: 17px; }
+.alert-modal-icon { width: 50px; height: 50px; margin-bottom: 18px; display: grid; place-items: center; border-radius: 14px; color: #42977f; background: #e8f7f2; box-shadow: 0 0 0 7px rgba(66,151,127,.06); }
+.alert-modal-box--error .alert-modal-icon { color: #c95368; background: #fff0f3; box-shadow: 0 0 0 7px rgba(201,83,104,.055); }
+.alert-modal-box--center .alert-modal-icon { margin-left: auto; margin-right: auto; }
+.alert-modal-title { margin-bottom: 8px; color: #24344e; font-size: 1.08rem; letter-spacing: -.025em; }
+.alert-modal-message { margin-bottom: 24px; color: #748095; font-size: .8rem; line-height: 1.7; white-space: pre-line; }
+.alert-modal-confirm { min-height: 43px; padding: 0 21px; float: none; border-radius: 9px; background: #172b4d; box-shadow: 0 7px 17px rgba(23,43,77,.12); }
+.alert-modal-confirm:hover { background: #595cc4; transform: translateY(-1px); }
+.alert-modal-box--error .alert-modal-confirm { background: #bd4f63; }
+.alert-modal-box--error .alert-modal-confirm:hover { background: #aa4055; }
+.alert-modal-box--left .alert-modal-confirm { float: right; }
+
+.mp-modal { width: 450px; max-height: min(760px,calc(100vh - 40px)); padding: 0; overflow-y: auto; border-radius: 19px; background: #fff; }
+.mp-modal-header { min-height: 74px; padding: 20px 23px; display: flex; align-items: center; justify-content: space-between; gap: 15px; position: sticky; top: 0; z-index: 2; border-bottom: 1px solid #ebeff4; background: rgba(255,255,255,.96); backdrop-filter: blur(12px); }
+.mp-modal-title { margin: 0; color: #263650; font-size: 1.03rem; letter-spacing: -.025em; }
+.mp-modal-content { padding: 23px 25px; }
+.mp-modal-actions { padding: 0 25px 24px; }
+.mp-modal-actions .mp-modal-btn-row { margin-top: 0; }
+/* Legacy MyPage modals that render fields directly without BaseModal */
+.mp-modal > .mp-modal-title { margin: 0; padding: 23px 25px 18px; border-bottom: 1px solid #ebeff4; }
+.mp-modal > .mp-modal-field, .mp-modal > .mp-withdraw-warn, .mp-modal > .mp-withdraw-check-label { margin-left: 25px; margin-right: 25px; }
+.mp-modal > .mp-modal-field:first-of-type, .mp-modal > .mp-withdraw-warn:first-of-type { margin-top: 22px; }
+.mp-modal > .mp-modal-btn-row { margin: 21px 25px 24px; }
+.mp-modal-field { margin-bottom: 17px; }
+.mp-modal-label { color: #59667b; font-size: .75rem; }
+.mp-modal-input { height: 46px; border: 1px solid #dce2ea; border-radius: 10px; color: #26354d; background: #fbfcfe; }
+.mp-modal-input:focus { border-color: #8588da; background: #fff; box-shadow: 0 0 0 3px rgba(99,102,199,.08); }
+.mp-modal-btn { min-height: 43px; height: 43px; padding: 0 19px; border: 1px solid #dce2e9; border-radius: 9px; color: #637086; background: #fff; }
+.mp-modal-btn:hover { color: #5558b9; border-color: #c9cbee; background: #f4f4ff; }
+.mp-modal-btn.primary { border-color: #5659bb; background: #5659bb; box-shadow: 0 7px 17px rgba(86,89,187,.15); }
+.mp-modal-btn.primary:hover { background: #4a4dad; }
+.mp-modal-btn.danger { border-color: #c85065; background: #c85065; }
+.mp-modal-btn.danger:hover { background: #b84358; }
+.mp-withdraw-warn { border-color: #f2ccd3; border-radius: 11px; background: #fff5f7; }
+
+.jf-modal { width: min(680px,calc(100vw - 40px)); max-height: min(760px,calc(100vh - 40px)); border-radius: 20px; background: #fff; }
+.jf-modal-content { padding: 0; }
+.jf-modal-heading { min-height: 82px; padding: 20px 23px; display: flex; align-items: center; gap: 13px; border-bottom: 1px solid #ebeff4; }
+.jf-modal-heading-icon, .ssm-header-icon { width: 42px; height: 42px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 12px; color: #5e62c4; background: #eff0ff; }
+.jf-modal-heading > div:nth-child(2), .ssm-header > div:nth-child(2) { flex: 1; }
+.jf-modal-title { margin: 0; color: #263650; font-size: 1.04rem; }
+/* SignupStep3 keeps its own legacy job modal markup */
+.jf-modal-content > .jf-modal-title { padding: 24px 23px 18px; border-bottom: 1px solid #ebeff4; }
+.jf-modal-heading p, .ssm-header p { margin-top: 4px; color: #8994a5; font-size: .68rem; }
+.jf-modal-tabs-scroll { padding: 16px 22px 0; }
+.jf-modal-tabs { padding: 5px; border: 1px solid #e1e6ed; border-radius: 11px; background: #f7f8fb; }
+.jf-modal-tab { min-height: 36px; padding: 0 13px; border-radius: 8px; color: #7d899b; }
+.jf-modal-tab.active { color: #fff; background: #5d60c2; box-shadow: 0 6px 14px rgba(93,96,194,.16); }
+.jf-modal-body { min-height: 220px; padding: 23px; }
+.jf-modal-chips { gap: 8px; }
+.jf-modal-chip { padding: 9px 13px; border: 1px solid #dfe4eb; border-radius: 9px; color: #68758a; background: #fafbfd; }
+.jf-modal-chip:hover { color: #5558b9; border-color: #b9bce8; background: #f5f5ff; }
+.jf-modal-chip.selected { border-color: #5d60c2; color: #fff; background: #5d60c2; box-shadow: 0 5px 13px rgba(93,96,194,.15); }
+.jf-modal-footer { padding: 16px 23px 21px; border-top: 1px solid #ebeff4; background: #fbfcfe; }
+.jf-modal-selected-text { color: #8b96a7; font-size: .7rem; }
+.jf-modal-selected-text strong { color: #5558b9; }
+.jf-modal-btn { min-height: 42px; padding: 0 17px; display: inline-flex; align-items: center; gap: 6px; border-radius: 9px; }
+.jf-modal-btn--cancel { border-color: #dce2e9; color: #637086; }
+.jf-modal-btn--confirm { background: #172b4d; box-shadow: 0 7px 17px rgba(23,43,77,.13); }
+.jf-modal-btn--confirm:hover:not(:disabled) { background: #595cc4; }
+
+.ssm-modal { width: min(680px,calc(100vw - 40px)); max-height: min(760px,calc(100vh - 40px)); border-radius: 20px; background: #fff; }
+.ssm-header { min-height: 82px; padding: 20px 23px; display: flex; align-items: center; gap: 13px; border-bottom: 1px solid #ebeff4; }
+.ssm-title { padding: 0; border: 0; color: #263650; font-size: 1.04rem; }
+.ssm-list { padding: 9px 14px; }
+.ssm-item { min-height: 68px; margin: 5px 0; padding: 12px 13px; border: 1px solid transparent; border-radius: 11px; }
+.ssm-item:hover { border-color: #e3e6f2; background: #f8f9ff; }
+.ssm-item.selected { border-color: #cfd1ef; background: #f0f1ff; }
+.ssm-checkbox { width: 17px; height: 17px; accent-color: #5d60c2; }
+.ssm-item-title { color: #2c3b53; font-size: .8rem; }
+.ssm-item-meta, .ssm-item-counts { color: #98a2b1; font-size: .66rem; }
+.ssm-loading, .ssm-empty { min-height: 220px; display: grid; place-items: center; color: #929dae; }
+.ssm-paging { border-color: #ebeff4; }
+.ssm-paging button { width: 32px; height: 32px; border: 1px solid #dfe4eb; border-radius: 8px; color: #6d798c; }
+.ssm-paging button:hover:not(:disabled) { color: #5558b9; border-color: #b8bae7; }
+.ssm-paging button.active { border-color: #575abc; background: #575abc; }
+.ssm-footer { padding: 16px 23px 21px; border-color: #ebeff4; background: #fbfcfe; }
+.ssm-btn-cancel, .ssm-btn-confirm { min-height: 43px; padding: 0 18px; border-radius: 9px; }
+.ssm-btn-cancel { border: 1px solid #dce2e9; color: #637086; }
+.ssm-btn-confirm { display: inline-flex; align-items: center; gap: 6px; background: #172b4d; box-shadow: 0 7px 17px rgba(23,43,77,.13); }
+.ssm-btn-confirm:hover:not(:disabled) { background: #595cc4; }
+
+@keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes modalRiseIn { from { opacity: 0; transform: translateY(12px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+@media (max-width: 600px) {
+  .alert-modal-overlay, .mp-modal-overlay, .jf-modal-overlay, .ssm-overlay { padding: 12px; align-items: flex-end; }
+  .alert-modal-box, .mp-modal, .jf-modal, .ssm-modal { width: 100%; max-width: 100%; max-height: calc(100vh - 24px); border-radius: 20px 20px 14px 14px; }
+  .alert-modal-box { padding: 27px 23px; }
+  .mp-modal-content { padding: 21px 19px; }
+  .mp-modal-actions { padding: 0 19px 20px; }
+  .jf-modal-heading, .ssm-header { padding: 18px; }
+  .jf-modal-body { padding: 18px; }
+  .jf-modal-footer, .ssm-footer { align-items: stretch; flex-direction: column; padding: 15px 18px 18px; }
+  .jf-modal-btns { width: 100%; }
+  .jf-modal-btn, .ssm-btn-cancel, .ssm-btn-confirm { flex: 1; justify-content: center; }
+  .ssm-item-counts { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .alert-modal-overlay, .mp-modal-overlay, .jf-modal-overlay, .ssm-overlay,
+  .alert-modal-box, .mp-modal, .jf-modal, .ssm-modal { animation: none; }
+}
+
 `
 
 export default GlobalStyles

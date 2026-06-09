@@ -1,5 +1,6 @@
 // 직무 선택 전용 모달
 import { useState } from "react";
+import { BriefcaseBusiness, Check, X } from "lucide-react";
 
 export default function JobCategoryModal({
   jobCategories,
@@ -26,7 +27,11 @@ export default function JobCategoryModal({
     <div className="jf-modal-overlay" onClick={onClose}>
       <div className="jf-modal" onClick={(e) => e.stopPropagation()}>
         <div className="jf-modal-content">
-          <h2 className="jf-modal-title">직무 선택</h2>
+          <div className="jf-modal-heading">
+            <span className="jf-modal-heading-icon"><BriefcaseBusiness size={21} /></span>
+            <div><h2 className="jf-modal-title">직무 선택</h2><p>준비 중인 직무를 하나 선택해 주세요.</p></div>
+            <button className="jf-modal-close" type="button" onClick={onClose} aria-label="직무 선택 닫기"><X size={18} /></button>
+          </div>
           <div className="jf-modal-tabs-scroll">
             <div className="jf-modal-tabs">
               {jobCategories.map((cat, idx) => (
@@ -92,7 +97,7 @@ export default function JobCategoryModal({
                 onClick={handleConfirm}
                 disabled={isEtc ? !customText.trim() : !selected}
               >
-                선택 완료
+                <Check size={16} /> 선택 완료
               </button>
             </div>
           </div>
