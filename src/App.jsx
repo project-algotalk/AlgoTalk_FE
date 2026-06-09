@@ -36,6 +36,7 @@ import MyPage from './pages/mypage/MyPage'
 
 // Main
 import MainPage from './pages/main/MainPage'
+import QuestionExplorePage from './pages/main/QuestionExplorePage'
 
 export default function App() {
   const { login, logout, setUnauthenticated } = useAuthStore()
@@ -101,6 +102,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<MainPage />} />
+        <Route path="/questions" element={<QuestionExplorePage />} />
 
         {/* 인증 불필요 */}
         <Route path="/login" element={<LoginPage />} />
