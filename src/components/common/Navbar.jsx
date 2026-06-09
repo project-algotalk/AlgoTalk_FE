@@ -193,7 +193,7 @@ export default function Navbar() {
         <MobileMenu>
           <MobileLink to="/interview" onClick={() => setMenuOpen(false)}>면접 보기</MobileLink>
           <MobileLink to="/board" onClick={() => setMenuOpen(false)}>게시판</MobileLink>
-          <MobileLink to="/dashboard" onClick={() => setMenuOpen(false)}>dashboard</MobileLink>
+          <MobileLink to="/dashboard" onClick={() => setMenuOpen(false)}>대시보드</MobileLink>
           {isLoggedIn ? (
             <>
               <MobileLink to="/mypage" onClick={() => setMenuOpen(false)}>{user?.nickname}님</MobileLink>
