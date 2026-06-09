@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../../api/axiosInstance'
 import { fetchCategories } from '../../api/csCategoryApi'
+import { Building2, Sparkles } from 'lucide-react'
 
 // 날짜 자동 포맷 (숫자 입력 -> YYYY.MM.DD)
 const autoFormatDate = (val) => {
@@ -434,6 +435,12 @@ export default function SignupStep3Page() {
         </nav>
 
       <div className="su3-container">
+        <div className="auth-heading auth-heading--signup">
+          <span className="auth-eyebrow"><Sparkles size={14} /> EXPERIENCE</span>
+          <div className="auth-heading-icon"><Building2 size={22} /></div>
+          <h1>경험을 더하면 준비가 정교해져요.</h1>
+          <p className="auth-subtitle">현재 또는 이전 재직 이력이 있다면 입력해 주세요. 이 단계는 건너뛸 수 있어요.</p>
+        </div>
         {/* 스텝 인디케이터 */}
         <div className="su3-steps">
           <div className="su3-step">
