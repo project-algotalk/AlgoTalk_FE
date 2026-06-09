@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { fetchCategories } from '../../api/csCategoryApi'
+import { BriefcaseBusiness, Sparkles } from 'lucide-react'
 
 const MAX_SELECT = 3
 
@@ -187,6 +188,12 @@ export default function SignupStep2Page() {
         </nav>
 
       <div className="su2-container">
+        <div className="auth-heading auth-heading--signup">
+          <span className="auth-eyebrow"><Sparkles size={14} /> CAREER GOAL</span>
+          <div className="auth-heading-icon"><BriefcaseBusiness size={22} /></div>
+          <h1>어떤 직무를 준비하고 있나요?</h1>
+          <p className="auth-subtitle">선택한 직무를 바탕으로 더 정확한 기술 면접 질문을 준비해 드려요.</p>
+        </div>
 
         {/* 스텝 인디케이터 */}
         <div className="su2-steps">
