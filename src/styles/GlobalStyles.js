@@ -3745,6 +3745,7 @@ a {
   color: #17243d;
   background: #f7f9fc;
 }
+.interview-card__live i { width: 7px; height: 7px; border-radius: 50%; background: #fa7581; box-shadow: 0 0 0 4px rgba(250,117,129,.12); }
 
 .questions-container {
   width: min(1080px, calc(100% - 48px));
