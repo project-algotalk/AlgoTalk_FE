@@ -56,7 +56,9 @@ export default function SignupStep2Page() {
       fetchCategories()
           .then(data => {
               // JOB 타입만 필터링
-              const jobData = data.filter(c => c.categoryType === 'JOB')
+              const jobData = data.filter(
+                  c => c.categoryType === 'JOB' && c.categoryId !== 24
+              )
 
               // DEPTH 1 = 대분류 탭
               const tabs = jobData
