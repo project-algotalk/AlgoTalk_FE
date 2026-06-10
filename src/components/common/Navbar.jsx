@@ -1,157 +1,187 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { ChevronDown, Menu as MenuIcon, X } from 'lucide-react'
+import styled from 'styled-components'
 import useAuthStore from '../../store/authStore'
 import api from '../../api/axiosInstance'
-import styled from 'styled-components'
 import AlertModal from './AlertModal'
 
 const Nav = styled.nav`
   width: 100%;
+  height: 64px;
+  padding: 0 max(28px, calc((100% - 1180px) / 2));
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 40px;
-  height: 56px;
-  background: #ffffff;
-  border-bottom: 1px solid #e8edf5;
   position: sticky;
   top: 0;
   z-index: 100;
   box-sizing: border-box;
+  border-bottom: 1px solid #e8ecf2;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(16px);
 `
 
 const Logo = styled(Link)`
-  font-size: 1.3rem;
-  font-weight: 800;
-  color: #0F2854;
-  text-decoration: none;
-  letter-spacing: -0.5px;
-`
-
-const Menu = styled.div`
   display: flex;
   align-items: center;
-  gap: 28px;
+  gap: 10px;
+  color: #132441;
+  text-decoration: none;
+  font-size: 1.17rem;
+  font-weight: 850;
+  letter-spacing: -0.7px;
+`
 
-  @media (max-width: 650px) {
-    display: none;
+const LogoMark = styled.span`
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  position: relative;
+  overflow: hidden;
+  border-radius: 9px;
+  color: white;
+  background: linear-gradient(145deg, #7477e5, #4649a9);
+  box-shadow: 0 7px 16px rgba(74, 77, 177, .22);
+
+  &::before, &::after {
+    content: '';
+    width: 3px;
+    position: absolute;
+    bottom: 7px;
+    border-radius: 3px;
+    background: currentColor;
   }
+  &::before { height: 10px; left: 10px; transform: rotate(-12deg); }
+  &::after { height: 16px; right: 10px; transform: rotate(12deg); }
+`
+
+const Desktop = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 34px;
+  @media (max-width: 720px) { display: none; }
+`
+
+const MenuLinks = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
 `
 
 const NavLink = styled(Link)`
-  font-size: 0.9rem;
-  color: #444;
+  min-height: 38px;
+  padding: 0 13px;
+  display: flex;
+  align-items: center;
+  border-radius: 9px;
+  color: ${({ $active }) => ($active ? '#5053b6' : '#68758a')};
+  background: ${({ $active }) => ($active ? '#f0f1ff' : 'transparent')};
   text-decoration: none;
-  transition: color 0.15s;
+  font-size: .82rem;
+  font-weight: ${({ $active }) => ($active ? 700 : 600)};
+  transition: color .18s ease, background .18s ease;
 
-  &:hover {
-    color: #1C4D8D;
-  }
+  &:hover { color: #5053b6; background: #f5f6ff; }
 `
 
-const NavLinkUser = styled(NavLink)`
-  color: #1C4D8D;
-  font-weight: 600;
+const UserActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 9px;
+`
+
+const UserLink = styled(Link)`
+  min-height: 38px;
+  padding: 0 11px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 9px;
+  color: #526077;
+  text-decoration: none;
+  font-size: .78rem;
+  font-weight: 700;
+  &:hover { background: #f5f7fa; }
 `
 
 const NavBtn = styled.button`
-  background: #0F2854;
+  min-height: 39px;
+  padding: 0 17px;
+  border: 0;
+  border-radius: 10px;
   color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 8px 18px;
-  font-size: 0.875rem;
-  font-weight: 600;
+  background: #182b4c;
+  font: 700 .78rem 'Noto Sans KR', sans-serif;
   cursor: pointer;
-  font-family: 'Noto Sans KR', sans-serif;
-  transition: background 0.15s;
-
-  &:hover {
-    background: #1C4D8D;
-  }
+  box-shadow: 0 7px 16px rgba(18, 37, 70, .12);
+  transition: transform .18s ease, background .18s ease;
+  &:hover { background: #5154ba; transform: translateY(-1px); }
 `
 
 const Hamburger = styled.button`
+  width: 40px;
+  height: 40px;
   display: none;
-  flex-direction: column;
-  justify-content: center;
-  gap: 5px;
-  background: none;
-  border: none;
+  place-items: center;
+  border: 0;
+  border-radius: 9px;
+  color: #283952;
+  background: #f5f7fa;
   cursor: pointer;
-  padding: 4px;
-
-  span {
-    display: block;
-    width: 22px;
-    height: 2px;
-    background: #0F2854;
-    border-radius: 2px;
-  }
-
-  @media (max-width: 650px) {
-    display: flex;
-  }
+  @media (max-width: 720px) { display: grid; }
 `
 
 const MobileMenu = styled.div`
   display: none;
-  flex-direction: column;
-  background: #fff;
-  border-bottom: 1px solid #e8edf5;
-  padding: 12px 24px;
-  gap: 4px;
+  padding: 10px 20px 18px;
   position: sticky;
-  top: 56px;
+  top: 64px;
   z-index: 99;
-
-  @media (max-width: 650px) {
-    display: flex;
-  }
+  border-bottom: 1px solid #e8ecf2;
+  background: rgba(255,255,255,.98);
+  box-shadow: 0 14px 30px rgba(25,39,66,.08);
+  @media (max-width: 720px) { display: flex; flex-direction: column; gap: 3px; }
 `
 
 const MobileLink = styled(Link)`
-  font-size: 0.9rem;
-  color: #444;
+  padding: 12px;
+  border-radius: 9px;
+  color: #526077;
   text-decoration: none;
-  padding: 10px 0;
-  border-bottom: 1px solid #f0f0f0;
-
-  &:last-of-type {
-    border-bottom: none;
-  }
+  font-size: .85rem;
+  font-weight: 600;
+  &:hover { color: #5053b6; background: #f3f4ff; }
 `
 
-const MobileBtn = styled.button`
-  background: #0F2854;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 10px 18px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: 'Noto Sans KR', sans-serif;
-  margin-top: 8px;
+const MobileBtn = styled(NavBtn)`
   width: 100%;
-
-  &:hover {
-    background: #1C4D8D;
-  }
+  margin-top: 8px;
 `
 
 export default function Navbar() {
   const navigate = useNavigate()
+  const { pathname } = useLocation()
   const { authStatus, user, logout } = useAuthStore()
   const isLoggedIn = authStatus === 'authenticated'
   const [showLogoutModal, setShowLogoutModal] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
+  const links = [
+    { to: '/interview', label: 'AI 면접' },
+    { to: '/questions', label: '질문 탐색' },
+    { to: '/board', label: '커뮤니티' },
+    { to: '/dashboard', label: '리포트' },
+  ]
+
+  const isActive = (to) => pathname === to || pathname.startsWith(`${to}/`)
+
   const handleLogout = async () => {
     try {
       await api.post('/user/v1/logout')
-    } catch (e) {
-      console.error('로그아웃 API 실패:', e)
+    } catch (error) {
+      console.error('로그아웃 API 실패:', error)
     } finally {
       sessionStorage.setItem('logged-out', 'true')
       logout()
@@ -163,40 +193,37 @@ export default function Navbar() {
   return (
     <>
       <Nav>
-        <Logo to="/">AlgoTalk</Logo>
-
-        <Hamburger
-          onClick={() => setMenuOpen(prev => !prev)}
-          aria-label="메뉴 열기"
-        >
-          <span />
-          <span />
-          <span />
+        <Logo to="/" aria-label="AlgoTalk 홈"><LogoMark />AlgoTalk</Logo>
+        <Desktop>
+          <MenuLinks>
+            {links.map((link) => (
+              <NavLink key={link.to} to={link.to} $active={isActive(link.to)}>{link.label}</NavLink>
+            ))}
+          </MenuLinks>
+          <UserActions>
+            {isLoggedIn ? (
+              <>
+                <UserLink to="/mypage">{user?.nickname}님 <ChevronDown size={14} /></UserLink>
+                <NavBtn onClick={() => setShowLogoutModal(true)}>로그아웃</NavBtn>
+              </>
+            ) : (
+              <NavBtn onClick={() => navigate('/login')}>로그인</NavBtn>
+            )}
+          </UserActions>
+        </Desktop>
+        <Hamburger onClick={() => setMenuOpen((open) => !open)} aria-label={menuOpen ? '메뉴 닫기' : '메뉴 열기'}>
+          {menuOpen ? <X size={20} /> : <MenuIcon size={20} />}
         </Hamburger>
-
-        <Menu>
-          <NavLink to="/interview">면접 보기</NavLink>
-          <NavLink to="/board">게시판</NavLink>
-          <NavLink to="/dashboard">대시보드</NavLink>
-          {isLoggedIn ? (
-            <>
-              <NavLinkUser to="/mypage">{user?.nickname}님</NavLinkUser>
-              <NavBtn onClick={() => setShowLogoutModal(true)}>로그아웃</NavBtn>
-            </>
-          ) : (
-            <NavBtn onClick={() => navigate('/login')}>로그인</NavBtn>
-          )}
-        </Menu>
       </Nav>
 
       {menuOpen && (
         <MobileMenu>
-          <MobileLink to="/interview" onClick={() => setMenuOpen(false)}>면접 보기</MobileLink>
-          <MobileLink to="/board" onClick={() => setMenuOpen(false)}>게시판</MobileLink>
-          <MobileLink to="/dashboard" onClick={() => setMenuOpen(false)}>대시보드</MobileLink>
+          {links.map((link) => (
+            <MobileLink key={link.to} to={link.to} onClick={() => setMenuOpen(false)}>{link.label}</MobileLink>
+          ))}
           {isLoggedIn ? (
             <>
-              <MobileLink to="/mypage" onClick={() => setMenuOpen(false)}>{user?.nickname}님</MobileLink>
+              <MobileLink to="/mypage" onClick={() => setMenuOpen(false)}>{user?.nickname}님 · 마이페이지</MobileLink>
               <MobileBtn onClick={() => { setMenuOpen(false); setShowLogoutModal(true) }}>로그아웃</MobileBtn>
             </>
           ) : (

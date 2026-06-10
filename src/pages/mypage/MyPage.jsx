@@ -21,7 +21,7 @@ import {
     fetchMyScraps, deleteMyScraps,
     fetchMyLikes, deleteMyLikes,
 } from '../../api/myPageApi'
-import { Heart, Bookmark, MessageCircle, Eye } from 'lucide-react'
+import { Heart, Bookmark, MessageCircle, Eye, Camera, Settings2, UserRound } from 'lucide-react'
 
 // 공통 에러 메시지 파싱
 const parseError = (err, fallback = '처리에 실패했습니다.') => {
@@ -1404,6 +1404,12 @@ export default function MyPage() {
         <div className="mp-page">
             <Navbar />
 
+            <div className="mp-page-heading">
+                <span><Settings2 size={14} /> MY ACCOUNT</span>
+                <h1>마이페이지</h1>
+                <p>내 정보와 면접 준비 활동을 한곳에서 관리하세요.</p>
+            </div>
+
             <div className="mp-layout">
                 {/* 사이드바 */}
                 <aside className="mp-sidebar">
@@ -1424,8 +1430,8 @@ export default function MyPage() {
                     {/* 프로필 헤더 */}
                     <div className="mp-profile-header">
                         <div className="mp-avatar">
-                            👤
-                            <div className="mp-avatar-edit">✎</div>
+                            <UserRound size={27} />
+                            <div className="mp-avatar-edit"><Camera size={11} /></div>
                         </div>
                         <div>
                             <div className="mp-profile-name">{info?.nickname || user?.nickname}</div>
