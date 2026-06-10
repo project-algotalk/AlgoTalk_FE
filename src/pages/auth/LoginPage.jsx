@@ -99,8 +99,8 @@ export default function LoginPage() {
 
       <div className="login-container">
         <div className="auth-heading auth-heading--login">
-          <span className="auth-eyebrow"><Sparkles size={14} /> WELCOME BACK</span>
-          <h1 className="login-title">다시 만나서 반가워요.</h1>
+          <span className="auth-eyebrow"><Sparkles size={14} /> WELCOME TO ALGOTALK</span>
+          <h1 className="login-title">만나서 반가워요.</h1>
           <p className="auth-subtitle">로그인하고 나만의 면접 준비를 이어가세요.</p>
         </div>
 
