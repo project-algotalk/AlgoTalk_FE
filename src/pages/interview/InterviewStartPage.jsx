@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { ArrowRight, Bot, Bookmark, FilePenLine, ShieldCheck, Sparkles } from "lucide-react";
 import Navbar from "../../components/common/Navbar";
 import AlertModal from "../../components/common/AlertModal";
 import ScrapSelectModal from '../../components/interview/ScrapSelectModal'
@@ -237,8 +238,12 @@ export default function InterviewStartPage() {
     <div className="in-page">
       <Navbar />
       <div className="in-container">
-        <h1 className="in-title">면접 세션 만들기</h1>
-        <p className="in-subtitle">어떤 방식으로 면접을 준비하시겠어요?</p>
+        <div className="in-heading">
+          <span className="in-eyebrow"><Sparkles size={14} /> INTERVIEW SETUP</span>
+          <h1 className="in-title">나에게 맞는 면접을<br />설계해 보세요.</h1>
+          <p className="in-subtitle">질문 구성 방식을 고르고 직무를 선택하면 바로 시작할 수 있어요.</p>
+          <div className="in-heading-note"><ShieldCheck size={16} /> 모든 답변은 안전하게 분석되며, 한 질문당 답변 시간은 1분 30초예요.</div>
+        </div>
 
         {/* 질문 구성 방식 선택 */}
         <section className="in-section">
@@ -248,7 +253,8 @@ export default function InterviewStartPage() {
               className={`in-mode-card ${mode === MODE.LLM ? "active" : ""}`}
               onClick={() => setMode(MODE.LLM)}
             >
-              <strong>질문 생성</strong>
+              <span className="in-mode-icon"><Bot size={23} /></span>
+              <strong>AI 질문 생성</strong>
               <span>
                 내가 선택한 직무를 기반으로
                 <br />
@@ -259,6 +265,7 @@ export default function InterviewStartPage() {
               className={`in-mode-card ${mode === MODE.MANUAL ? "active" : ""}`}
               onClick={() => setMode(MODE.MANUAL)}
             >
+              <span className="in-mode-icon"><FilePenLine size={23} /></span>
               <strong>직접 입력</strong>
               <span>
                 원하는 CS 및 직무 질문을
@@ -270,6 +277,7 @@ export default function InterviewStartPage() {
               className={`in-mode-card ${mode === MODE.SCRAP ? "active" : ""}`}
               onClick={() => setMode(MODE.SCRAP)}
             >
+              <span className="in-mode-icon"><Bookmark size={23} /></span>
               <strong>질문 불러오기</strong>
               <span>
                 스크랩한 질문을
@@ -516,7 +524,7 @@ export default function InterviewStartPage() {
             onClick={handleStart}
             disabled={loading}
           >
-            면접 시작
+            면접 시작 <ArrowRight size={18} />
           </button>
         </div>
       </div>
