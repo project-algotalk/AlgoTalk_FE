@@ -3552,6 +3552,7 @@ a {
   align-items: center;
   gap: 13px;
 }
+.interview-card__live i { width: 7px; height: 7px; border-radius: 50%; background: #fa7581; box-shadow: 0 0 0 4px rgba(250,117,129,.12); }
 
 .hero-proof-avatars { display: flex; padding-left: 8px; }
 .hero-proof-avatars span {
