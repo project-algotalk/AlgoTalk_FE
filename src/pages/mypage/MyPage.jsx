@@ -485,6 +485,7 @@ function WithdrawModal({ passwordSetYn, onClose }) {
         setError('')
         try {
             await withdraw(!skipPasswordCheck ? { currentPassword } : null)
+            sessionStorage.setItem('logged-out', 'true')
             setDone(true)  // 성공 시에만 done = true
         } catch (err) {
             setError(parseError(err, '탈퇴 처리에 실패했습니다.'))
