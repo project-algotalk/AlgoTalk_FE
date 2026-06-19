@@ -460,9 +460,6 @@ function WithdrawModal({ passwordSetYn, onClose }) {
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
     const [done, setDone] = useState(false)
-    const { logout } = useAuthStore()
-    const navigate = useNavigate()
-
     const skipPasswordCheck = passwordSetYn === 'N'
 
     // done이 true일 때만 타이머 실행
@@ -470,11 +467,10 @@ function WithdrawModal({ passwordSetYn, onClose }) {
         if (!done) return
         const timer = setTimeout(() => {
             sessionStorage.setItem('logged-out', 'true')
-            navigate('/', { replace: true })
-            logout()
+            window.location.replace('/')
         }, 3000)
         return () => clearTimeout(timer)
-    }, [done, logout, navigate])
+    }, [done])
 
     const handleWithdraw = async () => {
         if (!skipPasswordCheck && !currentPassword) {
