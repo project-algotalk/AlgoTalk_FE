@@ -21,9 +21,9 @@ api.interceptors.response.use(
 
     if (err.response?.status === 401) {
       const isUserLoggedOut = sessionStorage.getItem('logged-out') === 'true'
-      useAuthStore.getState().logout()
 
       if (!isUserLoggedOut) {
+        useAuthStore.getState().logout()
         window.location.href = '/login'
       }
     }
