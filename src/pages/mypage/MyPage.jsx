@@ -437,7 +437,7 @@ function UnlinkModal({ provider, onClose, onSuccess }) {
         <div className="mp-modal-overlay" onClick={onClose}>
             <div className="mp-modal" onClick={e => e.stopPropagation()}>
                 <h2 className="mp-modal-title">SNS 연결 해제</h2>
-                <p style={{ fontSize: '0.9rem', color: '#555', marginBottom: 20 }}>
+                <p className="mp-unlink-confirm-message">
                     {PROVIDER_NAMES[provider]} 계정 연결을 해제하시겠습니까?
                 </p>
                 <div className="mp-modal-btn-row">
