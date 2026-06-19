@@ -470,8 +470,8 @@ function WithdrawModal({ passwordSetYn, onClose }) {
         if (!done) return
         const timer = setTimeout(() => {
             sessionStorage.setItem('logged-out', 'true')
-            logout()
             navigate('/', { replace: true })
+            logout()
         }, 3000)
         return () => clearTimeout(timer)
     }, [done, logout, navigate])
