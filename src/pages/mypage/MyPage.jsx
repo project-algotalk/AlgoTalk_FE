@@ -452,7 +452,7 @@ function UnlinkModal({ provider, onClose, onSuccess }) {
 }
 
 // ── 회원 탈퇴 모달 (2단계)
-function WithdrawModal({ passwordSetYn, onClose }) {
+function WithdrawModal({ passwordSetYn, onClose, onWithdrawSuccess }) {
     const [step, setStep] = useState(1)
     const [agreed1, setAgreed1] = useState(false)
     const [agreed2, setAgreed2] = useState(false)
@@ -466,11 +466,10 @@ function WithdrawModal({ passwordSetYn, onClose }) {
     useEffect(() => {
         if (!done) return
         const timer = setTimeout(() => {
-            sessionStorage.setItem('logged-out', 'true')
-            window.location.replace('/')
+            onWithdrawSuccess()
         }, 3000)
         return () => clearTimeout(timer)
-    }, [done])
+    }, [done, onWithdrawSuccess])
 
     const handleWithdraw = async () => {
         if (!skipPasswordCheck && !currentPassword) {
@@ -1730,6 +1729,10 @@ export default function MyPage() {
                 <WithdrawModal
                     passwordSetYn={info?.passwordSetYn}
                     onClose={() => setModal(null)}
+                    onWithdrawSuccess={() => {
+                        logout()
+                        navigate('/', { replace: true })
+                    }}
                 />
             )}
         </div>
