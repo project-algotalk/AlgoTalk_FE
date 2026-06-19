@@ -7062,6 +7062,7 @@ a {
 /* Legacy MyPage modals that render fields directly without BaseModal */
 .mp-modal > .mp-modal-title { margin: 0; padding: 23px 25px 18px; border-bottom: 1px solid #ebeff4; }
 .mp-modal > .mp-modal-field, .mp-modal > .mp-withdraw-warn, .mp-modal > .mp-withdraw-check-label { margin-left: 25px; margin-right: 25px; }
+.mp-modal > .mp-unlink-confirm-message { margin: 22px 25px 20px; color: #555; font-size: .9rem; }
 .mp-modal > .mp-modal-field:first-of-type, .mp-modal > .mp-withdraw-warn:first-of-type { margin-top: 22px; }
 .mp-modal > .mp-modal-btn-row { margin: 21px 25px 24px; }
 .mp-modal-field { margin-bottom: 17px; }
