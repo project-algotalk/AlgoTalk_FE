@@ -460,9 +460,6 @@ function WithdrawModal({ passwordSetYn, onClose }) {
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
     const [done, setDone] = useState(false)
-    const { logout } = useAuthStore()
-    const navigate = useNavigate()
-
     const skipPasswordCheck = passwordSetYn === 'N'
 
     // done이 true일 때만 타이머 실행
@@ -470,11 +467,10 @@ function WithdrawModal({ passwordSetYn, onClose }) {
         if (!done) return
         const timer = setTimeout(() => {
             sessionStorage.setItem('logged-out', 'true')
-            logout()
-            navigate('/', { replace: true })
+            window.location.replace('/')
         }, 3000)
         return () => clearTimeout(timer)
-    }, [done, logout, navigate])
+    }, [done])
 
     const handleWithdraw = async () => {
         if (!skipPasswordCheck && !currentPassword) {
@@ -485,6 +481,7 @@ function WithdrawModal({ passwordSetYn, onClose }) {
         setError('')
         try {
             await withdraw(!skipPasswordCheck ? { currentPassword } : null)
+            sessionStorage.setItem('logged-out', 'true')
             setDone(true)  // 성공 시에만 done = true
         } catch (err) {
             setError(parseError(err, '탈퇴 처리에 실패했습니다.'))
