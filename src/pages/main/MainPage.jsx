@@ -7,6 +7,7 @@ import {
   Clock3,
   Code2,
   MessageSquareText,
+  Mail,
   Mic2,
   Sparkles,
   ScanFace,
@@ -219,6 +220,30 @@ export default function MainPage() {
           </div>
         </section>
       </main>
+
+      <footer className="main-footer">
+        <div className="main-footer__inner">
+          <div className="main-footer__brand">
+            <span className="main-footer__brand-mark" aria-hidden="true">A</span>
+            <div>
+              <strong>AlgoTalk</strong>
+              <p>개발자를 위한 AI 기술면접 코치</p>
+            </div>
+          </div>
+
+          <div className="main-footer__contact">
+            <span>CONTACT</span>
+            <a href="mailto:jh96.dev@gmail.com">
+              <Mail size={17} aria-hidden="true" />
+              jh96.dev@gmail.com
+            </a>
+          </div>
+        </div>
+        <div className="main-footer__bottom">
+          <span>상호: 알고톡 AlgoTalk</span>
+          <span>© 2026 AlgoTalk. All rights reserved.</span>
+        </div>
+      </footer>
     </div>
   )
 }
