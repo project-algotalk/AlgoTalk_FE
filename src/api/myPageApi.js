@@ -63,6 +63,26 @@ export const updateEmployments = async (payload) => {
     await api.post('/mypage/v1/employments', payload)
 }
 
+export const updateProfileImg = async (file) => {
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const { data } = await api.post(
+        '/mypage/v1/update-profile-img',
+        formData
+    )
+
+    return data?.data
+}
+
+export const deleteProfileImg = async () => {
+    const { data } = await api.delete(
+        '/mypage/v1/delete-profile-img'
+    )
+
+    return data?.data
+}
+
 export const withdraw = async (payload) => {
     await api.delete('/mypage/v1/withdraw', { data: payload })
 }

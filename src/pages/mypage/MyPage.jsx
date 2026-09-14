@@ -1,5 +1,5 @@
 // src/pages/mypage/MyPage.jsx
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useAuthStore from '../../store/authStore'
 import Navbar from '../../components/common/Navbar'
@@ -15,13 +15,14 @@ import {
     sendEmailCode, verifyEmailCode, updateEmail,
     issueLinkToken, unlinkSocial, logoutAllDevices,
     updateTargetJobs, updateEmployments,
+    updateProfileImg, deleteProfileImg,
     withdraw,
     fetchMyPosts, deleteMyPosts,
     fetchMyComments, deleteMyComments,
     fetchMyScraps, deleteMyScraps,
     fetchMyLikes, deleteMyLikes,
 } from '../../api/myPageApi'
-import { Heart, Bookmark, MessageCircle, Eye, Camera, Settings2, UserRound } from 'lucide-react'
+import { Heart, Bookmark, MessageCircle, Eye, Camera, Settings2, UserRound, Trash2 } from 'lucide-react'
 
 // 공통 에러 메시지 파싱
 const parseError = (err, fallback = '처리에 실패했습니다.') => {
@@ -1307,6 +1308,11 @@ export default function MyPage() {
     }
     const [info, setInfo] = useState(null)
     const [loading, setLoading] = useState(true)
+
+    // 프로필 이미지
+    const profileImgInputRef = useRef(null)
+    const [profileImgUploading, setProfileImgUploading] = useState(false)
+
     const [modal, setModal] = useState(null) // 'password' | 'nickname' | 'name' | 'email' | 'addr' | 'unlink' | 'withdraw'
     const [unlinkProvider, setUnlinkProvider] = useState(null)
     const getSocialLinkErrorMessage = (errorCode) => {
@@ -1387,6 +1393,86 @@ export default function MyPage() {
         }
     }
 
+    const handleProfileImgChange = async (e) => {
+        const file = e.target.files?.[0]
+
+        if (!file) return
+
+        const allowedTypes = [
+            'image/jpeg',
+            'image/png',
+            'image/bmp',
+            'image/webp',
+        ]
+
+        const maxSize = 5 * 1024 * 1024
+
+        if (!allowedTypes.includes(file.type)) {
+            setResultModal({
+                type: 'error',
+                message: 'JPG, JPEG, PNG, BMP, WEBP 파일만 업로드할 수 있습니다.',
+            })
+            e.target.value = ''
+            return
+        }
+
+        if (file.size > maxSize) {
+            setResultModal({
+                type: 'error',
+                message: '프로필 이미지는 5MB 이하만 업로드할 수 있습니다.',
+            })
+            e.target.value = ''
+            return
+        }
+
+        setProfileImgUploading(true)
+
+        try {
+            const profileImgUrl = await updateProfileImg(file)
+
+            setInfo(prev => ({
+                ...prev,
+                profileImgUrl,
+            }))
+
+            setResultModal({
+                type: 'success',
+                message: '프로필 이미지가 변경되었습니다.',
+            })
+        } catch (err) {
+            setResultModal({
+                type: 'error',
+                message: parseError(err, '프로필 이미지 변경에 실패했습니다.'),
+            })
+        } finally {
+            setProfileImgUploading(false)
+            e.target.value = ''
+        }
+    }
+
+    const handleProfileImgDelete = async () => {
+        if (!info?.profileImgUrl) return
+
+        try {
+            await deleteProfileImg()
+
+            setInfo(prev => ({
+                ...prev,
+                profileImgUrl: null,
+            }))
+
+            setResultModal({
+                type: 'success',
+                message: '프로필 이미지가 삭제되었습니다.',
+            })
+        } catch (err) {
+            setResultModal({
+                type: 'error',
+                message: parseError(err, '프로필 이미지 삭제에 실패했습니다.'),
+            })
+        }
+    }
+
     if (loading) return (
         <div className="mp-page">
             <Navbar />
@@ -1423,19 +1509,79 @@ export default function MyPage() {
 
                 {/* 콘텐츠 */}
                 <main className="mp-content">
-                    {/* 프로필 헤더 */}
-                    <div className="mp-profile-header">
-                        <div className="mp-avatar">
-                            <UserRound size={27} />
-                            <div className="mp-avatar-edit"><Camera size={11} /></div>
-                        </div>
-                        <div>
-                            <div className="mp-profile-name">{info?.nickname || user?.nickname}</div>
-                            <div className="mp-profile-joined">
-                                {info?.createdAt ? new Date(info.createdAt).toLocaleDateString('ko-KR') + ' 가입' : ''}
+                {/* 프로필 헤더 */}
+                <div className="mp-profile-header">
+
+                    {/* 프로필 이미지 */}
+                    <div className="mp-avatar-wrap">
+                        <div
+                            className={`mp-avatar ${profileImgUploading ? 'uploading' : ''}`}
+                            onClick={() => {
+                                if (!profileImgUploading) {
+                                    profileImgInputRef.current?.click()
+                                }
+                            }}
+                            title="프로필 이미지 변경"
+                            style={info?.profileImgUrl ? {
+                                backgroundImage: `url(${info.profileImgUrl})`,
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
+                            } : {}}
+                        >
+                            {!info?.profileImgUrl && <UserRound size={27} />}
+
+                            {/* 호버 오버레이 */}
+                            <div className="mp-avatar-overlay">
+                                <button
+                                    type="button"
+                                    className="mp-avatar-overlay-btn"
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        if (!profileImgUploading) profileImgInputRef.current?.click()
+                                    }}
+                                    title="이미지 변경"
+                                >
+                                    <Camera size={13} />
+                                </button>
+                                {info?.profileImgUrl && (
+                                    <button
+                                        type="button"
+                                        className="mp-avatar-overlay-btn"
+                                        onClick={(e) => {
+                                            e.stopPropagation()
+                                            setModal('deleteProfileImg')
+                                        }}
+                                        title="이미지 삭제"
+                                    >
+                                        <Trash2 size={13} />
+                                    </button>
+                                )}
                             </div>
                         </div>
+
+                        <input
+                            ref={profileImgInputRef}
+                            type="file"
+                            accept=".jpg,.jpeg,.png,.bmp,.webp,image/jpeg,image/png,image/bmp,image/webp"
+                            onChange={handleProfileImgChange}
+                            style={{ display: 'none' }}
+                        />
                     </div>
+
+                    {/* 닉네임 / 가입일 */}
+                    <div>
+                        <div className="mp-profile-name">
+                            {info?.nickname || user?.nickname}
+                        </div>
+
+                        <div className="mp-profile-joined">
+                            {info?.createdAt
+                                ? new Date(info.createdAt).toLocaleDateString('ko-KR') + ' 가입'
+                                : ''}
+                        </div>
+                    </div>
+
+                </div>
 
                     {/* 탭 */}
                     <div className="mp-tabs">
@@ -1661,6 +1807,37 @@ export default function MyPage() {
                 />
             )}
 
+            {modal === 'deleteProfileImg' && (
+                <BaseModal
+                    title="프로필 이미지 삭제"
+                    onClose={() => setModal(null)}
+                    actions={
+                        <div className="mp-modal-btn-row">
+                            <button
+                                className="mp-modal-btn"
+                                onClick={() => setModal(null)}
+                            >
+                                취소
+                            </button>
+
+                            <button
+                                className="mp-modal-btn danger"
+                                onClick={async () => {
+                                    await handleProfileImgDelete()
+                                    setModal(null)
+                                }}
+                            >
+                                삭제
+                            </button>
+                        </div>
+                    }
+                >
+                    <p className="mp-modal-help-text">
+                        현재 프로필 이미지를 삭제하시겠습니까?
+                    </p>
+                </BaseModal>
+            )}
+
             {modal === 'logoutAll' && (
                 <BaseModal
                     title="모든 기기 로그아웃"
@@ -1714,14 +1891,6 @@ export default function MyPage() {
                     current2={info?.addr2}
                     onClose={() => setModal(null)}
                     onSuccess={(addr1, addr2) => { setInfo(p => ({ ...p, addr1, addr2 })); setModal(null) }}
-                />
-            )}
-
-            {modal === 'unlink' && unlinkProvider && (
-                <UnlinkModal
-                    provider={unlinkProvider}
-                    onClose={() => setModal(null)}
-                    onSuccess={handleUnlinkSuccess}
                 />
             )}
 
