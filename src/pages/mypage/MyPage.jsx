@@ -1540,8 +1540,9 @@ export default function MyPage() {
                                         if (!profileImgUploading) profileImgInputRef.current?.click()
                                     }}
                                     title="이미지 변경"
+                                    aria-label="프로필 이미지 변경"
                                 >
-                                    <Camera size={13} />
+                                    <Camera size={15} strokeWidth={2.25} aria-hidden="true" />
                                 </button>
                                 {info?.profileImgUrl && (
                                     <button
@@ -1552,8 +1553,9 @@ export default function MyPage() {
                                             setModal('deleteProfileImg')
                                         }}
                                         title="이미지 삭제"
+                                        aria-label="프로필 이미지 삭제"
                                     >
-                                        <Trash2 size={13} />
+                                        <Trash2 size={15} strokeWidth={2.25} aria-hidden="true" />
                                     </button>
                                 )}
                             </div>

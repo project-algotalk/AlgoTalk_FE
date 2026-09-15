@@ -6738,7 +6738,15 @@ a {
 .mp-sidebar-item.danger { margin-top: 7px; border-top: 1px solid #edf0f4; border-radius: 0 0 9px 9px; }
 .mp-content { gap: 16px; }
 .mp-profile-header { margin: 0; padding: 22px 25px; border: 1px solid #e1e6ee; border-radius: 17px; background: linear-gradient(120deg,#fff,#f5f6ff); box-shadow: 0 10px 30px rgba(31,47,78,.045); }
-.mp-avatar { width: 58px; height: 58px; color: #6265c7; background: linear-gradient(145deg,#eef0ff,#e4e6fc); box-shadow: inset 0 0 0 1px #d9dcf4; }
+.mp-avatar-wrap { width: 58px; height: 58px; position: relative; flex: 0 0 58px; }
+.mp-avatar { width: 58px; height: 58px; overflow: hidden; color: #6265c7; background: linear-gradient(145deg,#eef0ff,#e4e6fc); background-repeat: no-repeat; box-shadow: inset 0 0 0 1px #d9dcf4; cursor: pointer; }
+.mp-avatar.uploading { pointer-events: none; opacity: .6; }
+.mp-avatar-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 3px; border-radius: 50%; color: #fff; background: rgba(20,28,48,.62); opacity: 0; transition: opacity .2s ease; }
+.mp-avatar:hover .mp-avatar-overlay, .mp-avatar:focus-within .mp-avatar-overlay { opacity: 1; }
+.mp-avatar-overlay-btn { width: 24px; height: 24px; padding: 0; display: grid; place-items: center; flex: 0 0 24px; border: 1px solid rgba(255,255,255,.28); border-radius: 50%; color: #fff; background: rgba(255,255,255,.14); cursor: pointer; transition: background .15s ease, transform .15s ease; }
+.mp-avatar-overlay-btn:hover { background: rgba(255,255,255,.32); transform: scale(1.06); }
+.mp-avatar-overlay-btn:focus-visible { outline: 2px solid #fff; outline-offset: 1px; }
+.mp-avatar-overlay-btn svg { width: 15px; height: 15px; display: block; flex-shrink: 0; }
 .mp-avatar-edit { width: 21px; height: 21px; right: -1px; bottom: -1px; border: 2px solid #fff; color: #fff; background: #5c5fc1; }
 .mp-profile-name { color: #1e2e49; font-size: 1.2rem; }
 .mp-profile-joined { color: #919cad; font-size: .73rem; }
