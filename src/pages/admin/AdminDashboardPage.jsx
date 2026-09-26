@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
   Clock3,
+  LockKeyholeOpen,
   ShieldCheck,
   UserCheck,
   UserCog,
@@ -180,6 +181,15 @@ export default function AdminDashboardPage() {
                 <ArrowRight />
               </Link>
 
+              <Link to="/admin/users/unlock">
+                <LockKeyholeOpen />
+                <div>
+                  <strong>회원 잠금 해제</strong>
+                  <span>로그인 잠금 상태를 초기화합니다.</span>
+                </div>
+                <ArrowRight />
+              </Link>
+
               <Link to="/admin/status">
                 <UserCheck />
                 <div>
@@ -194,6 +204,15 @@ export default function AdminDashboardPage() {
 
         {!isSuperAdmin && (
           <section className="admin-quick-grid">
+            <Link to="/admin/users/unlock">
+              <LockKeyholeOpen />
+              <div>
+                <strong>회원 잠금 해제</strong>
+                <span>로그인 잠금 상태를 초기화합니다.</span>
+              </div>
+              <ArrowRight />
+            </Link>
+
             <Link to="/admin/status">
               <UserCheck />
               <div>

@@ -1200,7 +1200,7 @@
 .admin-quick-grid {
   margin-top: 18px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 16px;
 }
 .admin-quick-grid > a {
@@ -1231,6 +1231,87 @@
 .admin-quick-grid > a > svg:last-child {
   color: #a0a8b4;
 }
+
+/* Admin user management */
+.admin-user-search {
+  padding: 16px 19px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  border-bottom: 1px solid #e9ecf1;
+}
+.admin-user-search label {
+  width: min(360px, 100%);
+  height: 40px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #dadee7;
+  border-radius: 7px;
+  color: #9099a7;
+  background: #fff;
+}
+.admin-user-search label:focus-within {
+  border-color: var(--admin-indigo);
+  box-shadow: 0 0 0 3px rgba(84, 88, 199, 0.1);
+}
+.admin-user-search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  color: #26354c;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.78rem;
+}
+.admin-user-search button {
+  height: 40px;
+  padding: 0 17px;
+  border: 0;
+  border-radius: 7px;
+  color: #fff;
+  background: var(--admin-navy);
+  font-family: inherit;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.admin-user-search button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.table-status.locked {
+  color: #b5424b;
+  background: #fdebed;
+}
+.table-status.normal {
+  color: #237552;
+  background: #e5f5ec;
+}
+.admin-user-unlock-button {
+  padding: 7px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid #daddf0;
+  border-radius: 7px;
+  color: var(--admin-indigo);
+  background: #fff;
+  font-family: inherit;
+  font-size: 0.69rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.admin-user-unlock-button:hover:not(:disabled) {
+  background: #f3f3ff;
+}
+.admin-user-unlock-button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
 @media (max-width: 760px) {
   .admin-login-page {
     grid-template-columns: 1fr;
@@ -1259,6 +1340,17 @@
   }
   .admin-quick-grid {
     grid-template-columns: 1fr;
+  }
+  .admin-user-search {
+    align-items: stretch;
+  }
+  .admin-user-search label {
+    width: 100%;
+  }
+  .admin-user-table th,
+  .admin-user-table td {
+    padding-right: 15px;
+    padding-left: 15px;
   }
   .admin-dashboard-hero {
     padding: 28px 24px;

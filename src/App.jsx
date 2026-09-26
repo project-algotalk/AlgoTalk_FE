@@ -44,6 +44,7 @@ import AdminStatusPage from './pages/admin/AdminStatusPage'
 import AdminApplicationsPage from './pages/admin/AdminApplicationsPage'
 import AdminLoginPage from './pages/admin/AdminLoginPage'
 import AdminDashboardPage from './pages/admin/AdminDashboardPage'
+import AdminUserUnlockPage from './pages/admin/AdminUserUnlockPage'
 
 export default function App() {
   const { login, logout, setUnauthenticated } = useAuthStore()
@@ -148,6 +149,7 @@ export default function App() {
           <Route path="/admin/status" element={<AdminStatusPage />} />
           <Route path="/admin" element={<AdminDashboardPage />} />
           <Route path="/admin/applications" element={<AdminApplicationsPage />} />
+          <Route path="/admin/users/unlock" element={<AdminUserUnlockPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

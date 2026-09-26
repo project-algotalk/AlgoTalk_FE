@@ -46,3 +46,29 @@ export const rejectAdminApplication = async (
     { reason }
   )
 }
+
+export const fetchAdminUsers = async ({
+  page = 1,
+  size = 10,
+  keyword = '',
+} = {}) => {
+  const { data } = await api.get('/admin/v1/users', {
+    params: {
+      page,
+      size,
+      keyword: keyword || undefined,
+    },
+  })
+
+  return data?.data || {
+    content: [],
+    page,
+    size,
+    totalCount: 0,
+    totalPages: 0,
+  }
+}
+
+export const unlockUserAccount = async (loginId) => {
+  await api.patch('/admin/v1/users/unlock', { loginId })
+}
