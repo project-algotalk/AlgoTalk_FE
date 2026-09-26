@@ -1,6 +1,7 @@
 // src/pages/auth/SignupCompletePage.jsx
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { ArrowRight, CircleCheckBig, Sparkles } from 'lucide-react'
 
 export default function SignupCompletePage() {
   const navigate = useNavigate()
@@ -18,19 +19,8 @@ export default function SignupCompletePage() {
       </nav>
 
       <div className="sc-body">
-        {/* 체크 아이콘 */}
-        <div className="sc-icon">
-          <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-            <circle cx="32" cy="32" r="30" stroke="#1a7f4b" strokeWidth="3" fill="none"/>
-            <path
-              d="M18 32l10 10 18-18"
-              stroke="#1a7f4b"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
+        <span className="sc-eyebrow"><Sparkles size={14} /> ALL SET</span>
+        <div className="sc-icon"><CircleCheckBig size={42} /></div>
 
         <h1 className="sc-title">회원가입 완료!</h1>
         <p className="sc-desc">
@@ -44,7 +34,7 @@ export default function SignupCompletePage() {
           className="sc-btn"
           onClick={() => navigate('/login', { replace: true })}
         >
-          로그인하러 가기
+          로그인하러 가기 <ArrowRight size={17} />
         </button>
       </div>
     </div>

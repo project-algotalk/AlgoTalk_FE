@@ -20,8 +20,12 @@ api.interceptors.response.use(
     }
 
     if (err.response?.status === 401) {
-      useAuthStore.getState().logout()
-      window.location.href = '/login'
+      const isUserLoggedOut = sessionStorage.getItem('logged-out') === 'true'
+
+      if (!isUserLoggedOut) {
+        useAuthStore.getState().logout()
+        window.location.href = '/login'
+      }
     }
 
     return Promise.reject(err)

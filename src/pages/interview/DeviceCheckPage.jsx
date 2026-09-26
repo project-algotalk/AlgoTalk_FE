@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { ArrowLeft, ArrowRight, Camera, Check, Mic2, RotateCcw, ShieldCheck, Sparkles, Video } from 'lucide-react'
 
 export default function DeviceCheckPage() {
   const navigate = useNavigate()
@@ -98,15 +99,19 @@ export default function DeviceCheckPage() {
 
   return (
     <div className="dc-page">
-      {/* 헤더 */}
       <header className="dc-header">
-        <button className="dc-back" onClick={() => { stopStream(); navigate(-1) }}>‹</button>
-        <span className="dc-header-title">AlgoTalk</span>
+        <button className="dc-back" onClick={() => { stopStream(); navigate(-1) }} aria-label="이전으로">
+          <ArrowLeft size={18} />
+        </button>
+        <span className="dc-header-title"><i />AlgoTalk <em>DEVICE CHECK</em></span>
       </header>
 
       <div className="dc-container">
-        <h1 className="dc-title">장치 설정 확인하기</h1>
-        <p className="dc-subtitle">면접 시작 전 카메라와 마이크가 정상 작동하는지 확인합니다.</p>
+        <div className="dc-heading">
+          <span className="dc-eyebrow"><Sparkles size={14} /> READY TO INTERVIEW</span>
+          <h1 className="dc-title">면접 전, 장치를<br />마지막으로 확인해 주세요.</h1>
+          <p className="dc-subtitle">카메라와 마이크가 정상적으로 작동해야 정확한 AI 피드백을 받을 수 있어요.</p>
+        </div>
 
         {/* 카메라 미리보기 */}
         <div className="dc-preview">
@@ -119,15 +124,15 @@ export default function DeviceCheckPage() {
           />
           {cameraStatus !== 'ok' && (
             <div className="dc-preview-placeholder">
-              {cameraStatus === 'error' ? '카메라를 사용할 수 없습니다.' : '카메라 미리보기'}
+              {cameraStatus === 'error' ? <><Camera size={27} /><span>카메라를 사용할 수 없습니다.</span></> : <><Video size={30} /><span>카메라 체크를 시작해 주세요.</span></>}
             </div>
           )}
           {cameraStatus === 'ok' && (
-            <div className="dc-rec-dot" />
+            <div className="dc-preview-status"><i /> 카메라 연결됨</div>
           )}
         </div>
 
-        <p className="dc-hint">장치 문제시 브라우저에서 권한을 확인하세요.</p>
+        <div className="dc-hint"><ShieldCheck size={15} /> 영상과 음성은 면접 분석 목적으로만 사용돼요.</div>
 
         {/* 마이크 레벨 */}
         {micStatus === 'checking' && (
@@ -142,24 +147,24 @@ export default function DeviceCheckPage() {
             className={`dc-check-btn ${cameraStatus === 'ok' ? 'ok' : cameraStatus === 'error' ? 'error' : ''}`}
             onClick={handleCameraCheck}
           >
-            📷 카메라 체크
-            {cameraStatus === 'ok' && ' ✓'}
-            {cameraStatus === 'error' && ' ✗'}
+            <span className="dc-check-icon"><Camera size={19} /></span>
+            <span><strong>카메라</strong><small>{cameraStatus === 'checking' ? '연결 확인 중...' : cameraStatus === 'ok' ? '정상적으로 연결됐어요' : cameraStatus === 'error' ? '권한을 확인해 주세요' : '화면이 잘 보이는지 확인'}</small></span>
+            {cameraStatus === 'ok' ? <Check size={18} /> : <RotateCcw size={16} />}
           </button>
           <button
             className={`dc-check-btn ${micStatus === 'ok' ? 'ok' : micStatus === 'error' ? 'error' : ''}`}
             onClick={handleMicCheck}
           >
-            🎤 마이크 체크
-            {micStatus === 'ok' && ' ✓'}
-            {micStatus === 'error' && ' ✗'}
+            <span className="dc-check-icon"><Mic2 size={19} /></span>
+            <span><strong>마이크</strong><small>{micStatus === 'checking' ? '목소리를 들려주세요' : micStatus === 'ok' ? '정상적으로 들려요' : micStatus === 'error' ? '소리를 감지하지 못했어요' : '목소리가 입력되는지 확인'}</small></span>
+            {micStatus === 'ok' ? <Check size={18} /> : <RotateCcw size={16} />}
           </button>
         </div>
 
         {/* 하단 버튼 */}
         <div className="dc-footer">
           <button className="dc-prev-btn" onClick={() => { stopStream(); navigate(-1) }}>
-            이 전
+            <ArrowLeft size={17} /> 이전
           </button>
           <button
             className="dc-start-btn"
@@ -167,7 +172,7 @@ export default function DeviceCheckPage() {
             disabled={!isDeviceReady}
             title={!isDeviceReady ? '카메라와 마이크 체크를 완료해주세요.' : ''}
           >
-            면접 시작
+            면접 시작 <ArrowRight size={17} />
           </button>
         </div>
       </div>

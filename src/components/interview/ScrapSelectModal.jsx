@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Bookmark, MessageCircle } from 'lucide-react'
+import { Bookmark, Check, MessageCircle, X } from 'lucide-react'
 import { fetchMyScraps } from '../../api/myPageApi'
 
 const PAGE_SIZE = 10
@@ -54,9 +54,13 @@ export default function ScrapSelectModal({ onConfirm, onCancel }) {
     }
 
     return (
-        <div className="ssm-overlay">
-            <div className="ssm-modal">
-                <h3 className="ssm-title">스크랩글</h3>
+        <div className="ssm-overlay" onClick={onCancel}>
+            <div className="ssm-modal" onClick={event => event.stopPropagation()} role="dialog" aria-modal="true">
+                <div className="ssm-header">
+                    <span className="ssm-header-icon"><Bookmark size={20} /></span>
+                    <div><h3 className="ssm-title">스크랩 질문 불러오기</h3><p>면접에서 연습할 질문을 최대 5개 선택하세요.</p></div>
+                    <button className="ssm-close" type="button" onClick={onCancel} aria-label="스크랩 선택 닫기"><X size={18} /></button>
+                </div>
 
                 {loading ? (
                     <div className="ssm-loading">로딩 중...</div>
@@ -117,7 +121,7 @@ export default function ScrapSelectModal({ onConfirm, onCancel }) {
                         onClick={() => onConfirm(selected)}
                         disabled={selected.length === 0}
                     >
-                        선택 완료
+                        <Check size={16} /> {selected.length}개 선택 완료
                     </button>
                 </div>
             </div>

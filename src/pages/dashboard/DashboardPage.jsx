@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import Navbar from '../../components/common/Navbar'
 import useAuthStore from '../../store/authStore'
 import { fetchDashboard } from '../../api/dashboardApi'
-import { Target, Mic, BarChart2 } from 'lucide-react'
+import { ArrowRight, BarChart2, CalendarDays, ClipboardList, Mic, Sparkles, Target, TrendingUp, Trophy } from 'lucide-react'
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid,
     Tooltip, ResponsiveContainer
@@ -85,12 +85,24 @@ export default function DashboardPage() {
     return (
         <div className="dash-page">
             <Navbar />
+            <section className="dash-hero">
+                <div>
+                    <span className="dash-eyebrow"><Sparkles size={14} /> INTERVIEW REPORT</span>
+                    <h1>연습의 변화를<br />데이터로 확인하세요.</h1>
+                    <p>면접 기록과 항목별 피드백을 통해 다음 답변의 방향을 찾아보세요.</p>
+                </div>
+                <div className="dash-hero-visual" aria-hidden="true">
+                    <TrendingUp size={28} />
+                    <span className="dash-hero-line"><i /><i /><i /><i /><i /></span>
+                    <strong>꾸준히 성장하고 있어요</strong>
+                </div>
+            </section>
             <div className="dash-container">
 
                 {isEmpty ? (
                     /* ── 빈 상태 ── */
                     <div className="dash-empty">
-                        <div className="dash-empty-icon">📋</div>
+                        <div className="dash-empty-icon"><ClipboardList size={30} /></div>
                         <h2 className="dash-empty-title">
                             아직 {user?.nickname} 님의 면접 기록이 없어요
                         </h2>
@@ -103,7 +115,7 @@ export default function DashboardPage() {
                             className="dash-empty-btn"
                             onClick={() => navigate('/interview')}
                         >
-                            ▶ 첫 면접 시작하기
+                            첫 면접 시작하기 <ArrowRight size={17} />
                         </button>
                         <div className="dash-steps">
                             <div className="dash-step">
@@ -141,30 +153,30 @@ export default function DashboardPage() {
                                 className="dash-start-btn"
                                 onClick={() => navigate('/interview')}
                             >
-                                ▶ 면접 시작하기
+                                면접 시작하기 <ArrowRight size={17} />
                             </button>
                         </div>
 
                         {/* 통계 카드 */}
                         <div className="dash-cards">
-                            <div className="dash-card">
-                                <div className="dash-card-label">총 세션 수</div>
-                                <div className="dash-card-value">{dashboard.totalSessions}</div>
+                            <div className="dash-card dash-card--sessions">
+                                <div className="dash-card-icon"><CalendarDays size={19} /></div>
+                                <div><div className="dash-card-label">총 세션 수</div><div className="dash-card-value">{dashboard.totalSessions}<small>회</small></div></div>
                             </div>
-                            <div className="dash-card">
-                                <div className="dash-card-label">평균 점수</div>
-                                <div className="dash-card-value">{dashboard.avgScore?.toFixed(1)}</div>
+                            <div className="dash-card dash-card--average">
+                                <div className="dash-card-icon"><TrendingUp size={19} /></div>
+                                <div><div className="dash-card-label">평균 점수</div><div className="dash-card-value">{dashboard.avgScore?.toFixed(1)}<small>점</small></div></div>
                             </div>
-                            <div className="dash-card">
-                                <div className="dash-card-label">최고 점수</div>
-                                <div className="dash-card-value">{dashboard.maxScore?.toFixed(1)}</div>
+                            <div className="dash-card dash-card--best">
+                                <div className="dash-card-icon"><Trophy size={19} /></div>
+                                <div><div className="dash-card-label">최고 점수</div><div className="dash-card-value">{dashboard.maxScore?.toFixed(1)}<small>점</small></div></div>
                             </div>
                         </div>
 
                         <div className="dash-main">
                             {/* 점수 추이 차트 */}
                             <div className="dash-chart-wrap">
-                                <h3 className="dash-section-title">점수 추이</h3>
+                                <h3 className="dash-section-title"><TrendingUp size={17} /> 점수 추이</h3>
                                 <ResponsiveContainer width="100%" height={200}>
                                     <LineChart data={chartData}>
                                         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -202,7 +214,7 @@ export default function DashboardPage() {
 
                             {/* 항목별 평균 */}
                             <div className="dash-detail-wrap">
-                                <h3 className="dash-section-title">항목별 평균</h3>
+                                <h3 className="dash-section-title"><BarChart2 size={17} /> 항목별 평균</h3>
                                 <div className="dash-detail-list">
                                     {scoreItems.map(item => {
                                         const score = dashboard.scoreDetails?.[item.key] ?? 0
@@ -230,7 +242,7 @@ export default function DashboardPage() {
 
                         {/* 최근 세션 목록 */}
                         <div className="dash-sessions">
-                            <h3 className="dash-section-title">면접 세션</h3>
+                            <h3 className="dash-section-title"><ClipboardList size={17} /> 면접 세션 <span>{dashboard.totalCount ?? dashboard.recentSessions.length}개의 기록</span></h3>
                             <div className="dash-session-list">
                                 {dashboard.recentSessions.map(session => {
                                     const score = session.avgScore ?? 0

@@ -1,0 +1,283 @@
+.ir-page {
+  min-height: 100vh;
+  background: #fafafa;
+}
+
+.ir-loading {
+  text-align: center;
+  padding: 80px 24px;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.ir-container {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+/* 헤더 */
+.ir-header {
+  margin-bottom: 28px;
+}
+
+.ir-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 4px;
+}
+
+.ir-subtitle {
+  font-size: 0.85rem;
+  color: #888;
+}
+
+/* 종합 점수 */
+.ir-score-section {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  background: #fff;
+  border: 1.5px solid #e8e8e8;
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.ir-total-score-wrap {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.ir-score-main-label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 2px;
+}
+
+.ir-score-main-sub {
+  font-size: 0.78rem;
+  color: #aaa;
+}
+
+.ir-score-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.ir-score-cards-row {
+  display: flex;
+  gap: 10px;
+}
+
+.ir-score-card {
+  flex: 1;
+  min-width: 90px;
+  background: #fafafa;
+  border: 1.5px solid #efefef;
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ir-score-card-label {
+  font-size: 0.78rem;
+  color: #888;
+}
+
+.ir-score-card-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1;
+}
+
+.ir-score-card-max {
+  font-size: 0.75rem;
+  color: #bbb;
+}
+
+/* 섹션 공통 */
+.ir-section {
+  background: #fff;
+  border: 1.5px solid #e8e8e8;
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+
+.ir-section-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 16px;
+}
+
+/* 바 차트 */
+.ir-bar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ir-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ir-bar-label {
+  font-size: 0.82rem;
+  color: #555;
+  width: 80px;
+  flex-shrink: 0;
+}
+
+.ir-bar-track {
+  flex: 1;
+  height: 8px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.ir-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.8s ease;
+}
+
+.ir-bar-value {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #333;
+  width: 28px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* 질문 카드 목록 */
+.ir-question-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ir-question-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  background: #fff;
+  border: 1.5px solid #efefef;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.ir-question-card:hover {
+  border-color: #ccc;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.ir-q-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.ir-q-num {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #888;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.ir-q-content {
+  min-width: 0;
+}
+
+.ir-q-text {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ir-q-preview {
+  font-size: 0.8rem;
+  color: #888;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ir-q-preview--muted {
+  color: #bbb;
+}
+
+.ir-q-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.ir-status-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+
+.ir-q-score {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  white-space: nowrap;
+}
+
+.ir-q-arrow {
+  font-size: 1.1rem;
+  color: #ccc;
+}
+
+/* 푸터 */
+.ir-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+.ir-btn-home {
+  padding: 12px 40px;
+  background: #3a3a3a;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.ir-btn-home:hover {
+  background: #1a1a1a;
+}

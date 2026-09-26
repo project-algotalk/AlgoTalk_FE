@@ -4,7 +4,7 @@ import Navbar from '../../components/common/Navbar'
 import { fetchPostList } from '../../api/boardApi'
 import { fetchCategories } from '../../api/csCategoryApi'
 import useAuthStore from '../../store/authStore'
-import { Heart, Bookmark, MessageCircle, Eye } from 'lucide-react'
+import { Heart, Bookmark, MessageCircle, Eye, PenLine, Search, Sparkles, UsersRound } from 'lucide-react'
 
 const TABS = [
     { label: '질문공유', categoryCd: 'QUESTION' },
@@ -137,6 +137,16 @@ export default function BoardPage() {
     return (
         <div className="board-wrap">
             <Navbar />
+            <div className="board-hero">
+                <div className="board-hero__inner">
+                    <div>
+                        <span><Sparkles size={14} /> DEVELOPER COMMUNITY</span>
+                        <h1>함께 나누면,<br />면접 준비가 더 선명해져요.</h1>
+                        <p>질문과 경험을 나누고 다른 개발자의 인사이트를 발견해 보세요.</p>
+                    </div>
+                    <div className="board-hero__visual"><UsersRound size={34} /><strong>AlgoTalk Community</strong><span>개발자들의 면접 준비 라운지</span></div>
+                </div>
+            </div>
             <div className="board-container">
 
                 {/* 탭 */}
@@ -170,7 +180,7 @@ export default function BoardPage() {
                         onChange={e => setSearchInput(e.target.value)}
                         onKeyDown={handleKeyDown}
                     />
-                    <button className="board-search-btn" onClick={handleSearch}>검색</button>
+                    <button className="board-search-btn" onClick={handleSearch}><Search size={16} /> 검색</button>
                 </div>
 
                 {/* CS 카테고리 필터 */}
@@ -228,7 +238,7 @@ export default function BoardPage() {
                     {loading ? (
                         <div className="board-loading">로딩 중...</div>
                     ) : posts.length === 0 ? (
-                        <div className="board-empty">게시글이 없습니다.</div>
+                        <div className="board-empty"><MessageCircle size={28} /><strong>아직 게시글이 없어요.</strong><span>첫 번째 이야기를 남겨보세요.</span></div>
                     ) : (
                         posts.map(post => (
                             <div
@@ -295,7 +305,7 @@ export default function BoardPage() {
                             className="board-write-btn"
                             onClick={() => navigate('/board/write')}
                         >
-                            글 작성
+                            <PenLine size={16} /> 글 작성
                         </button>
                     )}
                 </div>

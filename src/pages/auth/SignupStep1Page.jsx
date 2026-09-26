@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../../api/axiosInstance'
 import AlertModal from '../../components/common/AlertModal'
+import { Sparkles, UserRound } from 'lucide-react'
 
 const RULES = {
   loginId:  /^[a-zA-Z0-9]{4,20}$/,
@@ -276,6 +277,12 @@ export default function SignupStep1Page() {
         </nav>
 
       <div className="su-container">
+        <div className="auth-heading auth-heading--signup">
+          <span className="auth-eyebrow"><Sparkles size={14} /> CREATE ACCOUNT</span>
+          <div className="auth-heading-icon"><UserRound size={22} /></div>
+          <h1>기본 정보를 알려주세요.</h1>
+          <p className="auth-subtitle">면접 리포트와 맞춤 질문에 사용할 계정 정보를 입력해 주세요.</p>
+        </div>
 
         {/* 스텝 인디케이터 */}
         <div className="su-steps">

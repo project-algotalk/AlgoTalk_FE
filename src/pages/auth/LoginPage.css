@@ -1,0 +1,265 @@
+/* src/pages/auth/LoginPage.css */
+
+.login-page {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+
+/* ── 로그인 전용 Navbar ── */
+.login-nav {
+  width: 100%;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  border-bottom: 1px solid #e8edf5;
+  box-sizing: border-box;
+}
+
+.login-nav-close {
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: #444;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.login-nav-close:hover {
+  background: #f5f5f5;
+}
+
+.login-nav-logo {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #0F2854;
+  letter-spacing: -0.5px;
+}
+
+/* ── 폼 컨테이너 ── */
+.login-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 20px 60px;
+}
+
+.login-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 32px;
+  letter-spacing: -0.3px;
+}
+
+/* ── 폼 ── */
+.login-form {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.login-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.login-input {
+  width: 100%;
+  height: 52px;
+  padding: 0 16px;
+  border: 1.5px solid #d8d8d8;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: 'Noto Sans KR', sans-serif;
+  color: #1a1a1a;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.login-input::placeholder {
+  color: #aaa;
+}
+
+.login-input:focus {
+  border-color: #1C4D8D;
+}
+
+.login-input--error {
+  border-color: #e53935;
+}
+
+/* 에러 메시지 */
+.login-error {
+  font-size: 0.8rem;
+  color: #e53935;
+  margin: 0;
+  padding-left: 2px;
+}
+
+.login-error--global {
+  text-align: center;
+  padding: 8px 12px;
+  background: #fff5f5;
+  border: 1px solid #ffcdd2;
+  border-radius: 6px;
+}
+
+/* 아이디 저장 */
+.login-save-id {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.875rem;
+  color: #555;
+  cursor: pointer;
+  margin-top: -2px;
+}
+
+.login-save-id input[type='checkbox'] {
+  width: 15px;
+  height: 15px;
+  accent-color: #0F2854;
+  cursor: pointer;
+}
+
+/* ── 버튼 ── */
+.login-btn {
+  width: 100%;
+  height: 52px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: 'Noto Sans KR', sans-serif;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: none;
+}
+
+.login-btn--primary {
+  background: #555;
+  color: #fff;
+}
+
+.login-btn--primary:hover:not(:disabled) {
+  background: #0F2854;
+}
+
+.login-btn--primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.login-btn--outline {
+  background: #fff;
+  color: #1a1a1a;
+  border: 1.5px solid #d8d8d8;
+}
+
+.login-btn--outline:hover {
+  border-color: #0F2854;
+  color: #0F2854;
+}
+
+/* ── 소셜 로그인 ── */
+.login-social {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.social-btn {
+  width: 100%;
+  height: 52px;
+  border-radius: 8px;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: 'Noto Sans KR', sans-serif;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: opacity 0.15s;
+}
+
+.social-btn:hover {
+  opacity: 0.9;
+}
+
+.social-icon {
+  position: absolute;
+  left: 16px;
+  font-size: 1rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+}
+
+.social-icon--naver {
+  font-size: 0.9rem;
+}
+
+.social-btn--google {
+  background: #e53935;
+  color: #fff;
+}
+
+.social-btn--kakao {
+  background: #FEE500;
+  color: #1a1a1a;
+}
+
+.social-btn--naver {
+  background: #03C75A;
+  color: #fff;
+}
+
+/* ── 찾기 링크 ── */
+.login-find {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  font-size: 0.85rem;
+  color: #888;
+}
+
+.login-find a {
+  color: #888;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.login-find a:hover {
+  color: #0F2854;
+}
+
+.login-find-divider {
+  color: #ccc;
+}

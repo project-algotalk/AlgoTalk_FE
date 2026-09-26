@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useNavigate, Link, useLocation } from 'react-router-dom'
 import api from '../../api/axiosInstance'
 import AlertModal from '../../components/common/AlertModal'
+import { KeyRound, Sparkles } from 'lucide-react'
 
 const EMAIL_DOMAINS = [
   'naver.com', 'gmail.com', 'daum.net', 'kakao.com',
@@ -507,7 +508,12 @@ export default function FindAccountPage() {
       </nav>
 
       <div className="fa-container">
-        <h1 className="fa-title">ID / PW 찾기</h1>
+        <div className="auth-heading auth-heading--find">
+          <span className="auth-eyebrow"><Sparkles size={14} /> ACCOUNT RECOVERY</span>
+          <div className="auth-heading-icon"><KeyRound size={22} /></div>
+          <h1 className="fa-title">계정 정보를 찾아드릴게요.</h1>
+          <p className="auth-subtitle">가입할 때 사용한 정보를 입력하면 안전하게 확인할 수 있어요.</p>
+        </div>
 
         <div className="fa-tabs">
           <button className={`fa-tab ${tab === 'id' ? 'active' : ''}`} onClick={() => navigate('/find-id')} type="button">
