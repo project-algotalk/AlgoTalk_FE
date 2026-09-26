@@ -1,5 +1,5 @@
 // src/App.jsx
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Navigate, Routes, Route } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import PrivateRoute from './components/common/PrivateRoute'
 import SignupStepGuard from './components/common/SignupStepGuard'
@@ -37,6 +37,13 @@ import MyPage from './pages/mypage/MyPage'
 // Main
 import MainPage from './pages/main/MainPage'
 import QuestionExplorePage from './pages/main/QuestionExplorePage'
+
+// Admin
+import AdminSignupPage from './pages/admin/AdminSignupPage'
+import AdminStatusPage from './pages/admin/AdminStatusPage'
+import AdminApplicationsPage from './pages/admin/AdminApplicationsPage'
+import AdminLoginPage from './pages/admin/AdminLoginPage'
+import AdminDashboardPage from './pages/admin/AdminDashboardPage'
 
 export default function App() {
   const { login, logout, setUnauthenticated } = useAuthStore()
@@ -118,6 +125,8 @@ export default function App() {
         <Route path="/signup/complete" element={<SignupCompletePage />} />
         <Route path="/find-id" element={<FindAccountPage />} />
         <Route path="/find-password" element={<FindAccountPage />} />
+        <Route path="/admin/signup" element={<AdminSignupPage />} />
+        <Route path="/admin/login" element={<AdminLoginPage />} />
 
         {/* 게시판 열람은 비로그인 가능 */}
         <Route path="/board" element={<BoardPage />} />
@@ -136,7 +145,11 @@ export default function App() {
           <Route path="/mypage" element={<MyPage />} />
           <Route path="/oauth2/link/success" element={<OAuthCallbackPage />} />
           <Route path="/oauth2/link/failure" element={<OAuthCallbackPage />} />
+          <Route path="/admin/status" element={<AdminStatusPage />} />
+          <Route path="/admin" element={<AdminDashboardPage />} />
+          <Route path="/admin/applications" element={<AdminApplicationsPage />} />
         </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   )
