@@ -9,10 +9,12 @@ import {
   MessageSquareText,
   Mail,
   Mic2,
+  ShieldCheck,
   Sparkles,
   ScanFace,
   Target,
 } from 'lucide-react'
+import useAuthStore from '../../store/authStore'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../../components/common/Navbar'
 
@@ -68,6 +70,20 @@ const features = [
 
 export default function MainPage() {
   const navigate = useNavigate()
+  const user = useAuthStore((state) => state.user)
+
+  const roles = (user?.roles || [])
+    .map((role) =>
+      typeof role === 'string'
+        ? role
+        : role.role || role.authority
+    )
+    .filter(Boolean)
+    .map((role) => role.replace(/^ROLE_/, ''))
+
+  const isAdmin =
+    roles.includes('ADMIN') ||
+    roles.includes('SUPER_ADMIN')
 
   return (
     <div className="main-page">
@@ -94,13 +110,30 @@ export default function MainPage() {
                 오늘의 연습이 내일의 합격 답변이 됩니다.
               </p>
               <div className="hero-actions">
-                <button className="hero-btn hero-btn--primary" onClick={() => navigate('/interview')}>
+                <button
+                  className="hero-btn hero-btn--primary"
+                  onClick={() => navigate('/interview')}
+                >
                   무료로 면접 시작하기
                   <ArrowRight size={18} />
                 </button>
-                <button className="hero-btn hero-btn--secondary" onClick={() => navigate('/questions')}>
+
+                <button
+                  className="hero-btn hero-btn--secondary"
+                  onClick={() => navigate('/questions')}
+                >
                   질문 둘러보기
                 </button>
+
+                {isAdmin && (
+                  <button
+                    className="hero-btn hero-btn--secondary"
+                    onClick={() => navigate('/admin')}
+                  >
+                    <ShieldCheck size={18} />
+                    관리자 페이지
+                  </button>
+                )}
               </div>
               <div className="hero-proof">
                 <div className="hero-proof-avatars" aria-hidden="true">
