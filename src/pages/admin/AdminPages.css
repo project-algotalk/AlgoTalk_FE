@@ -924,15 +924,21 @@
 
 /* Admin login */
 .admin-login-page {
+  width: 100%;
+  max-width: 100vw;
   min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
-  grid-template-columns: minmax(360px, 0.85fr) 1.15fr;
+  grid-template-columns: minmax(0, 0.92fr) minmax(440px, 1.08fr);
+  overflow-x: hidden;
   color: var(--admin-navy);
   background: #fff;
 }
 .admin-login-brand-panel {
+  min-width: 0;
   min-height: 100vh;
-  padding: 52px max(45px, calc((100vw - 1180px) / 2));
+  min-height: 100dvh;
+  padding: 52px clamp(32px, 4vw, 64px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -949,10 +955,13 @@
   color: #fff;
 }
 .admin-login-brand-panel h1 {
+  max-width: 560px;
   margin: 25px 0 18px;
-  font-size: clamp(2rem, 3.6vw, 3.15rem);
+  font-size: clamp(2rem, 3.4vw, 3.15rem);
   line-height: 1.22;
-  letter-spacing: -2px;
+  letter-spacing: 0;
+  word-break: keep-all;
+  overflow-wrap: normal;
 }
 .admin-login-brand-panel p {
   color: #bfc8d7;
@@ -964,8 +973,10 @@
   font-size: 0.68rem;
 }
 .admin-login-form-panel {
+  min-width: 0;
   min-height: 100vh;
-  padding: 45px;
+  min-height: 100dvh;
+  padding: 45px clamp(32px, 5vw, 72px);
   display: grid;
   place-items: center;
   position: relative;
@@ -1001,7 +1012,7 @@
 .admin-login-card h2 {
   margin: -7px 0 -10px;
   font-size: 1.75rem;
-  letter-spacing: -0.9px;
+  letter-spacing: 0;
 }
 .admin-login-card > p:not(.admin-global-error) {
   margin: -5px 0 12px;
@@ -1312,13 +1323,14 @@
   opacity: 0.45;
   cursor: default;
 }
-@media (max-width: 760px) {
+@media (max-width: 860px) {
   .admin-login-page {
     grid-template-columns: 1fr;
   }
   .admin-login-brand-panel {
-    min-height: 230px;
-    padding: 30px 25px;
+    min-height: auto;
+    padding: 30px 25px 34px;
+    gap: 28px;
   }
   .admin-login-brand-panel h1 {
     margin: 18px 0 10px;
