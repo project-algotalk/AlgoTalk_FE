@@ -3501,15 +3501,17 @@ a {
 
 .hero-actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   margin-top: 34px;
 }
 
 .hero-btn {
+  flex-shrink: 0;
   min-height: 52px;
   border-radius: 12px;
-  padding: 0 23px;
+  padding: 0 20px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -3518,6 +3520,7 @@ a {
   font-family: 'Noto Sans KR', sans-serif;
   font-size: .92rem;
   font-weight: 700;
+  white-space: nowrap;
   cursor: pointer;
   transition: transform .2s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease;
 }
