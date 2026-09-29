@@ -168,12 +168,41 @@ export default function Navbar() {
   const [showLogoutModal, setShowLogoutModal] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
+  const roles = (user?.roles || [])
+    .map((role) =>
+      typeof role === 'string'
+        ? role
+        : role.role || role.authority
+    )
+    .filter(Boolean)
+    .map((role) => role.replace(/^ROLE_/, ''))
+
+  const isAdmin =
+    roles.includes('ADMIN') ||
+    roles.includes('SUPER_ADMIN')
+
+  const isPendingAdmin =
+    roles.includes('ADMIN_PENDING')
+
+  const adminLink = isAdmin
+    ? {
+        to: '/admin',
+        label: '관리자 페이지',
+      }
+    : isPendingAdmin
+      ? {
+          to: '/admin/status',
+          label: '승인 현황',
+        }
+      : null
   const links = [
     { to: '/interview', label: 'AI 면접' },
     { to: '/questions', label: '질문 탐색' },
     { to: '/board', label: '커뮤니티' },
     { to: '/dashboard', label: '리포트' },
+    ...(adminLink ? [adminLink] : []),
   ]
+
 
   const isActive = (to) => pathname === to || pathname.startsWith(`${to}/`)
 

@@ -42,7 +42,7 @@
 .login-nav-logo {
   font-size: 1.2rem;
   font-weight: 800;
-  color: #0F2854;
+  color: #0f2854;
   letter-spacing: -0.5px;
 }
 
@@ -85,7 +85,7 @@
   border: 1.5px solid #d8d8d8;
   border-radius: 8px;
   font-size: 0.95rem;
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: "Noto Sans KR", sans-serif;
   color: #1a1a1a;
   background: #fff;
   outline: none;
@@ -98,7 +98,7 @@
 }
 
 .login-input:focus {
-  border-color: #1C4D8D;
+  border-color: #1c4d8d;
 }
 
 .login-input--error {
@@ -132,10 +132,10 @@
   margin-top: -2px;
 }
 
-.login-save-id input[type='checkbox'] {
+.login-save-id input[type="checkbox"] {
   width: 15px;
   height: 15px;
-  accent-color: #0F2854;
+  accent-color: #0f2854;
   cursor: pointer;
 }
 
@@ -146,7 +146,7 @@
   border-radius: 8px;
   font-size: 1rem;
   font-weight: 600;
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: "Noto Sans KR", sans-serif;
   cursor: pointer;
   transition: all 0.15s;
   border: none;
@@ -158,7 +158,7 @@
 }
 
 .login-btn--primary:hover:not(:disabled) {
-  background: #0F2854;
+  background: #0f2854;
 }
 
 .login-btn--primary:disabled {
@@ -173,8 +173,8 @@
 }
 
 .login-btn--outline:hover {
-  border-color: #0F2854;
-  color: #0F2854;
+  border-color: #0f2854;
+  color: #0f2854;
 }
 
 /* ── 소셜 로그인 ── */
@@ -194,7 +194,7 @@
   border: none;
   font-size: 0.95rem;
   font-weight: 600;
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: "Noto Sans KR", sans-serif;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -218,7 +218,7 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.25);
+  background: rgba(255, 255, 255, 0.25);
 }
 
 .social-icon--naver {
@@ -231,12 +231,12 @@
 }
 
 .social-btn--kakao {
-  background: #FEE500;
+  background: #fee500;
   color: #1a1a1a;
 }
 
 .social-btn--naver {
-  background: #03C75A;
+  background: #03c75a;
   color: #fff;
 }
 
@@ -257,7 +257,30 @@
 }
 
 .login-find a:hover {
-  color: #0F2854;
+  color: #0f2854;
+}
+
+.admin-signup-entry {
+  margin-top: 28px;
+  padding-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border-top: 1px solid #edf0f4;
+  color: #8791a0;
+  font-size: 0.76rem;
+}
+
+.admin-signup-entry svg {
+  color: #5a5dbd;
+}
+.admin-signup-entry a {
+  margin-left: 3px;
+  color: #4f52b2;
+  font-weight: 750;
+}
+.admin-signup-entry a:hover {
+  text-decoration: underline;
 }
 
 .login-find-divider {
